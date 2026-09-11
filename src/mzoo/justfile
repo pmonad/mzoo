@@ -1,0 +1,13 @@
+# invoke from repo root: just src/mzoo/ <recipe>
+
+[no-cd]
+pt *args:
+    uv run python -m mzoo.pt {{args}}
+
+[no-cd]
+data *args:
+    uv run python -m mzoo.data {{args}}
+
+[no-cd]
+test *args:
+    uv run pytest src/mzoo {{args}}
