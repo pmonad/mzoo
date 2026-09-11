@@ -13,15 +13,17 @@ import os
 import fire
 from transformers import TrainingArguments
 
-from mzoo import data
-from mzoo.paths import run_dir
-from mzoo.precision import keep_fp32
-from mzoo.trainer import Trainer
+from mzoo.data_utils import data
+from mzoo.train.paths import run_dir
+from mzoo.train.precision import keep_fp32
+from mzoo.train.trainer import TimedCheckpoint, Trainer
 
 TRAIN_FIELDS = {f.name for f in dataclasses.fields(TrainingArguments)}
 
 
-def main(arch="dense", proj=None, exp="scratch", run=None, data_path=data.DATA, eval_samples=256, **kwargs):
+def main(
+    arch="dense", proj=None, exp="scratch", run=None, data_path=data.DATA, eval_samples=256, ckpt_minutes=None, **kwargs
+):
     os.environ.setdefault("WANDB_PROJECT", "mzoo")
     train_kw = {k: v for k, v in kwargs.items() if k in TRAIN_FIELDS}
     arch_kw = {k: v for k, v in kwargs.items() if k not in TRAIN_FIELDS}
@@ -52,7 +54,7 @@ def main(arch="dense", proj=None, exp="scratch", run=None, data_path=data.DATA, 
         logging_steps=10,
         eval_strategy="steps",
         eval_steps=50,
-        save_strategy="no",
+        save_strategy="no",  # TimedCheckpoint saves at the end (and every ckpt_minutes if set)
         report_to="wandb",
         disable_tqdm=True,
     )
@@ -64,6 +66,7 @@ def main(arch="dense", proj=None, exp="scratch", run=None, data_path=data.DATA, 
         train_dataset=ds["train"],
         eval_dataset=ds["validation"].select(range(eval_samples)),
         data_collator=data.collate,
+        callbacks=[TimedCheckpoint(ckpt_minutes)],
     )
     return trainer.train().metrics
 

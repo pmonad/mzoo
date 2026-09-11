@@ -1,6 +1,6 @@
 import torch
 
-from mzoo import data
+from mzoo.data_utils import data
 
 
 def test_load_train_and_validation(tiny_data_path):

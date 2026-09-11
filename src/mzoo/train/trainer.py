@@ -1,7 +1,23 @@
 """Trainer that also logs MoE router stats (aux loss, per-layer expert load) when present."""
 
+import time
+
 import torch
 import transformers
+
+
+class TimedCheckpoint(transformers.TrainerCallback):
+    """Save a checkpoint at the last step, plus every `minutes` of wall time if set."""
+
+    def __init__(self, minutes=None):
+        self.seconds, self.last = (minutes * 60 if minutes else float("inf")), time.monotonic()
+
+    def on_train_begin(self, args, state, control, **kwargs):
+        self.last = time.monotonic()
+
+    def on_step_end(self, args, state, control, **kwargs):
+        if time.monotonic() - self.last >= self.seconds or state.global_step >= state.max_steps:
+            control.should_save, self.last = True, time.monotonic()
 
 
 class Trainer(transformers.Trainer):
@@ -34,4 +50,17 @@ class Trainer(transformers.Trainer):
                 logs[f"moe/max_load_l{i}"] = max(frac)
                 logs[f"moe/min_load_l{i}"] = min(frac)
             self._aux, self._counts = [], None
+        if "loss" in logs:
+            self._log_router_load(logs)
         super().log(logs, *args, **kwargs)
+
+    @torch.no_grad()
+    def _log_router_load(self, logs):
+        """Routers that count their own load (e.g. archs/nanbeige/moe.py) in a `load_counts` buffer."""
+        for name, m in self.model.named_modules():
+            if hasattr(m, "load_counts") and m.load_counts.sum() > 0:
+                frac = m.load_counts / m.load_counts.sum()
+                layer = name.split("layers.")[-1].split(".")[0]
+                logs[f"moe/max_load_l{layer}"] = frac.max().item()
+                logs[f"moe/min_load_l{layer}"] = frac.min().item()
+                m.load_counts.zero_()

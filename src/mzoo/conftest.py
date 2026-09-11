@@ -1,6 +1,6 @@
 import pytest
 
-from mzoo import data
+from mzoo.data_utils import data
 
 
 @pytest.fixture(scope="module")

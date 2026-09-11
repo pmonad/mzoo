@@ -1,6 +1,6 @@
 from datetime import date
 
-from mzoo.paths import run_dir
+from mzoo.train.paths import run_dir
 
 
 def test_first_call_creates_layout(tmp_path):

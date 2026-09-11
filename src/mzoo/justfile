@@ -2,11 +2,11 @@
 
 [no-cd]
 pt *args:
-    uv run python -m mzoo.pt {{args}}
+    uv run python -m mzoo.train.pt {{args}}
 
 [no-cd]
 data *args:
-    uv run python -m mzoo.data {{args}}
+    uv run python -m mzoo.data_utils.data {{args}}
 
 [no-cd]
 test *args:
