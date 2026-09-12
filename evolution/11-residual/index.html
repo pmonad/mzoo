@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>11. The residual stream - mzoo</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../stylesheets/extra.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "11. The residual stream";
+        var mkdocs_page_input_path = "evolution/11-residual/index.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> mzoo
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption"><span class="caption-text">Evolution</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../index.html">From GPT-2 to DeepSeek-V4.1</a>
+    <ul>
+    <li class="toctree-l2"><a class="reference internal" href="../index.html#how-the-book-is-organised">How the book is organised</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="../index.html#the-reference-model">The reference model</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="../index.html#notation">Notation</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="../index.html#contents">Contents</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../01-gpt2/index.html">1 GPT-2</a>
+    <ul>
+    <li class="toctree-l2"><a class="reference internal" href="../01-gpt2/index.html#where-gpt-2-sits">Where GPT-2 sits</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="../01-gpt2/index.html#input">Input</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="../01-gpt2/index.html#the-block">The block</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="../01-gpt2/index.html#attention">Attention</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="../01-gpt2/index.html#the-feed-forward-sublayer">The feed-forward sublayer</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="../01-gpt2/index.html#the-residual-stream">The residual stream</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="../01-gpt2/index.html#output">Output</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="../01-gpt2/index.html#what-it-costs">What it costs</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="../01-gpt2/index.html#parameters-per-block">Parameters per block</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="../01-gpt2/index.html#arithmetic-per-token">Arithmetic per token</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="../01-gpt2/index.html#cache-bytes-per-token">Cache bytes per token</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="../01-gpt2/index.html#what-the-later-chapters-change">What the later chapters change</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../02-normalisation/index.html">2 Normalisation</a>
+    <ul>
+    <li class="toctree-l2"><a class="reference internal" href="../02-normalisation/index.html#why-normalise">Why normalise</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="../02-normalisation/index.html#layer-normalisation">Layer normalisation</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="../02-normalisation/index.html#what-a-norm-costs-on-the-reference-model">What a norm costs on the reference model</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="../02-normalisation/index.html#rmsnorm">RMSNorm</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="../02-normalisation/index.html#placement">Placement</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="../02-normalisation/index.html#normalising-inside-attention">Normalising inside attention</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="../02-normalisation/index.html#predecessor-batch-normalisation">Predecessor: batch normalisation</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="../02-normalisation/index.html#summary">Summary</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../03-positions/index.html">3 Positions</a>
+    <ul>
+    <li class="toctree-l2"><a class="reference internal" href="../03-positions/index.html#why-a-table-of-positions-fails">Why a table of positions fails</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="../03-positions/index.html#rotary-position-embedding">Rotary position embedding</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="../03-positions/index.html#the-frequency-spectrum-on-the-reference-model">The frequency spectrum on the reference model</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="../03-positions/index.html#partial-rotation">Partial rotation</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="../03-positions/index.html#extending-the-context">Extending the context</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="../03-positions/index.html#two-bases-in-one-model">Two bases in one model</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="../03-positions/index.html#position-in-recent-models">Position in recent models</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../04-feed-forward/index.html">4 Feed-forward</a>
+    <ul>
+    <li class="toctree-l2"><a class="reference internal" href="../04-feed-forward/index.html#the-ungated-mlp">The ungated MLP</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="../04-feed-forward/index.html#swiglu">SwiGLU</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="../04-feed-forward/index.html#the-parameter-match-on-the-reference-model">The parameter match on the reference model</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="../04-feed-forward/index.html#the-mlp-as-a-memory">The MLP as a memory</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="../04-feed-forward/index.html#in-deepseek">In DeepSeek</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../05-kv-cache/index.html">5 KV cache</a>
+    <ul>
+    <li class="toctree-l2"><a class="reference internal" href="../05-kv-cache/index.html#why-generation-is-different-from-training">Why generation is different from training</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="../05-kv-cache/index.html#how-large-it-is">How large it is</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="../05-kv-cache/index.html#prefill-and-decode">Prefill and decode</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="../05-kv-cache/index.html#why-the-cache-sets-throughput">Why the cache sets throughput</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="../05-kv-cache/index.html#where-the-cache-lives">Where the cache lives</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="../05-kv-cache/index.html#sharing-keys-and-values-across-heads">Sharing keys and values across heads</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="../05-kv-cache/index.html#multi-query-attention">Multi-query attention</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="../05-kv-cache/index.html#grouped-query-attention">Grouped-query attention</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="../05-kv-cache/index.html#what-the-2026-models-do">What the 2026 models do</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="../05-kv-cache/index.html#where-this-leads">Where this leads</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >6 Mixture of experts</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../06-moe/index.html">6. Mixture of experts</a>
+    <ul>
+    <li class="toctree-l3"><a class="reference internal" href="../06-moe/index.html#where-the-parameters-are">Where the parameters are</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="../06-moe/index.html#why-the-feed-forward-layer-is-where-the-two-can-be-separated">Why the feed-forward layer is where the two can be separated</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="../06-moe/index.html#conditional-computation-before-the-transformer">Conditional computation before the transformer</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="../06-moe/index.html#routed-experts">Routed experts</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="../06-moe/index.html#what-it-buys-on-the-reference-model">What it buys on the reference model</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="../06-moe/index.html#grouping-the-tokens-by-expert">Grouping the tokens by expert</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="../06-moe/index.html#expert-parallelism-and-the-all-to-all">Expert parallelism and the all-to-all</a>
+    </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../06-moe/routing.html">Routing</a>
+    <ul>
+    <li class="toctree-l3"><a class="reference internal" href="../06-moe/routing.html#what-the-router-has-to-be">What the router has to be</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="../06-moe/routing.html#why-the-gradient-only-reaches-the-chosen-experts">Why the gradient only reaches the chosen experts</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="../06-moe/routing.html#choosing-the-score-function">Choosing the score function</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="../06-moe/routing.html#the-scaling-factor">The scaling factor</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="../06-moe/routing.html#what-the-2026-models-do">What the 2026 models do</a>
+    </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../06-moe/experts.html">Fine-grained and shared experts</a>
+    <ul>
+    <li class="toctree-l3"><a class="reference internal" href="../06-moe/experts.html#fine-grained-experts">Fine-grained experts</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="../06-moe/experts.html#shared-experts">Shared experts</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="../06-moe/experts.html#which-layers-are-mixtures">Which layers are mixtures</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="../06-moe/experts.html#what-experts-specialise-on">What experts specialise on</a>
+    </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../06-moe/balancing.html">Load balancing</a>
+    <ul>
+    <li class="toctree-l3"><a class="reference internal" href="../06-moe/balancing.html#why-routers-collapse">Why routers collapse</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="../06-moe/balancing.html#what-imbalance-costs-at-run-time">What imbalance costs at run time</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="../06-moe/balancing.html#the-auxiliary-loss">The auxiliary loss</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="../06-moe/balancing.html#auxiliary-loss-free-balancing">Auxiliary-loss-free balancing</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="../06-moe/balancing.html#the-gap-in-owlet1">The gap in owlet1</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="../06-moe/balancing.html#what-the-2026-models-do">What the 2026 models do</a>
+    </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >7 Low-rank attention</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../07-low-rank-attention/index.html">7. Low-rank attention</a>
+    <ul>
+    <li class="toctree-l3"><a class="reference internal" href="../07-low-rank-attention/index.html#the-keys-and-values-of-one-token-are-not-independent">The keys and values of one token are not independent</a>
+    </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../07-low-rank-attention/mla.html">MLA</a>
+    <ul>
+    <li class="toctree-l3"><a class="reference internal" href="../07-low-rank-attention/mla.html#compress-then-expand">Compress, then expand</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="../07-low-rank-attention/mla.html#why-rope-has-to-be-decoupled">Why RoPE has to be decoupled</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="../07-low-rank-attention/mla.html#weight-absorption">Weight absorption</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="../07-low-rank-attention/mla.html#the-cache-on-the-ledger">The cache on the ledger</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="../07-low-rank-attention/mla.html#what-it-costs">What it costs</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="../07-low-rank-attention/mla.html#what-the-2026-models-do">What the 2026 models do</a>
+    </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../07-low-rank-attention/shared-latent.html">Single shared latent</a>
+    <ul>
+    <li class="toctree-l3"><a class="reference internal" href="../07-low-rank-attention/shared-latent.html#from-mla-to-v4">From MLA to V4</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="../07-low-rank-attention/shared-latent.html#position-with-a-shared-latent">Position with a shared latent</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="../07-low-rank-attention/shared-latent.html#a-per-head-sink">A per-head sink</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="../07-low-rank-attention/shared-latent.html#the-grouped-output-projection">The grouped output projection</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="../07-low-rank-attention/shared-latent.html#cache-cost">Cache cost</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="../07-low-rank-attention/shared-latent.html#where-this-leads">Where this leads</a>
+    </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../08-local-attention/index.html">8 Local attention</a>
+    <ul>
+    <li class="toctree-l2"><a class="reference internal" href="../08-local-attention/index.html#storing-less-and-reading-less">Storing less and reading less</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="../08-local-attention/index.html#what-attention-costs-at-131072-tokens">What attention costs at 131072 tokens</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="../08-local-attention/index.html#what-flashattention-did-and-did-not-change">What FlashAttention did and did not change</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="../08-local-attention/index.html#fixed-sparse-patterns">Fixed sparse patterns</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="../08-local-attention/index.html#attending-to-a-window-of-the-recent-past">Attending to a window of the recent past</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="../08-local-attention/index.html#attention-sinks">Attention sinks</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="../08-local-attention/index.html#hybrid-schedules">Hybrid schedules</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="../08-local-attention/index.html#what-the-2026-models-do">What the 2026 models do</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="../08-local-attention/index.html#where-this-leads">Where this leads</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >9 Compressed attention</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../09-compressed-attention/index.html">9. Compressed shared attention</a>
+    <ul>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../09-compressed-attention/compressor.html">Compressor</a>
+    <ul>
+    <li class="toctree-l3"><a class="reference internal" href="../09-compressed-attention/compressor.html#pooling-a-group-into-one-latent">Pooling a group into one latent</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="../09-compressed-attention/compressor.html#why-the-normalisation-is-there">Why the normalisation is there</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="../09-compressed-attention/compressor.html#positions-and-the-key-set">Positions and the key set</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="../09-compressed-attention/compressor.html#why-coarse-entries-are-enough-for-most-positions">Why coarse entries are enough for most positions</a>
+    </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../09-compressed-attention/sharing.html">Sharing across layers</a>
+    <ul>
+    <li class="toctree-l3"><a class="reference internal" href="../09-compressed-attention/sharing.html#source-and-reuse">Source and reuse</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="../09-compressed-attention/sharing.html#what-is-and-is-not-shared">What is and is not shared</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="../09-compressed-attention/sharing.html#the-ledger">The ledger</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="../09-compressed-attention/sharing.html#in-owlet1">In owlet1</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="../09-compressed-attention/sharing.html#where-this-leads">Where this leads</a>
+    </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >10 Sparse selection</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../10-sparse-selection/index.html">10. Sparse selection</a>
+    <ul>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../10-sparse-selection/indexer.html">Indexer</a>
+    <ul>
+    <li class="toctree-l3"><a class="reference internal" href="../10-sparse-selection/indexer.html#building-the-score">Building the score</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="../10-sparse-selection/indexer.html#from-scores-to-a-mask">From scores to a mask</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="../10-sparse-selection/indexer.html#cost">Cost</a>
+    </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../10-sparse-selection/hierarchical.html">Hierarchical selection</a>
+    <ul>
+    <li class="toctree-l3"><a class="reference internal" href="../10-sparse-selection/hierarchical.html#two-levels">Two levels</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="../10-sparse-selection/hierarchical.html#where-the-saving-is">Where the saving is</a>
+    </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../10-sparse-selection/training.html">Training the indexer</a>
+    <ul>
+    <li class="toctree-l3"><a class="reference internal" href="../10-sparse-selection/training.html#why-a-hard-top-k-has-no-gradient">Why a hard top-k has no gradient</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="../10-sparse-selection/training.html#distilling-the-indexer-from-dense-attention">Distilling the indexer from dense attention</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="../10-sparse-selection/training.html#what-the-v41-report-says">What the V4.1 report says</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="../10-sparse-selection/training.html#what-the-2026-models-do">What the 2026 models do</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="../10-sparse-selection/training.html#where-this-leads">Where this leads</a>
+    </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" >11 Residual stream</a>
+    <ul class="current">
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">11. The residual stream</a>
+    <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#where-the-residual-came-from">Where the residual came from</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#two-weaknesses-of-a-single-residual">Two weaknesses of a single residual</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#what-several-streams-cost">What several streams cost</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#how-the-three-sections-fit">How the three sections fit</a>
+    </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="hyper-connections.html">Hyper-connections</a>
+    <ul>
+    <li class="toctree-l3"><a class="reference internal" href="hyper-connections.html#the-state-and-its-boundaries">The state and its boundaries</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="hyper-connections.html#read-compute-write">Read, compute, write</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="hyper-connections.html#coefficients-predicted-per-token">Coefficients predicted per token</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="hyper-connections.html#why-the-unconstrained-form-is-fragile">Why the unconstrained form is fragile</a>
+    </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="mhc.html">mHC</a>
+    <ul>
+    <li class="toctree-l3"><a class="reference internal" href="mhc.html#the-set-the-matrix-is-projected-onto">The set the matrix is projected onto</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="mhc.html#sinkhorns-algorithm-in-words">Sinkhorn's algorithm in words</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="mhc.html#what-the-constraint-guarantees">What the constraint guarantees</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="mhc.html#what-it-costs">What it costs</a>
+    </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="single-pass.html">Single-pass mHC</a>
+    <ul>
+    <li class="toctree-l3"><a class="reference internal" href="single-pass.html#the-problem-mhc-introduced">The problem mHC introduced</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="single-pass.html#the-shift">The shift</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="single-pass.html#what-the-lag-costs">What the lag costs</a>
+    </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >12 Numerics</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../12-numerics/index.html">12. Numerics</a>
+    <ul>
+    <li class="toctree-l3"><a class="reference internal" href="../12-numerics/index.html#the-ledger-line">The ledger line</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="../12-numerics/index.html#where-numbers-of-different-kinds-live">Where numbers of different kinds live</a>
+    </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../12-numerics/fp8.html">bf16 and FP8</a>
+    <ul>
+    <li class="toctree-l3"><a class="reference internal" href="../12-numerics/fp8.html#how-a-floating-point-format-is-laid-out">How a floating-point format is laid out</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="../12-numerics/fp8.html#bf16">bf16</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="../12-numerics/fp8.html#what-a-tensor-core-accelerates">What a tensor core accelerates</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="../12-numerics/fp8.html#fp8">FP8</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="../12-numerics/fp8.html#scale-formats">Scale formats</a>
+    </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../12-numerics/fp4.html">FP4</a>
+    <ul>
+    <li class="toctree-l3"><a class="reference internal" href="../12-numerics/fp4.html#the-grid">The grid</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="../12-numerics/fp4.html#why-the-cache-tolerates-four-bits">Why the cache tolerates four bits</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="../12-numerics/fp4.html#the-two-places-v41-uses-it">The two places V4.1 uses it</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="../12-numerics/fp4.html#effect-on-the-cache">Effect on the cache</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="../12-numerics/fp4.html#in-owlet1">In owlet1</a>
+    </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../12-numerics/ste.html">Gradients through quantisation</a>
+    <ul>
+    <li class="toctree-l3"><a class="reference internal" href="../12-numerics/ste.html#rounding-has-no-useful-derivative">Rounding has no useful derivative</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="../12-numerics/ste.html#the-straight-through-estimator">The straight-through estimator</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="../12-numerics/ste.html#quantisation-aware-training">Quantisation-aware training</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="../12-numerics/ste.html#the-owlet1-gap">The owlet1 gap</a>
+    </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../13-engram/index.html">13 Engram</a>
+    <ul>
+    <li class="toctree-l2"><a class="reference internal" href="../13-engram/index.html#computed-recall-against-stored-recall">Computed recall against stored recall</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="../13-engram/index.html#hashed-n-gram-lookup">Hashed n-gram lookup</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="../13-engram/index.html#reading-the-table-into-the-residual">Reading the table into the residual</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="../13-engram/index.html#cost">Cost</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="../13-engram/index.html#run-time-and-stored-n-gram-statistics">Run-time and stored n-gram statistics</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../14-beyond-the-block/index.html">14 Beyond the block</a>
+    <ul>
+    <li class="toctree-l2"><a class="reference internal" href="../14-beyond-the-block/index.html#multi-token-prediction">Multi-token prediction</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="../14-beyond-the-block/index.html#dspark">DSpark</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="../14-beyond-the-block/index.html#encoder-decoder-split">Encoder-decoder split</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../15-assembly/index.html">15 Assembly</a>
+    <ul>
+    <li class="toctree-l2"><a class="reference internal" href="../15-assembly/index.html#reading-the-block">Reading the block</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="../15-assembly/index.html#what-changed-since-gpt-2">What changed since GPT-2</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="../15-assembly/index.html#the-running-ledger">The running ledger</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="../15-assembly/index.html#where-each-piece-lives-in-owlet1">Where each piece lives in owlet1</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="../15-assembly/index.html#a-reading-order-for-the-code">A reading order for the code</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="../15-assembly/index.html#what-this-book-did-not-cover">What this book did not cover</a>
+    </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">mzoo</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Evolution</li>
+          <li class="breadcrumb-item">11 Residual stream</li>
+      <li class="breadcrumb-item active">11. The residual stream</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="11-the-residual-stream">11. The residual stream<a class="headerlink" href="#11-the-residual-stream" title="Permanent link">&para;</a></h1>
+<p>Every chapter so far has changed a sublayer. Chapters 2 to 4 changed how a block normalises its
+input, how it encodes position and how its feed-forward layer is shaped. Chapters 5 to 10 changed
+what attention stores and what it reads, and chapter 6 changed how much of the feed-forward layer
+runs for a given token. In all of them the frame around the sublayers is the frame GPT-2 used. The
+connection between sublayers, <span class="arithmatex">\(x \leftarrow x + f(x)\)</span>, is unchanged since 2015. This chapter changes
+it.</p>
+<h2 id="where-the-residual-came-from">Where the residual came from<a class="headerlink" href="#where-the-residual-came-from" title="Permanent link">&para;</a></h2>
+<p>The residual connection was introduced for convolutional networks by He et al. 2015, "Deep Residual
+Learning for Image Recognition". The problem it solved was optimisation rather than capacity. Plain
+networks past a few tens of layers trained to a worse training loss than shallower ones, even though
+a deeper network can represent everything a shallower one can by making the extra layers the
+identity. Writing each layer as an identity path plus a learned correction makes that identity the
+default rather than something the layer has to discover. It also gives the gradient a path from the
+loss to every earlier layer that passes through no weight matrix, so the gradient reaching layer one
+does not shrink with the number of layers above it. He et al. 2016, "Identity Mappings in Deep
+Residual Networks", showed that this depends on the identity path being clean, and that placing any
+scaling or gating on it degrades deep networks. Earlier, Srivastava et al. 2015, "Highway Networks",
+had proposed gated skips of the same shape, and Veit et al. 2016, "Residual Networks Behave Like
+Ensembles of Relatively Shallow Networks", showed that a residual network of <span class="arithmatex">\(L\)</span> layers behaves like
+a collection of <span class="arithmatex">\(2^L\)</span> paths of varying length, most of them short.</p>
+<p>Vaswani et al. 2017, "Attention Is All You Need", wrapped each transformer sublayer in the same
+connection, with a LayerNorm after the addition. Chapter 2 covered the move of that norm to the
+input of the sublayer, which Xiong et al. 2020, "On Layer Normalization in the Transformer
+Architecture", justified by showing that the pre-norm arrangement keeps gradient magnitudes stable
+across depth and removes the need for a learning-rate warmup. Every model in this book uses the
+pre-norm form. Nothing after that changed the connection itself.</p>
+<h2 id="two-weaknesses-of-a-single-residual">Two weaknesses of a single residual<a class="headerlink" href="#two-weaknesses-of-a-single-residual" title="Permanent link">&para;</a></h2>
+<p>The first weakness is a consequence of the pre-norm arrangement. The normalisation sits on the
+sublayer's input, so the sublayer's output has a size set by its own weights and not by the size of
+the stream it is added to. The stream therefore accumulates. If successive sublayer outputs were
+uncorrelated and of comparable size, the variance of the stream would grow in proportion to the
+number of writes, and its norm in proportion to the square root of that number. Write number <span class="arithmatex">\(\ell\)</span>
+would then be about <span class="arithmatex">\(1/\sqrt{\ell}\)</span> of the stream it joins. On the reference model, with <span class="arithmatex">\(L = 80\)</span>
+blocks and two sublayers in each, the last of the 160 writes would be about 8 percent of the state
+it is added to, and the first would be all of it. Deep layers have less influence on the final
+prediction than shallow ones, and the effective depth of the network is smaller than its nominal
+depth.</p>
+<p>Several fixes for this have been proposed, all of which keep one stream and rescale the branch that
+writes into it. Bachlechner et al. 2020, "ReZero is All You Need: Fast Convergence at Large Depth",
+put a single learned scalar initialised at zero on each residual branch, so training begins from the
+identity network. Touvron et al. 2021, "Going deeper with Image Transformers", used a learned
+per-dimension scale initialised near zero for the same purpose. Wang et al. 2022, "DeepNet: Scaling
+Transformers to 1,000 Layers", multiplies the stream rather than the branch by a constant chosen
+from the depth, and reaches 1000 layers with a post-norm block. These control how large each write
+is relative to the stream. None of them changes the fact that there is one stream.</p>
+<p>The second weakness is that a layer has exactly one view of the past. It reads the vector it writes
+to. A feature written near the input can reach a layer near the output only through a stream that
+every intervening layer has also written into, and a layer has no way to read one combination of the
+past while writing into another. Nothing forces an intervening layer to preserve what it does not
+use.</p>
+<h2 id="what-several-streams-cost">What several streams cost<a class="headerlink" href="#what-several-streams-cost" title="Permanent link">&para;</a></h2>
+<p>The change in this chapter is to carry <span class="arithmatex">\(n\)</span> residual vectors instead of one. Widening the residual is
+not free, but what it costs is activation memory rather than arithmetic. With <span class="arithmatex">\(n = 4\)</span> streams the
+residual state of one token grows from <span class="arithmatex">\(D = 8192\)</span> elements to <span class="arithmatex">\(n D = 32768\)</span> elements, which is 16 KB
+against 64 KB in bf16. Training keeps that state at every site for the backward pass, so across the
+80 blocks the residual activations of one token grow from about 1.3 MB to about 5.2 MB, and one
+training sequence of 4096 tokens holds about 21 GB of them in place of about 5.4 GB. At decode only
+one state per sequence is live, so 64 KB is small next to the cache figures of chapter 5, and this
+chapter does not change the cache at all.</p>
+<p>The sublayers themselves are untouched. Attention and the feed-forward layer still receive one
+<span class="arithmatex">\(D\)</span>-vector and still return one <span class="arithmatex">\(D\)</span>-vector, so their parameter counts and their FLOPs per token are
+exactly those of the previous chapters. The added arithmetic is the read, the write and the mixing
+of the streams, all of which are <span class="arithmatex">\(O(nD)\)</span> per site. That is about 32768 multiply-accumulate
+operations against the 268 million of the attention projections in the same block.</p>
+<h2 id="how-the-three-sections-fit">How the three sections fit<a class="headerlink" href="#how-the-three-sections-fit" title="Permanent link">&para;</a></h2>
+<p>The first section builds the mechanism, with <span class="arithmatex">\(n\)</span> streams, learned read weights, learned write
+weights and a learned mixing matrix. The second constrains the mixing matrix, because the
+unconstrained form amplifies or extinguishes streams over 80 blocks and was found to be fragile at
+scale. The third removes a serial dependency that the constrained form introduces between the
+coefficient computation and the sublayer, which is what makes it usable in a production training
+run.</p>
+<ul>
+<li><a href="hyper-connections.html">Hyper-connections</a>: several residual streams with learned read and write weights.</li>
+<li><a href="mhc.html">Manifold-constrained hyper-connections</a>: constraining the mixing so the streams stay bounded.</li>
+<li><a href="single-pass.html">Single-pass mHC</a>: removing the serial dependency that mHC adds.</li>
+</ul>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../10-sparse-selection/training.html" class="btn btn-neutral float-left" title="Training the indexer"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="hyper-connections.html" class="btn btn-neutral float-right" title="Hyper-connections">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../10-sparse-selection/training.html" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="hyper-connections.html" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../javascripts/mathjax.js"></script>
+      <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
+      <script src="../../javascripts/sidebar-resize.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,38 @@
+:root {
+  --sidebar-width: 300px;
+}
+
+.wy-nav-content {
+  max-width: none;
+}
+
+@media (min-width: 769px) {
+  .wy-nav-side,
+  .wy-side-scroll {
+    width: var(--sidebar-width);
+  }
+
+  .wy-nav-content-wrap {
+    margin-left: var(--sidebar-width);
+  }
+
+  .wy-side-nav-search,
+  .wy-menu-vertical {
+    width: auto;
+  }
+
+  #sidebar-resizer {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    width: 6px;
+    cursor: col-resize;
+    z-index: 1000;
+    background: transparent;
+  }
+
+  #sidebar-resizer:hover,
+  #sidebar-resizer.dragging {
+    background: rgba(0, 0, 0, 0.15);
+  }
+}
