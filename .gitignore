@@ -4,3 +4,4 @@ __pycache__/
 runs/
 wandb/
 .pytest_cache/
+.env

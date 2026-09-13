@@ -1,8 +1,11 @@
 # invoke from repo root: just src/mzoo/kernels/ <recipe>
-
-# tilelang needs a CUDA 13 nvcc for sm121 (/usr/bin/nvcc is 12.0)
-export CUDA_HOME := env("CUDA_HOME", "/usr/local/cuda-13.0")
+# needs CUDA 13 nvcc for sm121 (/usr/bin/nvcc is 12.0): set CUDA_HOME in repo-root .env
 
 [no-cd]
 test *args:
-    uv run pytest src/mzoo/kernels {{args}}
+    uv run --env-file .env pytest src/mzoo/kernels {{args}}
+
+# NVFP4 tensor-core GEMM on the GPU, checked against reference
+[no-cd]
+smoke *args:
+    uv run --env-file .env python src/mzoo/kernels/sm120_nvfp4_blockscaled_gemm.py --verify {{args}}

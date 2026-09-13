@@ -9,7 +9,8 @@ standards
 - fire for simple cli and huggingface args large list. 
 - reuse existing huggingface ecosystem as much as possible
 - prefer gpu for torch tests
-- always use uv run
+- always use `uv run --env-file .env` (machine-specific env like CUDA_HOME lives in gitignored repo-root .env)
+- source builds: clone into ~/git/<org>/<proj>, checkout the required tag, install editable
 - use justfiles(minimal cmd) and define at source folder. but they will always be invoked from repo root `just path/to/folder <cmd>` so assume that to be cwd and adjust justfile accordingly
 
 goal:
