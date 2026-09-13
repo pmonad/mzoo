@@ -2,13 +2,19 @@ site_name: mzoo
 site_url: https://pmonad.github.io/mzoo/
 docs_dir: docs
 site_dir: site
+exclude_docs: README.md
 use_directory_urls: false
 theme:
   name: readthedocs
   navigation_depth: 3
   collapse_navigation: false
   titles_only: false
+plugins:
+  - search
+  - bibtex:
+      bib_file: docs/references.bib
 markdown_extensions:
+  - footnotes
   - pymdownx.arithmatex:
       generic: true
   - tables

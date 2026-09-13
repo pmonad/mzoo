@@ -36,3 +36,47 @@
     background: rgba(0, 0, 0, 0.15);
   }
 }
+
+@media print {
+  .wy-nav-side,
+  .wy-nav-top,
+  #sidebar-resizer,
+  .wy-breadcrumbs-aside a,
+  .rst-footer-buttons {
+    display: none !important;
+  }
+
+  .wy-nav-content-wrap {
+    margin-left: 0 !important;
+  }
+
+  .wy-nav-content {
+    max-width: none !important;
+    margin: 0 !important;
+  }
+
+  html,
+  body {
+    background: #fff !important;
+    font-size: 9pt !important;
+    line-height: 1.3 !important;
+  }
+
+  .wy-nav-content,
+  .rst-content,
+  .rst-content p,
+  .rst-content li,
+  .rst-content td,
+  .rst-content th {
+    font-size: 9pt !important;
+  }
+
+  h1, h2, h3, h4 {
+    font-size: 1.15em !important;
+    line-height: 1.25 !important;
+  }
+
+  mjx-container {
+    font-size: 100% !important;
+  }
+}

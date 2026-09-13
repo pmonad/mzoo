@@ -21,43 +21,108 @@ Class names stay `DeepseekV41*` so `diff -r ../dsv4 .` stays clean. A ~28.5M-par
 | `attention.py` | CSA2 block: low-rank Q, shared K=V latent, per-head sink, grouped output | [attention.md](attention.md) |
 | `moe.py` | `sqrtsoftplus` / `noaux_tc` router, SwiGLU expert, shared+routed block | [moe.md](moe.md) |
 | `engram.py` | n-gram hash conditional memory (disabled: `engram_layer_ids=[]`) | [engram.md](engram.md) |
-| `decoder.py` | mHC residual, decoder layer, text backbone, causal-LM head + loss | [decoder.md](decoder.md) |
+| `decoder.py` | mHC residual, decoder layer, text backbone, causal-LM head + loss | [decoder.md](decoder.md), [mHC.md](mHC.md) |
 
 ## Forward flow
 
-`[B, S, hc, D]` = `[8, 512, 4, 256]`; `H=4`, `head_dim d=64`, `V=32000`.
+Notation: $B=8$, $S=512$, $D=256$, $hc=4$ streams, $H=4$ heads of width $d=64$, $V=32000$. Equations are
+written for one token position; the batch and sequence axes are omitted. The residual state of a token
+is a matrix $X \in \mathbb{R}^{hc \times D}$ whose rows $x_1, \dots, x_4$ are the four hyper-connection
+streams, stored as `[B, S, hc, D]`. The components (attention, MoE, norms, quantisation) are documented
+in their own `.md` files; this section follows the data through them. The read and write operations
+used below are defined in [mHC.md](mHC.md).
 
-```
-input_ids [B,S] ──embed──> e [B,S,D] ──broadcast──> streams [B,S,4,256]   (all 4 copies = e)
-                                                     pre_mix = (1,0,0,0)
- for layer 0..5:
-   ┌ engram(streams)                       # None here: engram_layer_ids=[]
-   │ hc_mixes -> attn_pre/post/comb        # comb: Sinkhorn(20 it) doubly-stochastic [B,S,4,4]
-   │ collapsed = Σ_k pre_mix_k·stream_k    # [B,S,256]   <- previous SITE's pre
-   │ attn_out  = attention(attn_norm(collapsed))        # [B,S,256]
-   │ streams   = post·attn_out + comb ᵀ· residual       # expand, [B,S,4,256]
-   │ hc_mixes -> ffn_pre/post/comb
-   │ collapsed = Σ_k attn_pre_k·stream_k
-   │ ffn_out   = MoE(ffn_norm(collapsed))               # 1 shared + top-2-of-8 routed
-   └ streams   = post·ffn_out + combᵀ·residual;  carry ffn_pre to the next layer
- last_hidden = RMSNorm(Σ_k ffn_pre_k·stream_k)          # [B,S,256]
- logits = lm_head(last_hidden).float()                  # [B,S,32000], weight tied to embed
- loss   = cross_entropy(shift(logits), labels)          # plain CE, nothing else
-```
+### 1. Input
 
-The `pre` a site computes is consumed by the **next** site — the one-block shift of Single-Pass mHC
-(§2.4.1 eq. 6), generalised to two mHC sites per block. `post`/`comb` are used in place.
+$$
+e = E[\text{input\_id}] \in \mathbb{R}^{D}, \qquad
+X^{(0)} = \begin{bmatrix} e \\ e \\ e \\ e \end{bmatrix} \in \mathbb{R}^{hc \times D}, \qquad
+\mathbf{p}^{(0)} = (1, 0, 0, 0).
+$$
 
-### mHC streams
+Two objects enter block 0: the residual state $X^{(0)}$ and a read vector $\mathbf{p}^{(0)}$. A sublayer
+never receives $X$ directly. It receives the weighted sum $\sum_k p_k\, x_k \in \mathbb{R}^{D}$, and
+$\mathbf{p}$ is the weight vector for that sum. Every later read vector is computed by the network; the
+first one is fixed to select stream 0. Since all four rows equal $e$ at this point, the value read is $e$
+regardless of the choice.
 
-```
-        stream 0  stream 1  stream 2  stream 3
-          │         │         │         │
-  collapse└───── Σ pre_k ─────┴─────────┘  ──> [B,S,256] one sublayer input
-                        f(·)
-  expand  ┌─────────────┴───────────────┐   out_k = post_k·f(x) + Σ_j comb[j,k]·residual_j
-          ▼         ▼         ▼         ▼   (comb columns sum to 1 ⇒ convex mix of streams)
-```
+### 2. One block
+
+Block $\ell$ receives $(X, \mathbf{p}_{\text{in}})$ and returns $(X, \mathbf{p}_{\text{out}})$. It contains
+two sublayers, attention then MoE, each wrapped in the same read / sublayer / write pattern. The
+coefficients $(\mathbf{p}, \mathbf{q}, C)$ of a site are computed from $X$ at the start of the site;
+$\mathbf{q}$ and $C$ are used by that site's write, while $\mathbf{p}$ is passed on as the read vector of
+the *next* site.
+
+$$
+\begin{aligned}
+&\textbf{attention site} \\
+(\mathbf{p}_a, \mathbf{q}_a, C_a) &= \operatorname{mix}_{a}(X) \\
+u &= \mathbf{p}_{\text{in}}^{\top} X &&\in \mathbb{R}^{D} \quad \text{read with the incoming vector} \\
+y &= \operatorname{Attn}_\ell\!\big(\operatorname{RMSNorm}(u)\big) &&\in \mathbb{R}^{D} \\
+X &\leftarrow \mathbf{q}_a\, y^{\top} + C_a^{\top} X &&\in \mathbb{R}^{hc \times D} \quad \text{write} \\[6pt]
+&\textbf{MoE site} \\
+(\mathbf{p}_f, \mathbf{q}_f, C_f) &= \operatorname{mix}_{f}(X) \\
+u &= \mathbf{p}_a^{\top} X &&\quad \text{read with the attention site's vector} \\
+y &= \operatorname{MoE}_\ell\!\big(\operatorname{RMSNorm}(u)\big) \\
+X &\leftarrow \mathbf{q}_f\, y^{\top} + C_f^{\top} X \\[6pt]
+\mathbf{p}_{\text{out}} &= \mathbf{p}_f &&\quad \text{read vector for block } \ell + 1
+\end{aligned}
+$$
+
+The read vector used by a sublayer is always the one produced one site earlier. This is the
+single-pass form of mHC (§2.4.1 eq. 6); the reason for the delay and the properties of
+$\mathbf{q}$ and $C$ are covered in [mHC.md](mHC.md). $\operatorname{Attn}_\ell$ is a CSA2 layer whose
+key/value set depends on $\ell$ (next section). $\operatorname{MoE}_\ell$ is one shared expert plus
+two of eight routed experts, with no auxiliary loss ([moe.md](moe.md)). The engram lookup that would
+precede the attention site is disabled (`engram_layer_ids=[]`).
+
+### 3. Across the six blocks
+
+Per token, $(X, \mathbf{p})$ is the only state carried from block to block. In addition, a dictionary
+`shared`, created once per forward pass, carries key/value tables between attention layers. This is
+how CSA2 groups layers: a *source* layer builds a compressed key/value table from its own input and stores it;
+the layers after it in the group read the table instead of building their own.
+
+Let $h_\ell \in \mathbb{R}^{S \times D}$ be the normed input of attention layer $\ell$. Every layer
+projects $h_\ell$ to its own key latent ($K = V$ in CSA2) and attends over it inside a 128-token window,
+$W_\ell$. Source layers additionally compress $h_\ell$ into a table $\hat C_\ell$ and store it in `shared`;
+every layer from the source onward appends the stored tables to its key set:
+
+$$
+\begin{aligned}
+\ell = 0, 1:\quad & \text{keys} = W_\ell \\
+\ell = 2:\quad & \hat C_2 = \operatorname{compress}_{2}(h_2) \in \mathbb{R}^{256 \times d}
+  \;\;\rightarrow\; \texttt{shared}, \qquad \text{keys} = W_2 \oplus \hat C_2 \\
+\ell = 3:\quad & \text{keys} = W_3 \oplus \hat C_2 \\
+\ell = 4:\quad & \hat C_4 = \operatorname{compress}_{1}(h_4) \in \mathbb{R}^{512 \times d}
+  \;\;\rightarrow\; \texttt{shared}, \qquad \text{keys} = W_4 \oplus \hat C_2 \oplus \hat C_4 \\
+\ell = 5:\quad & \text{keys} = W_5 \oplus \hat C_2 \oplus \hat C_4
+\end{aligned}
+$$
+
+$\operatorname{compress}_m$ pools $m$ consecutive positions into one latent, so ratio 2 yields 256
+entries for $S = 512$ and ratio 1 yields 512. The compressed part of the key set is not attended in
+full: the source layer also runs the indexer, which scores each query against the compressed entries
+and publishes a mask selecting the top 64 (`shared["topk_bias"]`); the consuming layers reuse that mask.
+The window part $W_\ell$ is always the layer's own and is never shared. That layer 4 sees both $\hat C_2$
+and $\hat C_4$ is a property of this code path, not of the paper; see [Open issues](#open-issues).
+
+### 4. Output
+
+After block 5 the streams are read one final time, with the read vector produced by the last MoE site,
+then normed and projected with the tied embedding matrix:
+
+$$
+\begin{aligned}
+h &= \operatorname{RMSNorm}\big(\mathbf{p}_{\text{out}}^{(5)\top} X^{(6)}\big) &&\in \mathbb{R}^{D} \\
+z &= E\, h &&\in \mathbb{R}^{V} \quad \text{(fp32)} \\
+\mathcal{L} &= -\frac{1}{N} \sum_{t:\ y_{t+1} \neq -100} \log \operatorname{softmax}(z_t)_{y_{t+1}}
+\end{aligned}
+$$
+
+The loss is next-token cross-entropy only. There is no MoE balance term, no indexer loss and no MTP
+head in this configuration; the gaps are listed under [Paper vs. this code](#paper-vs-this-code).
 
 ### CSA2 layer schedule (6-layer smoke config)
 

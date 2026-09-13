@@ -4,4 +4,9 @@ __pycache__/
 runs/
 wandb/
 .pytest_cache/
+site/
+.uv-cache/
 .env
+*.png
+*.pdf
+src/mzoo/archs/dsv4/paper/
