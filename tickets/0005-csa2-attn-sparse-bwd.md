@@ -1,7 +1,7 @@
 # 0005 csa2_attn: sparse gather backward + autograd
 
-- status: todo
-- depends on: 0004 (`csa2_attn` forward)
+- status: done (2026-09-14): sparse backward + autograd land as 3 kernels (dmain_kv scatter-added out of the dQ kernel); 52 tests pass, fwd+bwd is 2.7-3.0x csa_attn; configs untuned.
+- depends on: 0004 (`csa2_attn` forward, done and independently verified 2026-09-14)
 - package: `src/mzoo/layers/attn/csa2_attn/` (backward half)
 
 ## Goal
@@ -77,3 +77,71 @@ accuracy sections of `csa2_attn/README.md` filled in. Extend `just smoke`.
   H in {4, 64}, and an all-visible-indices case equal to `csa_attn`'s backward bit-for-bit.
   `dsinks` straddles 2x at small B*S in every package; check it at D 64/128 H 16.
 - Keep true `G` and padded `G` as separate constants in every kernel (the csa_attn mask leak).
+
+
+## Result
+
+**What landed.** `bwd_kernels.py` (`preprocess` + the window `dKV` owner, byte-for-byte
+`csa_attn`'s with `csa_attn`'s config), `bwd_dq.py` (the query owner: `dQ` **and** the
+scatter-added `dmain_kv`), `bwd.py` (driver), `attn.py` (autograd, saves exactly
+`q, kv, main_kv, indices, o, lse[, sinks]`), `attn_test.py`, bench rows, README sections.
+`csa_attn`'s fourth kernel (`bwd_main.py`, the group owner) has **no analogue**: a block of
+main entries cannot enumerate the tokens that picked it without an inverse index, so
+`dmain_kv = dS^T Q + P^T dO` is `T.atomic_add`-ed in fp32 into a zeroed `[B, G, D]` buffer
+from inside the query-owning kernel and cast to bf16 in torch.
+
+**Correctness.** `uv run --env-file .env pytest src/mzoo/layers/attn/csa2_attn -q` -> 52
+passed (24 of them new). Reference is autograd through `golden(level="sparse")` fed the same
+index list; every `dq`/`dkv`/`dmain_kv` cell of the D x H matrix is <= 1.00x the bf16
+baseline's error (`dmain_kv` 0.48-0.68, the most accurate column, because it accumulates in
+fp32). `dsinks` straddles 2x at small `B*S` as in every package and is asserted at D 64/128
+H 16 only, with the out-of-band cells reported in the README. Feature-off: all-visible
+indices give `dq`/`dkv`/`dsinks` **bit-for-bit** `csa_attn.bwd` and `dmain_kv` to 7.3e-4
+relative (fp32 summation order); all `-1` gives `dq`/`dkv` bit-for-bit `swa_attn.bwd` and
+`dmain_kv == 0`.
+
+**Bench** (B1 S4096 W128 D128 H64 topk=512, shared GPU, +-5%):
+
+| G | fwd csa/csa2 | bwd csa/csa2 | fwd+bwd csa/csa2 | speedup |
+|---|---|---|---|---|
+| 4096 | 3.42 / 2.17 ms | 16.15 / 4.96 ms | 19.57 / 7.13 ms | **2.74x** |
+| 16384 | 3.46 / 2.20 ms | 18.21 / 5.09 ms | 21.67 / 7.29 ms | **2.97x** |
+
+Split of the 4.96 ms: preprocess 0.67 + window dKV 0.79 + dQ/dmain 3.43. The backward is
+where the gather pays off hardest (3.3-3.6x vs 1.6x in the forward) because `csa_attn` needs
+a whole third GEMM kernel for `dmain_kv`.
+
+**Atomic ablation** (the ticket's open risk). `bwd_dq.py` gained a three-way `scatter` knob:
+`atomic - none` (the whole `dmain_kv` half, GEMMs included) = 1.09-1.13 ms, 32% of the `dQ`
+kernel; `atomic - store` (same addresses, plain store, so only the read-modify-write and the
+contention) = 0.30-0.39 ms, 9-11%. The atomic itself is ~7% of the backward, so the
+owner-kernel-with-inverse-index alternative was **not** built. Matches the `latent_attn`
+finding. Cost: `dmain_kv` is not bitwise reproducible (verified); `dq`/`dkv` are.
+
+**Duplicate indices: a real discrepancy, reported not fixed.** `golden` scatters an
+idempotent `0.0` bias, so a duplicated entry gets one softmax column; the kernel builds one
+column per slot and gives it two. This is a **forward** property (0004, from
+`sparse_mla_fwd.py`) and was not changed. `test_grads_duplicate_indices` pins both sides:
+the kernel matches a reference that clones the duplicated row into a fresh entry (and
+`dmain_kv[0] == dmain_ref[0] + dmain_ref[G]`, which is the scatter-add check the ticket
+asked for), and it is 44x the bf16 noise floor away from plain `golden`. The model's indexer
+emits `torch.topk` output, a set, so duplicates cannot occur on the model path.
+
+**Configs: untuned, no sweep run.** `csa_attn`'s `kv`/`dq` entries verbatim, except three
+values forced rather than chosen: the `dQ` kernel's `block_M` is `T_q * H = 64` rows and its
+`threads` 128 (the per-token gather plus the `tickets/0001` layout-inference limits, exactly
+as in `fwd.py`), and a new `gather_stages` is 1 at D 128/256 because `gather_stages = 2`
+needs 107776 B of smem against the 99 KB cap -- so the backward's gathered loop is serial
+where the forward's is pipelined. `block_N = 32` + pipelined gather fits at D=128 and is the
+first thing for the tuning pass, but it would break the bit-for-bit feature-off equalities.
+
+**Parked.** `docs/evolution/attn/attention-kernels-impl.md` gained "csa2_attn bwd: duplicate
+indices double-count..." and "csa2_attn bwd: the dmain_kv scatter is a third of the dQ
+kernel, but the atomic is a tenth". `tickets/0001-tilelang-issues.md` gained "A bf16 fragment
+cannot feed one `T.gemm` as `A` and another as `A^T`" (`Get different layout for cast`;
+workaround is the upstream template's shared staging tile, which is also what costs the smem
+that forces `gather_stages = 1`).
+
+**Not done / deferred.** No tuning sweep (user decision). `just smoke` not extended and not
+run: only this package changed, and the design doc's Test scope rule says the changed
+package's tests only. No owner-based `dmain_kv` (measured not worth it). No index sorting.

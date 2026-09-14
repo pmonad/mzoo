@@ -22,16 +22,19 @@ only asserted/documented.
 
 **One token per block where possible.** Indices are per token, so a gathered tile serves
 exactly one token's rows. ``block_M = T_q * heads`` is kept general (``csa_attn``'s packed
-rows) but ``T_q`` is chosen as the *smallest* multiple of ``heads`` that is at least 64 rows
-(smaller M fails layout inference, tickets/0001): ``T_q = 1`` at ``H = 64``, 4 at ``H = 16``, 16 at ``H = 4``.
+rows) but ``T_q`` is now the fewest tokens whose ``T_q * heads`` rows reach 64 (a smaller tile
+fails layout inference, ``tickets/0001``): ``T_q = 1`` at ``H = 64``, 4 at ``H = 16``, 16 at
+``H = 4``.
 When ``T_q > 1`` the gathered section is repeated once per token of the block with the rows
 of the other tokens masked off -- correct, and ``T_q`` times the gather work, which only
 happens at head counts the model does not use. Rows that see nothing in a tile are exactly
 the case ``csa_attn``'s ``neg_floor`` rowmax already handles.
 
-``threads=128`` everywhere: ``block_M`` is now 16 or 64 rows and ``threads=256`` needs
-``block_M % 128 == 0`` on this stack (``tickets/0001-tilelang-issues.md``). ``block_N`` and
-``num_stages`` are ``csa_attn``'s, **untuned** (see ``README.md``).
+``block_M = 64`` rows and ``threads=128``: a 16-row tile fails layout inference on this stack
+and ``threads=256`` needs ``block_M % 128 == 0`` (``tickets/0001-tilelang-issues.md``), so both
+of ``csa_attn``'s 256-row / 256-thread choices are out. ``block_N`` and ``num_stages`` are
+``csa_attn``'s, **untuned** (see ``README.md``). The gathered loop *is* pipelined -- its trip
+count is a constant, so ``csa_attn``'s miscompile trigger is absent.
 
 ``topk`` is ``-1``-padded to a multiple of ``block_N`` in the caller; ``G`` needs no
 padding at all any more (rows are addressed one by one), which removes ``csa_attn``'s
@@ -142,8 +145,10 @@ def flashattn(batch, heads, seq_len, dim, groups, topk, window, ratio, is_causal
             if has_main:
                 for ti in T.serial(0, tq):  # one gathered pass per token of the block (tq == 1 usually)
                     tok = bx * tq + ti
-                    # T.serial, not T.Pipelined: inherited from csa_attn's miscompiled second
-                    # source (tickets/0001). See README.md -> Known issues.
+                    # T.Pipelined is safe here (unlike csa_attn's main loop): the trip count is
+                    # the compile-time constant ceil(topk/block_N), so the miscompile trigger --
+                    # a division nested in the bound -- is absent. Verified against golden at
+                    # every tested shape; the fallback is T.serial(0, gather_tiles). See README.
                     for kt in T.Pipelined(0, gather_tiles, num_stages=2):
                         for i, j in T.Parallel(block_N, dim):
                             g = Indices[bz, tok, kt * block_N + i]

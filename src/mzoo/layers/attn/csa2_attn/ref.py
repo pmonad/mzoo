@@ -1,18 +1,24 @@
-"""csa_attn: the torch side of the compressed source.
+"""csa2_attn: the torch side of the gathered compressed source.
 
 There is deliberately **no numeric reference here**: the reference is
-``../golden_ref.py::golden(level="compressed", window=W, main_kv=..., compress_ratio=m)``,
+``../golden_ref.py::golden(level="sparse", window=W, main_kv=..., compress_ratio=m,
+indices=...)`` fed the *same* index list as the kernel,
 verified against the vendored model in ``../golden_ref_test.py``, and
 ``../dense_attn/ref.py::assert_within_2x_torch`` is the acceptance criterion. This
 module holds only what is genuinely csa-specific and torch-side:
 
 **Everything the compressed source needs before the kernel stays in torch** (ticket
-0003 v1): ``DeepseekV41Compressor`` (the fp32 gated softmax pool, or the plain
-per-token projection at ratio 1), the latent-position RoPE at ``first_group_position
-+ ratio * k``, and ``_fake_quant_fp4_block(x, block_size=16, e4m3_scales=True)``. The
-kernel consumes the already-dequantized bf16 ``main_kv [B, G, 1, D]``. Moving the
-dequant in-kernel is ticket 0010; see ``README.md`` -> "Main-cache layout" for the
-byte layout this package fixes.
+0003 v1, unchanged here): ``DeepseekV41Compressor`` (the fp32 gated softmax pool, or
+the plain per-token projection at ratio 1), the latent-position RoPE at
+``first_group_position + ratio * k``, and ``_fake_quant_fp4_block(x, block_size=16,
+e4m3_scales=True)``. The kernel consumes the already-dequantized bf16 ``main_kv
+[B, G, 1, D]``. Moving the dequant in-kernel is ticket 0010; see
+``../csa_attn/README.md`` -> "Main-cache layout" for the byte layout.
+
+**The index list has no torch side here either.** ``indices [B, S, topk]`` is produced
+by ``indexer.attn`` (ticket 0006) or, in a model replay, recovered from the model's own
+``shared["topk_bias"]`` with ``golden_ref_test._mask_to_indices``; both already speak
+the ``-1`` = empty-slot contract the kernel and ``golden`` share.
 
 The one helper below extracts ``(kv, main_kv)`` from a captured model attention call,
 because the model hands ``eager_attention_forward`` the two sources already
