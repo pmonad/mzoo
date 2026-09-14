@@ -58,23 +58,23 @@ of these is also introduced in the chapter where it first matters.
 
 | # | chapter | modifies |
 |---|---|---|
-| 1 | [The reference block: GPT-2](01-gpt2/index.md) | baseline and notation |
-| 2 | [Normalisation](02-normalisation/index.md) | LayerNorm to RMSNorm, placement |
-| 3 | [Positions](03-positions/index.md) | learned embeddings to RoPE |
-| 4 | [Feed-forward](04-feed-forward/index.md) | GELU MLP to SwiGLU |
-| 5 | [The KV cache](05-kv-cache/index.md) | MHA to MQA and GQA |
-| 6 | [Mixture of experts](06-moe/index.md) | dense FFN to routed experts |
-| 7 | [Low-rank attention](07-low-rank-attention/index.md) | MLA and the single shared latent |
-| 8 | [Local attention and sinks](08-local-attention/index.md) | sliding window, sink, hybrid schedules |
-| 9 | [Compressed shared attention](09-compressed-attention/index.md) | compressor, cross-layer KV sharing |
-| 10 | [Sparse selection](10-sparse-selection/index.md) | the indexer and top-k |
-| 11 | [The residual stream](11-residual/index.md) | hyper-connections and mHC |
-| 12 | [Numerics](12-numerics/index.md) | bf16, FP8, FP4 |
-| 13 | [Engram memory](13-engram/index.md) | n-gram hash lookup |
-| 14 | [Beyond the block](14-beyond-the-block/index.md) | MTP, DSpark, encoder-decoder |
-| 15 | [Assembly: DeepSeek-V4.1](15-assembly/index.md) | the complete block |
-| 16 | [Attention kernels](16-attention-kernels/index.md) | FlashAttention-2 tiling, the CSA2 kernel |
-| 17 | [Low-precision attention](17-low-precision-attention/index.md) | FP8/FP4 attention variants, the merged recipe |
+| 1 | [The reference block: GPT-2](gpt2.md) | baseline and notation |
+| 2 | [Normalisation](normalisation.md) | LayerNorm to RMSNorm, placement |
+| 3 | [Positions](positions.md) | learned embeddings to RoPE |
+| 4 | [Feed-forward](feed-forward.md) | GELU MLP to SwiGLU |
+| 5 | [The KV cache](attn/kv-cache.md) | MHA to MQA and GQA |
+| 6 | [Mixture of experts](moe/index.md) | dense FFN to routed experts |
+| 7 | [Low-rank attention](attn/low-rank-attention/index.md) | MLA and the single shared latent |
+| 8 | [Local attention and sinks](attn/local-attention.md) | sliding window, sink, hybrid schedules |
+| 9 | [Compressed shared attention](attn/compressed-attention/index.md) | compressor, cross-layer KV sharing |
+| 10 | [Sparse selection](attn/sparse-selection/index.md) | the indexer and top-k |
+| 11 | [The residual stream](residual/index.md) | hyper-connections and mHC |
+| 12 | [Numerics](numerics/index.md) | bf16, FP8, FP4 |
+| 13 | [Engram memory](engram.md) | n-gram hash lookup |
+| 14 | [Beyond the block](beyond-the-block.md) | MTP, DSpark, encoder-decoder |
+| 15 | [Assembly: DeepSeek-V4.1](assembly.md) | the complete block |
+| 16 | [Attention kernels](attn/attention-kernels/index.md) | FlashAttention-2 tiling, the CSA2 kernel |
+| 17 | [Low-precision attention](attn/low-precision-attention/index.md) | FP8/FP4 attention variants, the merged recipe |
 
 Where a component exists in this repository the chapter points to the implementation under
 `src/mzoo/archs/owlet1/`, a small trainable version of the DeepSeek-V4.1 block.

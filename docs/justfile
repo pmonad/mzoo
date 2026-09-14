@@ -19,13 +19,13 @@ preview:
 publish:
     {{QUARTO}} publish gh-pages
 
-# whole-book A4 pdf: just docs/ pdf [out.pdf]
+# whole-book single-column pdf: just docs/ pdf [a4|a5] [out.pdf]
 # runs quarto+latex inside docker (image built once from docs/docker/Dockerfile)
 [no-cd]
-pdf *out="book.pdf":
+pdf papersize="a4" out="book.pdf":
     #!/usr/bin/env bash
     set -exuo pipefail
     docker image inspect mzoo-quarto >/dev/null 2>&1 || docker build -t mzoo-quarto docs/docker
     docker run --rm -v "$PWD:/data" -w /data mzoo-quarto \
-        quarto render docs/book.qmd --to pdf --output "{{out}}"
-    mv "docs/book.pdf" "{{out}}"
+        quarto render docs/book.qmd --to pdf -M papersize:{{papersize}} \
+            -M title:"mzoo — Evolution" --output "{{out}}"
