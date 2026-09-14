@@ -108,10 +108,34 @@ which is as much as the entire attention block of chapter 1 and more than a rout
 spends on any single token. Factorising it into $G$ per-group blocks of $H d / G$ inputs to rank
 $r_o$, plus one mix of $G r_o$ inputs to $D$, brings the count from $H d D$ down to
 $H d\, r_o + G\, r_o D$. Nothing crosses between groups in the first stage, and the mix is what
-recombines them.
+recombines them. V4.1 uses $G = 8$ groups of intermediate width 1024, and compresses its queries to
+1280 dimensions before the heads are formed.
 
 In owlet1 this is a `nn.Linear` subclass whose weight is read as $G$ independent blocks and applied
 with one batched matmul. The shapes are in `src/mzoo/archs/owlet1/attention.md`.
+
+## Precision and stability
+
+The latent concentrates the cache into one vector, which concentrates the numerics into one place.
+Three properties follow.
+
+The latent is normalised before use, by the same RMSNorm device as chapter 5. Every head's key and
+value is reconstructed from a vector of fixed RMS, so no head can inherit a magnitude blow-up from
+the residual stream, and the dot products that consume the latent have bounded inputs however long
+training runs. This is the property that later chapters spend: chapter 9 states the magnitude bound
+that makes a four-bit cache safe, and the bound exists only because the norm is there.
+
+The score is a dot product of width 512 rather than 128. Rounding errors of independent dimensions
+add in quadrature, so the error of the sum grows as $\sqrt{512}$ while the sum itself can grow as
+512; the relative error of a wide dot product is better, not worse, than a narrow one. The
+accumulation is fp32 in every kernel that matters, bf16 only in the stored operands.
+
+The absorbed and unabsorbed forms of the chapter compute the same quantity in exact arithmetic and
+differ in floating point, because they associate the same product differently. DeepSeek keeps the
+attention operators themselves in bf16 through FP8 training — the V3 report lists attention among
+the components that "maintain the original precision" — which is the acknowledgement that the
+softmax is the wrong place to spend precision budget. The cache, by contrast, is written once and
+read many times, which is the subject of the next section and of chapter 12.
 
 ## Cache cost
 

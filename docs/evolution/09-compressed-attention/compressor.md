@@ -62,6 +62,26 @@ group of one is the constant 1, so the expression above degenerates cleanly and 
 is needed. Such a layer stores one entry per token, as in chapter 7, and still benefits from the
 sharing of the next section.
 
+### The bound that makes four bits safe
+
+The normalisation also carries a quantitative argument, which chapter 12 relies on. After RMSNorm a
+latent of width $d_c = 512$ has norm exactly $\sqrt{512} \approx 22.6$, and RoPE, being a rotation,
+preserves the norm. The largest element of the latent is therefore at most 22.6, and in training the
+observed maxima are closer to 10. The storage format of chapter 12 — e2m1 values with one e4m3 scale
+per 16 dimensions — represents values up to $448 \times 6 = 2688$. The ratio of headroom to worst
+case is two orders of magnitude, which is why V4.1 can drop the second-level global scale that the
+full NVFP4 format carries: the norm already did the global scaling, for free, before the cache
+existed. A group-scaled format on an unnormalised latent would need that extra scale and the extra
+pass to maintain it.
+
+One ordering detail follows the same logic. The latent is rotated first and quantised after, so the
+cache stores one object in one format for its rotated and unrotated parts alike. Quantising before
+the rotation gains little accuracy and would force an extra dequantise-rotate-quantise round trip at
+every decode step. The quantisation-aware training that keeps the cache accurate in this format is
+introduced during post-training rather than pre-training, which the bound above makes plausible: the
+values were already inside the format's range by construction, so the training that adapts them to
+the grid is short.
+
 ## Positions and the key set
 
 The latents are rotated with their own RoPE base at the positions of their groups, as in chapter 3.
@@ -80,9 +100,11 @@ everything before that. Both enter one softmax, so a query weighs a precise rece
 coarse distant group in the same distribution, and the learned sink of chapter 8 sits in the same
 denominator.
 
-The global part of the cache is now $S / m$ entries instead of $S$. The paper uses $m = 2$ in the
-first half of the network and $m = 1$ in the second, so the finer view is available to the later
-layers. A group becomes visible only once its last token has been seen, which keeps the model causal.
+The global part of the cache is now $S / m$ entries instead of $S$. V4.1's 40 layers run the first
+two on the window alone, the 18 encoder CSA2 layers at $m = 2$ and the 20 decoder CSA2 layers at
+$m = 1$, so the finer view is available to the decoder, whose queries must select from the table
+(see the next chapter). A group becomes visible only once its last token has been seen, which keeps
+the model causal.
 The tokens of the group still in progress are not missing from the key set, because they are inside
 the sliding window, and with $W = 128$ and $m = 2$ the window covers the incomplete group many times
 over. During decoding this means the compressed table grows by one entry every $m$ steps while the

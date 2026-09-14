@@ -38,12 +38,15 @@ and consumed within one step and are the largest of the three by volume, so they
 precision saves the most. The key-value cache is a fourth population with the easiest requirements of
 all, because it is written once, read many times, and consumed by a softmax.
 
-The three sections follow that order. The first covers the formats used for training and the block
-scaling that makes eight bits workable. The second covers the four-bit format used for the cache and
-the indexer, where the requirements are loosest. The third covers how a gradient passes through a
-rounding operation at all, which is what makes it possible to train a model that knows it will be
+The four sections follow that order. The first covers the formats used for training and the block
+scaling that makes eight bits workable. The second extracts the general anatomy of a low-precision
+matmul — scale granularity, where the correction multiply lives, how wide the accumulation is — of
+which the attention kernels of chapter 17 are instances. The third covers the four-bit format used
+where the requirements are loosest. The fourth covers how a gradient passes through a rounding
+operation at all, which is what makes it possible to train a model that knows it will be
 quantised.
 
 - [bf16 and FP8](fp8.md): the training formats and block scaling.
+- [Low-precision matmuls](matmuls.md): the anatomy every quantised matmul shares.
 - [FP4 for the cache and indexer](fp4.md): where four bits are enough.
 - [Gradients through quantisation](ste.md): the straight-through estimator and what QAT requires.

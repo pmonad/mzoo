@@ -146,6 +146,31 @@ The three variants on the reference model, at bf16:
 | grouped-query | 8 | 328 KB | 1.3 GB | 43 GB |
 | multi-query | 1 | 41 KB | 168 MB | 5.4 GB |
 
+## Precision and stability
+
+Sharing amplifies one existing hazard. A key with an unusually large norm produces a large logit
+against every query for reasons unrelated to its content, and with $H_{kv}$ shared key heads one
+such key inflames all $H / H_{kv}$ query heads of its group at once instead of one head. This is
+the instability reported for multi-query training, and it is why the sharing chapters of this book
+pair every reduction with a bound on the logits. The standard bound is QK-norm, an RMSNorm applied
+to $q$ and $k$ per head before the dot product, as in chapter 2:
+
+$$
+\hat q = \frac{q}{\operatorname{RMS}(q)}, \qquad \hat k = \frac{k}{\operatorname{RMS}(k)},
+\qquad \big|\hat q \cdot \hat k\big| \le d \ \Rightarrow\ \Big|\frac{\hat q \cdot \hat k}{\sqrt d}\Big| \le \sqrt d .
+$$
+
+The Cauchy-Schwarz bound is the whole argument: after normalisation no input can push a logit past
+$\sqrt{d}$ (11 for $d = 128$), whatever the residual stream did to $x$. A learnable scale per
+dimension lets heads recover magnitude differences they actually want, and the normalisation is
+removed from the cached object — it is applied where $q$ and $k$ are formed, so the cache stores
+the normed key once and every use of it is bounded. Qwen3 and GLM-4.5 ship grouped-query attention
+with exactly this pairing, and the same device returns in stronger form in chapters 7 and 9, where
+the normed latent is what makes the low-precision cache of chapter 12 safe at all. The stabiliser
+has a training-side counterpart in V4.1, whose optimiser updates the query and key weight matrices
+head by head — a per-head normalisation of the update rather than of the activation, for the same
+reason: no head's outlier behaviour should set the scale of another's update.
+
 ## What the 2026 models do
 
 Grouped-query attention is the default for dense and mid-size models. Qwen3 uses it with QK-norm,

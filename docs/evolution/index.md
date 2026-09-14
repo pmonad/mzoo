@@ -16,7 +16,9 @@ cache. Chapters 6 to 10 cover the two big ideas of the period, sparsity in the f
 through mixture of experts and sparsity in attention through low-rank, local, compressed and
 selected attention. Chapter 11 changes the residual connection itself, chapter 12 covers number
 formats, and chapters 13 and 14 cover components outside the block. Chapter 15 assembles the
-complete DeepSeek-V4.1 block from the pieces.
+complete DeepSeek-V4.1 block from the pieces, and chapters 16 and 17 drop to the kernel level: how
+the attention of chapters 7 to 10 is tiled and computed on one GPU, and which of its operands can
+leave full precision.
 
 Each chapter follows the same course. It first says what the block looks like at that point and
 what has become the limiting cost or the limiting weakness. It then gives the change in words, then
@@ -71,6 +73,8 @@ of these is also introduced in the chapter where it first matters.
 | 13 | [Engram memory](13-engram/index.md) | n-gram hash lookup |
 | 14 | [Beyond the block](14-beyond-the-block/index.md) | MTP, DSpark, encoder-decoder |
 | 15 | [Assembly: DeepSeek-V4.1](15-assembly/index.md) | the complete block |
+| 16 | [Attention kernels](16-attention-kernels/index.md) | FlashAttention-2 tiling, the CSA2 kernel |
+| 17 | [Low-precision attention](17-low-precision-attention/index.md) | FP8/FP4 attention variants, the merged recipe |
 
 Where a component exists in this repository the chapter points to the implementation under
 `src/mzoo/archs/owlet1/`, a small trainable version of the DeepSeek-V4.1 block.

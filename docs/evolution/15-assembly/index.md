@@ -77,7 +77,7 @@ are per token over all 80 blocks, and the long-context column is at $S = 131072$
 | multi-head latent attention, $d_c = 512$, $d_r = 64$ | 7 | unchanged | unchanged | 92 KB | 12 GB |
 | one shared latent of width 512 | 7 | unchanged | unchanged | 82 KB | 10.7 GB |
 | FP4 latents with a scale per 16 elements | 12 | unchanged | unchanged | 23 KB | 3.0 GB |
-| compressed and shared, 2 groups, $m = 2$ | 9 | unchanged | unchanged | 0.3 KB plus a fixed window | about 43 MB |
+| compressed and shared, the paper's schedule | 9 | unchanged | unchanged | 1.9 KB plus a fixed window | about 248 MB |
 
 Three rows need a word of explanation. The mixture-of-experts row multiplies the total parameter
 count by about fifteen while leaving the arithmetic where it was, because only 9 of the 257 experts
@@ -85,17 +85,20 @@ in a block run for a given token. It is the one change in the book that improves
 memory rather than by saving it. The attention rows are marked unchanged in the parameter and FLOP
 columns because the projections of the different attention variants differ from each other by a few
 percent of the model total, which is below the resolution of this ledger. The last row is not a pure
-per-token figure. Its 0.3 KB is the compressed global table, stored once for each of two layer groups
-and once for every two tokens, and beside it every block keeps a 128-token sliding window in FP8,
-which is a fixed 5.2 MB for the whole sequence whatever its length. At 131072 tokens the global part
-is about 38 MB and the windows are 5.2 MB.
+per-token figure, and it moves to the paper's own 40-layer configuration rather than the 80-block
+reference: the encoder's three Full layers pool at $m = 2$ and the decoder's five sources (one Full,
+four Reindex) store per token, so the global table is $(3/2 + 5) \times 288\ \text{B} \approx 1.9$
+KB per token. Without sharing or compression the same 40 layers would hold 11.5 KB per token in
+FP4. Beside the global table every layer keeps a 128-token sliding window in FP8, which is a fixed
+2.6 MB for the whole sequence whatever its length. At 131072 tokens the global part is about
+245 MB, the windows 2.6 MB.
 
 The FLOP column tracks only the weights. Attention arithmetic is separate and it is what makes long
 context expensive. As the preface sets out, the scores and the weighted sum cost about $4 S D$ per
 block, which is 10.7 GFLOPs per token at the training length of 4096 and 344 GFLOPs per token at
 131072, at which point attention costs more than every weight in the model. The selection of chapter
-10 is what removes this. Reading $k = 2048$ entries per query in place of the whole context replaces
-$S$ by $k$ in that formula and gives about 5.4 GFLOPs per token at any length. The compressor of
+10 is what removes this. Reading $k = 512$ entries per query in place of the whole context replaces
+$S$ by $k$ in that formula and gives about 1.3 GFLOPs per token at any length. The compressor of
 chapter 9 reduces the number of entries the indexer has to score in the first place.
 
 Read together, the ledger says that the cache per token fell by about four orders of magnitude and

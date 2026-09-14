@@ -166,5 +166,7 @@ stored values are already coarse, as they are in FP4, the finer scale is worth i
 they are less coarse and the tensor is more sensitive, as in the window cache, the exact scale is
 preferred.
 
-The next section takes the same block-scaling machinery down to four bits, where the format holds
-about one decade of range and every one of these choices becomes tighter.
+The next section extracts the general construction behind this recipe — quantised operands, scales
+applied to partial sums — which is the same construction the FP8 and FP4 attention kernels of
+chapter 17 instantiate, and the section after that takes it down to four bits, where the format
+holds about one decade of range and every one of these choices becomes tighter.

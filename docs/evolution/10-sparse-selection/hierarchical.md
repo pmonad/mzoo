@@ -31,22 +31,25 @@ context.
 
 Scoring a block requires the scores of its members, so the layer that builds the coarse level pays
 the full $S / m$ scan. The first Full layer computes the block candidates and publishes them. Later
-index layers score only within those candidates. The saving is across layers rather than within one.
+index layers score only within those candidates. The saving is across layers rather than within one,
+and in V4.1 it applies only in the decoder, whose Reindex layers would otherwise each rescore the
+whole visible context.
 
-Take the reference model at 131072 tokens with $m = 2$, so 65536 compressed entries, and take
-$b = 128$ and $k_b = 32$ as an illustration of the sizes involved. The table is 512 blocks, and 32
-surviving blocks leave 4096 candidate entries, from which the fine pass takes $k = 2048$. A layer
-after the first therefore scores 4096 entries instead of 65536, a factor of 16. Across the 78 layers
-of the reference model that read a global table, the indexer work per query falls from $78 \cdot
-65536 \approx 5.1$ million scores to $65536 + 77 \cdot 4096 \approx 0.38$ million, a factor of 13.
-With an indexer key of 64 dimensions in FP4, each later layer scans 147 KB instead of 2.4 MB.
+The paper's sizes are $b = 8$ entries per block and $k_b = 2048$ blocks, so the candidate pool holds
+up to $16384$ positions, from which the fine pass takes $k = 512$. On the reference model at 131072
+tokens with $m = 2$, the table is 65536 entries, so a layer after the first scores 16384 entries
+instead of 65536, a factor of 4 — and, more importantly, a constant: the pool does not grow with
+context, so the per-query cost of every deeper indexer is bounded however long the conversation.
+The first layer's full scan remains, at $65536 \cdot 128 \cdot 0.5625 \approx 4.7$ MB of indexer
+keys in FP4; each later layer reads a quarter of that.
 
-The paper introduces this in post-training, as a way to run an already trained model at longer context,
-rather than as part of pre-training. That placement is consistent with what the mechanism does. It
-changes which entries are considered, not what the model computes on them, and its exactness
-condition is easiest to satisfy at the long contexts it is added for. In owlet1 the candidate mask is
-computed but never consumed, because the six-layer schedule has no index layer after the candidate
-source.
+The mechanism is introduced in post-training but is training-aware: the restriction is applied
+identically while the model continues to train, so the deeper indexers are optimised under the same
+candidate pool they will use at inference. That placement is consistent with what the mechanism
+does. It changes which entries are considered, not what the model computes on them, and its
+exactness condition is easiest to satisfy at the long contexts it is added for. In owlet1 the
+candidate mask is computed but never consumed, because the six-layer schedule has no index layer
+after the candidate source.
 
 The mechanism is now complete at inference. What remains is how a model learns to use it, which is
 the subject of the last section, because a hard top-$k$ passes no gradient to the scores that produced

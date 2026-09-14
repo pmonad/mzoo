@@ -20,8 +20,8 @@ dependencies = [
 requires = ["uv_build>=0.11.29,<0.12"]
 build-backend = "uv_build"
 
-[tool.uv]
-cache-dir = "/tmp/uv-cache"
+#[tool.uv]
+#cache-dir = "/tmp/uv-cache"
 
 [[tool.uv.index]]
 name = "pytorch-cu130"

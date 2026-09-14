@@ -30,9 +30,12 @@ $W_\ell$ is layer $\ell$'s own window and $\hat C_{\text{src}(\ell)}$ is the tab
 source of its group. A reuse layer therefore performs no compression, stores no global entries and
 allocates no global cache. It contributes queries.
 
-The global cache is therefore stored once per group, not once per layer. With two groups in a
-40-layer model, the global key/value memory is that of two layers rather than 38. For this reason
-the paper reports a cache that is an order of magnitude smaller than V3's at the same context.
+The global cache is therefore stored once per group, not once per layer. The paper's schedule on
+its 40 layers makes the trade concrete: the encoder's 18 CSA2 layers form three groups of six, each
+led by one Full layer with five Reuse layers behind it, and the decoder's 20 CSA2 layers form five
+groups of four, the first led by a Full layer and the rest by Reindex layers. Eight sources in
+place of 38 storers is what the report means by a cache an order of magnitude smaller than V3's at
+the same context.
 
 The paper names three layer modes. *Full* compresses and indexes, which chapter 10 covers. *Reuse*
 takes both the latents and the index selection from the most recent source. *Reindex* takes the
@@ -59,24 +62,26 @@ source is started when the representation has moved on.
 
 ## The ledger
 
-Take the reference model of 80 blocks with the width-512 latent, stored in the FP4 format of chapter
-12 at 0.5625 bytes per element. One entry is $512 \cdot 0.5625 = 288$ bytes, so a per-block per-token
-latent is 23 KB per token across the model. Compressing at $m = 2$ halves it and sharing across two
-groups divides it by 40:
+Take the paper's own configuration. One FP4 latent is $512 \cdot 0.5625 = 288$ bytes. The encoder's
+three Full layers store one latent per $m = 2$ tokens, contributing $3 \times 288/2 = 432$ bytes per
+token, and the decoder's five sources store one per token, contributing $5 \times 288 = 1440$ bytes.
+The global cache is therefore about 1.9 KB per token:
 
 $$
-23 \text{ KB} \times \frac{2}{80 \cdot 2} \approx 0.3 \text{ KB per token} .
+\Big(\frac{3}{2} + 5\Big) \times 288\ \text{B} \approx 1.9\ \text{KB per token},
 $$
 
-At 131072 tokens that is about 38 MB of global cache per sequence, plus the fixed 5.2 MB of windows
-from chapter 8. Chapter 7's MLA holds 12 GB at the same length and chapter 5's multi-head baseline
-holds 344 GB. A server that could hold one sequence can now hold hundreds.
+which is 245 MB at 131072 tokens, plus the fixed 2.6 MB of windows ($40 \times 128 \times 512$ in
+FP8). Against the same 40 layers without sharing or compression that is 1.5 GB in FP4, 5.2 GB in
+bf16, and 172 GB for a bf16 multi-head cache of the same depth. A server that could hold one
+sequence of the multi-head model can now hold hundreds.
 
-Sharing acts on storage, not on reads. Every layer in a group still reads the whole shared table on
-every decode step, so the bytes read per step fall only by the compression factor $m$. On the
-reference model at 131072 tokens the table has $S / m = 65536$ entries of 288 bytes, so 18.9 MB, and
-the 78 layers that read it move about 1.5 GB per step. That is better than the 10.7 GB of chapter 7
-and still far above what the window costs. Storage is no longer the limit. Bandwidth is.
+Sharing acts on storage, not on reads. Every CSA2 layer in a group still reads the whole shared
+table on every decode step, so the bytes read per step fall only by the compression factor $m$. At
+131072 tokens the encoder's table is 65536 entries and the decoder's is 131072, so before selection
+the 18 encoder layers move $18 \times 18.9$ MB and the 20 decoder layers $20 \times 37.7$ MB, about
+1.1 GB per step. That is far above what the windows cost, and storage is no longer the limit.
+Bandwidth is.
 
 ## In owlet1
 

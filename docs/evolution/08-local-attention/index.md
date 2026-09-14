@@ -65,7 +65,8 @@ matrix to memory and reads it back twice, once for the softmax and once for the 
 kernel tiles the computation, keeps each tile of scores in on-chip memory and accumulates the softmax
 with running normalisers, so the score matrix is never written out. Memory use falls from $O(S^2)$ to
 $O(S)$ and prefill becomes several times faster. Dao 2023, "FlashAttention-2: Faster Attention with
-Better Parallelism and Work Partitioning", improved the work partitioning further.
+Better Parallelism and Work Partitioning", improved the work partitioning further. Chapter 16 opens
+with the mechanism — the online softmax and the tile schedule that make the removal exact.
 
 FlashAttention is exact. It computes the same output as the naive implementation, and it performs the
 same $4 S D$ operations per token per block. What it removes is traffic to and from memory for
@@ -158,6 +159,26 @@ requires. V4.1 uses $W = 128$.
 
 The same large activations reappear as a quantisation difficulty in chapter 12.
 
+## Precision and stability
+
+The sink earns its place in the denominator on numerical grounds as well. It puts a floor under
+the softmax denominator, $\ell \ge e^{\sigma_h - m}$ whatever the keys contain, so a row whose
+window is uninformative decays its output smoothly through the learned $\sigma_h$ instead of
+concentrating on an arbitrary key. And because the sink mass absorbs whatever the real keys fail to
+earn, errors in the keys — including quantisation errors — scale the real-key weights down
+uniformly rather than redistributing them chaotically. A window without a sink has neither
+property: every key error lands directly in the output.
+
+The window is also where the cache is hardest to compress. V4.1 keeps the sliding-window cache in
+FP8 and states the reason: sensitivity to quantisation. A recent token can dominate its row — for
+the first token of a sequence the distribution is a single 1, and near the start of a document a
+row's effective sample size $1/\sum_j p_{ij}^2$ is close to one — so the error of one quantised
+entry moves the output by that error, with no averaging across keys to hide it. Distant keys, by
+contrast, are read in their thousands and their independent errors cancel. The design follows the
+statistics: the many-read distant table takes the aggressive format of chapter 12, and the
+few-read window takes FP8. The compressed entries that sit between the two are normalised before
+storage, which is the argument of the next chapter.
+
 ## Hybrid schedules
 
 With a sink in place, a model can be mostly local and only occasionally global. The schedule then
@@ -167,11 +188,11 @@ multiplied by $f$, while the windowed layers contribute a fixed amount. One laye
 factor of four on everything that grows with $S$, and every layer still reaches any position after at
 most a few hops through the nearest global layer below it.
 
-V4.1's 40 decoder layers run the first two on the window alone and the rest on the window plus a
-compressed view of the whole context, which chapter 9 describes. The window part of every layer is
-the layer's own. Only the global part is shared. The choice to make the first layers local is
-deliberate. Early layers work with token identity and local syntax, where a window is sufficient, and
-the representations that a global read needs to compare are formed higher up.
+V4.1's 40 layers — 20 encoder, 20 decoder — run the first two on the window alone and the rest on
+the window plus a compressed view of the whole context, which chapter 9 describes. The window part
+of every layer is the layer's own. Only the global part is shared. The choice to make the first
+layers local is deliberate. Early layers work with token identity and local syntax, where a window
+is sufficient, and the representations that a global read needs to compare are formed higher up.
 
 ## What the 2026 models do
 

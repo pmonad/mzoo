@@ -1,5 +1,8 @@
 # invoke from repo root: just docs/ <recipe>
 
+# bind-mounted shared uv cache (see ~/.cache/uv -> /srv/cache/uv); keeps builds inside the sandbox
+export UV_CACHE_DIR := "/tmp/uv-cache"
+
 [no-cd]
 build:
     uv run --with mkdocs --with pymdown-extensions --with mkdocs-bibtex --with pypandoc-binary mkdocs build --strict --site-dir site
@@ -11,3 +14,29 @@ serve *args:
 [no-cd]
 publish:
     uv run --with mkdocs --with pymdown-extensions --with mkdocs-bibtex --with pypandoc-binary mkdocs gh-deploy --force
+
+# pdf of one chapter: just docs/ pdf evolution/03-positions/index.md [out.pdf]
+# runs pandoc+latex inside docker; image is built once from docs/latex/Dockerfile:
+#   docker build -t mzoo-pandoc docs/latex
+[no-cd]
+pdf chapter *out="":
+    #!/usr/bin/env bash
+    set -exuo pipefail
+    src="docs/{{chapter}}"
+    [ -f "$src" ] || { echo "no such chapter: $src" >&2; exit 1; }
+    docker image inspect mzoo-pandoc >/dev/null 2>&1 || docker build -t mzoo-pandoc docs/latex
+    outname="{{out}}"
+    outname="${outname:-chapter}"
+    # strip python-markdown attr_list lines ({: ...}) that pandoc would render literally
+    sed 's/^\s*{:.*$//' "$src" > .pdf-src.md
+    docker run --rm -v "$PWD:/data" -w /data mzoo-pandoc \
+        pandoc .pdf-src.md \
+        -o "/data/${outname}.pdf" \
+        --pdf-engine=xelatex -V classoption=twocolumn \
+        --lua-filter=docs/latex/table-star.lua \
+        --include-in-header=docs/latex/header.tex \
+        --citeproc --bibliography=docs/references.bib \
+        -V geometry:margin=2.2cm -V fontsize=10pt -V colorlinks \
+        --shift-heading-level-by=-1 \
+        -M title="$(basename "$(dirname "$src")")"
+    rm -f .pdf-src.md

@@ -1,0 +1,11 @@
+# invoke from repo root: just src/mzoo/layers/attn <recipe>
+# needs CUDA 13 nvcc for sm121 (/usr/bin/nvcc is 12.0): set CUDA_HOME in repo-root .env
+
+[no-cd]
+test *args:
+    uv run --env-file .env pytest src/mzoo/layers/attn {{args}}
+
+# dense_attn kernel vs torch SDPA
+[no-cd]
+bench *args:
+    uv run --env-file .env python -m mzoo.layers.attn.dense_attn.bench {{args}}

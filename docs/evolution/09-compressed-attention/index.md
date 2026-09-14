@@ -14,13 +14,13 @@ by one or two sublayers, so one table can serve several layers that read it with
 V4.1's compressed sparse attention, CSA, does both. Chapter 10 adds a third reduction that acts on
 reads rather than storage, by having each query touch only a subset of the entries that are stored.
 
-The effect on the reference model is large. Suppose the global table is pooled at $m = 2$ tokens per
-entry, is stored by 2 layer groups instead of 80 blocks, and holds a latent of width 512 in the FP4
-format of chapter 12 at 0.5625 bytes per element. A per-block per-token latent in that format is
-23 KB per token across the model, so the shared and pooled global part is
-$23 \text{ KB} \times 2 / (80 \cdot 2) \approx 0.3$ KB per token. At 131072 tokens that is about
-38 MB per sequence, next to a fixed 5.2 MB for the windows. Chapter 5's multi-head baseline at the
-same length is 344 GB and chapter 7's MLA is 12 GB.
+The effect on the model is large. Take the paper's own 40-layer configuration. The encoder's three
+Full layers each store one FP4 latent of width 512 for every 2 tokens, and the decoder's five
+sources (one Full, four Reindex) each store one for every token, so the model holds
+$(3/2 + 5) \times 288\ \text{B} \approx 1.9$ KB per token of global cache, plus a fixed 2.6 MB of
+windows. At 131072 tokens that is 245 MB per sequence. Without sharing or compression the same
+40 layers would hold 11.5 KB per token in FP4 (1.5 GB), 40 KB in bf16 (5.2 GB), and a bf16
+multi-head cache of the same depth would hold 172 GB.
 
 Compression is not free of consequences. A pooled entry cannot recover a single token exactly, so the
 design depends on the distant past being needed at the level of a passage rather than a word, and on
