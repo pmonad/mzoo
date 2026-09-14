@@ -1,6 +1,6 @@
 # 0012 dsv4 model: `shared` dict may accumulate compressed KV across kv-source groups (suspected)
 
-- status: todo, unverified (observation from the golden-reference work, 2026-09-14)
+- status: in progress (worker started 2026-09-14; test models use a dense FFN to avoid the MoE grouped-tensor errors)
 - depends on: nothing; model-side, `src/mzoo/archs/dsv4/modeling_deepseek_v41.py`
 
 ## Observation

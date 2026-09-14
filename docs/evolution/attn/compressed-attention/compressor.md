@@ -54,6 +54,39 @@ The parameters this adds are two projections of width $D \times d_c$ per compres
 $2 \cdot 5120 \cdot 512 = 5.2$ M parameters on the reference model, against 805 M for a block. The
 arithmetic is one extra projection per token. Neither is material.
 
+### Why the projections carry no bias
+
+Both projections are bias-free. For the gate the choice is forced; for the candidate projection it
+is a small redundancy deliberately left out, and the difference between the two cases is worth
+stating.
+
+For the gate the argument is exact. A bias vector would add the same constant $b[d]$ to
+$\gamma_t[d]$ for every token $t$ in the group. The softmax normalises over the tokens of the group
+within each dimension, and a softmax is invariant to any shift that is constant along its
+normalised axis: the constant enters the numerator once and every term of the denominator once, and
+cancels. No bias vector can move any $\alpha_t$, however it is trained — the pooled latent comes out
+component-for-component identical — so a bias on $W_{\text{gate}}$ is dead weight by construction,
+which is why the parameter count above is quoted without one. The $m = 1$ case is covered a
+fortiori, since its softmax is the constant 1 whatever the logits are.
+
+For the candidate projection it is the pooling itself that empties the bias of most of its meaning.
+The weights sum to one in every dimension, so an additive bias passes through the pooled sum
+unchanged:
+
+$$
+\sum_{t \in g} \alpha_t \odot (W_{KV}\, x_t + b) \;=\; \sum_{t \in g} \alpha_t \odot W_{KV}\, x_t \;+\; b.
+$$
+
+A bias on $W_{KV}$ therefore cannot vary from group to group or from token to token. It can add
+exactly one fixed vector to the pre-normalised sum of every latent in the compressed table, and
+nothing else: all of the group-specific content a latent carries is already in $W_{KV} x_t$, so the
+only thing the bias could buy is one shared re-centring of the whole table, $d_c$ numbers per layer,
+whose effect on attention the remaining parameters of the layer learn around during training, since
+nothing in the data asks for a per-group constant. This is a judgement about redundancy rather than
+an impossibility proof, and it is stated as one: the gate bias is impossible, the $W_{KV}$ bias is
+idle, and neither earns its parameters. The choice also matches the rest of the model, whose
+attention projections run with `attention_bias = False`.
+
 ### Why the normalisation is there
 
 The pooled sum is a convex combination in every dimension — the weights are non-negative and sum

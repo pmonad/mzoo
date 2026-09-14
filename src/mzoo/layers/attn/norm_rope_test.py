@@ -1,9 +1,12 @@
 """Correctness + guards for the TileLang QK prologue (ticket 0011).
 
 Reference is the frozen model's own composition: `DeepseekV41RMSNorm` then
-`apply_rotary_pos_emb` from `archs/dsv4/modeling_deepseek_v41.py`. Guards: the
-fused forward is exactly ONE CUDA kernel launch, and each shape compiles once
-(per-shape `_CACHE`), so no silent per-call recompiles.
+`apply_rotary_pos_emb` from `archs/dsv4/modeling_deepseek_v41.py`, run on fp32
+inputs; the same composition on bf16 inputs is the torch baseline, and the
+kernel may be at most 2x further from fp32 than that baseline is
+(`assert_within_2x_torch`, the series criterion). Guards: the fused forward is
+exactly ONE CUDA kernel launch, and each shape compiles once (per-shape
+`_CACHE`), so no silent per-call recompiles.
 """
 
 import pytest
@@ -11,11 +14,13 @@ import torch
 from torch.profiler import ProfilerActivity, profile
 
 from mzoo.archs.dsv4.modeling_deepseek_v41 import DeepseekV41RMSNorm, apply_rotary_pos_emb
+from mzoo.layers.attn.dense_attn.ref import assert_within_2x_torch
 from mzoo.layers.attn.norm_rope import _CACHE, qk_norm_rope, qk_norm_rope_eager
 
 SHAPES = [  # (B, S, H, D, rd) — includes non-power-of-two sizes
     (2, 512, 4, 64, 16),
-    (2, 512, 1, 64, 16),
+    (2, 512, 1, 64, 16),    # kv-shaped [B, S, 1, D] (one latent head)
+    (1, 256, 1, 128, 64),   # kv-shaped at the headline D
     (1, 256, 64, 128, 64),
     (3, 331, 5, 96, 24),
 ]
@@ -32,37 +37,37 @@ def _inputs(batch, seq, heads, dim, rope_dim, dtype=torch.bfloat16, seed=0):
 
 
 def _reference(x, weight, cos, sin, eps=1e-6):
+    """The model's own composition; `functional_call` keeps `weight` in the graph."""
     norm = DeepseekV41RMSNorm(x.shape[-1], eps=eps).to(x.device, x.dtype)
-    with torch.no_grad():
-        norm.weight.copy_(weight)
-    return apply_rotary_pos_emb(norm(x), cos, sin)
+    normed = torch.func.functional_call(norm, {"weight": weight}, (x,))
+    return apply_rotary_pos_emb(normed, cos, sin)
 
 
 @pytest.mark.parametrize("shape", SHAPES, ids=str)
-def test_fwd_matches_model(shape):
+def test_fwd_within_2x_torch(shape):
     x, weight, cos, sin = _inputs(*shape)
-    ref = _reference(x.clone(), weight, cos, sin)
-    torch.testing.assert_close(qk_norm_rope(x, weight, cos, sin), ref, rtol=0.02, atol=0.1)
-    torch.testing.assert_close(qk_norm_rope_eager(x, weight, cos, sin), ref, rtol=0.02, atol=0.1)
+    ref = _reference(x.float(), weight.float(), cos, sin)          # fp32 series reference
+    torch_bf16 = _reference(x, weight, cos, sin)                   # same composition, bf16
+    assert_within_2x_torch(qk_norm_rope(x, weight, cos, sin), ref, torch_bf16, "out")
+    assert_within_2x_torch(qk_norm_rope_eager(x, weight, cos, sin), ref, torch_bf16, "out_eager")
 
 
 @pytest.mark.parametrize("shape", SHAPES, ids=str)
-def test_grads_match_eager(shape):
+def test_grads_within_2x_torch(shape):
     do = torch.randn(*shape[:4], device="cuda", dtype=torch.bfloat16)
 
-    def grads(fn):
-        x, weight, cos, sin = _inputs(*shape)
+    def grads(fn, dtype):
+        x, weight, cos, sin = _inputs(*shape, dtype=dtype)
         x, weight = (t.clone().requires_grad_() for t in (x, weight))
-        fn(x, weight, cos, sin).backward(do)
-        return x.grad, weight.grad.clone()
+        fn(x, weight, cos, sin).backward(do.to(dtype))
+        return x.grad.float(), weight.grad.float()
 
-    # dx: elementwise, tight. dw: a reduction over B*S*H bf16 rows in a different
-    # accumulation order than eager, so a few channels drift ~1 bf16 ulp of the
-    # channel's scale -- relative, not absolute.
-    torch.testing.assert_close(grads(qk_norm_rope)[0].float(), grads(qk_norm_rope_eager)[0].float(),
-                               rtol=0.05, atol=0.1)
-    torch.testing.assert_close(grads(qk_norm_rope)[1].float(), grads(qk_norm_rope_eager)[1].float(),
-                               rtol=0.1, atol=0.5)
+    ref_dx, ref_dw = grads(_reference, torch.float32)              # fp32 series reference
+    tdx, tdw = grads(_reference, torch.bfloat16)                   # torch bf16 baseline
+    kdx, kdw = grads(qk_norm_rope, torch.bfloat16)
+    # dw sums B*S*H bf16 rows, so the baseline's own accumulation error is the yardstick
+    assert_within_2x_torch(kdx, ref_dx, tdx, "dx")
+    assert_within_2x_torch(kdw, ref_dw, tdw, "dw")
 
 
 def _launches(fn, args):

@@ -4,6 +4,7 @@
 - prefer short files. when they grow offer user to convert split it. add a new pkg when it makes sense
 - keep tests next to code _test.py
 - tests must include non-power-of-two / non-tile-aligned sizes for every new extent, and a feature-off case that equals the previous version bit-for-bit; power-of-two-only matrices hide padding bugs
+- library/compiler bugs are rare; if you believe you hit one, stop and ask the user instead of chasing the rabbit hole
 - commit (or tag) right after a package is independently verified, before the next worker edits the tree; a stopped worker leaves a half-edited tree and uncommitted verified state is lost
 - while implementing a chapter, park each problem hit in that chapter's `docs/evolution/<part>/<chapter>-impl.md`: one short section per problem (problem, what the measurement showed, how we fixed it), nothing more; the full write-up comes later
 

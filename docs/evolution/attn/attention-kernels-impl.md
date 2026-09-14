@@ -298,3 +298,26 @@ gradients of magnitude ~2.
 **Fix.** Treat `dk` as deterministic only up to fp32 sum reordering: the tests
 assert `dq`/`dw` bit-exact and `dk` within rtol/atol 1e-3; documented in the README
 with the two-stage-reduce escape hatch if training reproducibility ever needs it.
+
+## norm_rope: a reduced fragment with a non-power-of-2 last dim has no layout (and `dim=0` is innocent)
+
+**Problem.** The fused RMSNorm+RoPE prologue would not compile at D=96: any
+`T.alloc_fragment([block_M, D], ...)` that is filled in a `T.Parallel` loop and then
+handed to `T.reduce_sum` dies at compile with `Check failed: (has_best) is false: no
+available layout found`. The first pass through this blamed `T.reduce_sum(..., dim=0)`
+for silently wrong sums as well, and stored the dw partials transposed to avoid it.
+
+**Measurement.** A standalone fill-and-reduce at (M, N, threads) = (128, 128, 256),
+(128, 64, 256) and (128, 96 padded to 128, 256) matches torch column sums to 1e-6 for
+`dim=0`, `dim=1`, and the transposed form: `dim=0` does not miscompile. What does fail is
+purely the layout check, and only when the fragment's *last* dim is not a power of two
+(96, 80, 48; either reduce dim). Elementwise-only fragments at N=96 compile fine, and so
+do GEMM accumulators -- `T.gemm` anchors an mma layout, which is why the indexer runs
+Di=96 unharmed.
+
+**Fix.** Two ways to give layout inference something to work with, both used here: pad the
+reduced fragment to the next power of two and guard the fill (`if d < dim: ... else: 0.0`)
+in the forward, or read a per-row `[block_M]` fragment inside the same fill loop, which
+anchors the row->thread mapping -- the backward's `GD` loop reads `dot[i]` and so reduces
+`dim=0` directly at D=96. The transposed-partials workaround is gone; the claim is
+retracted in tickets/0001 with the repro.

@@ -85,9 +85,9 @@ the model's two functions as the reference.
 
 | path | B1 S4096 H64 D128 rd64 | B1 S4096 H64 D64 rd16 |
 |---|---|---|
-| eager norm->rope | 10.1 ms (13 GB/s) | 4.0 ms (17 GB/s) |
+| eager norm->rope | 10.3 ms (13 GB/s) | 4.1 ms (16 GB/s) |
 | torch.compile (max-autotune, 3 kernels) | 0.96 ms | 0.56 ms |
-| tilelang fused (1 kernel) | **0.73 ms (184 GB/s)** | **0.32 ms (207 GB/s)** |
+| tilelang fused (1 kernel) | **0.71 ms (188 GB/s)** | **0.32 ms (209 GB/s)** |
 | pure copy ceiling (`y.copy_(x)`) | 0.58 ms (232 GB/s) | -- |
 
 - The compile decision above was measured first and **rejected**: Inductor cannot emit one
@@ -95,15 +95,23 @@ the model's two functions as the reference.
   and the stack->cat interleave is a second pointwise writing a rope-sized intermediate,
   so its floor is 3 launches / ~200 MB traffic. All four alternate formulations tried
   (slice-assign, complex, per-channel coefficients, full-width expansion) also gave 3+.
-- The tilelang kernel keeps the D-row in shared, reduces rstd in-kernel
-  (`reduce_sum(dim=1)`, 0.1.14's `dim=0` miscompiles -- tickets/0001), stages the normed
-  row, rotates pairs, writes q once: 1 launch (test-asserted), 81% of the copy ceiling.
-  Non-pow2 D (96) needs the fragment-pad workaround from tickets/0001.
+- The tilelang kernel keeps the D-row in shared, reduces rstd in-kernel, stages the
+  normed row, rotates pairs, writes q once: 1 launch (test-asserted), 81% of the copy
+  ceiling. Non-pow2 D (96) needs the fragment-pad workaround from tickets/0001 (a
+  reduced fragment's last dim must be a power of two, or the fill loop must anchor a
+  layout); the earlier "`reduce_sum(dim=0)` miscompiles" claim was repro'd and retracted.
 - Backward is a custom autograd.Function with a tilelang bwd kernel (dx elementwise +
-  dw via transposed-fragment reduce + atomics); correct vs eager, untuned.
+  dw via a `dim=0` fragment reduce + atomics); untuned.
 - Memory (the ticket's open question): fwd-with-grad retains 68.2 MB fused vs 269.5 MB
-  eager for q [1,4096,64,128] -- the Function saves only `rstd` (one fp32/row, 1.1 MB),
-  no full activation copy, so no follow-up decision needed.
+  eager for q [1,4096,64,128] -- beyond its own inputs (x, w, cos, sin) the Function
+  saves only `rstd` (one fp32/row, 1.1 MB) and no activation copy, so no follow-up
+  decision needed.
 - Guards as specified, adapted to the kernel path: 1 launch (not <=2), per-shape
   `_CACHE` proves single compile per shape (the error_on_recompile guard was
-  compile-specific and is gone with the compile path).
+  compile-specific and is gone with the compile path). The cache key includes
+  `rows = B*S*H`, so a new sequence length recompiles once -- fine under a fixed
+  `seq_len`, worth knowing for varlen.
+- Accuracy uses the series criterion (`assert_within_2x_torch`): fp32 reference is the
+  model composition on fp32 inputs, baseline the same composition on bf16. Measured
+  2026-09-14: out 1.00x, dx 0.60-0.70x, dw 0.56-0.78x of the torch bf16 error on all
+  five shapes (incl. the kv-shaped `[B,S,1,D]` and non-pow2 D=96).

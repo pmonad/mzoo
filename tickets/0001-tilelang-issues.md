@@ -212,21 +212,47 @@ symptom, cause, workaround, status.
   (~1e-4 abs reorder error at 256x128) -- expected fp32 behaviour, but it breaks
   bit-exact repeat tests on the accumulated tensor.
 
-## elementwise kernels: non-power-of-2 fragment last dim has "no available layout"
+## a reduced fragment with a non-power-of-2 last dim has "no available layout"
 
-- version: tilelang 0.1.14, GB10 (sm121), `src/mzoo/layers/attn/norm_rope.py` (ticket 0011)
-- symptom: any `T.alloc_fragment([block_M, dim], ...)` written from a `T.Parallel(block_M, dim)`
-  loop fails at compile with `Check failed: (has_best) is false: no available layout found`
-  when `dim` is not a power of two (96, 80, 48 all fail; 64/128 fine). Independent of
-  `block_M` (32..256) and `threads` (64..512).
-- workaround (applied): pad only that fragment to `1 << (dim-1).bit_length()` and guard the
-  fill (`if d < dim: ... else: 0.0`); 33% dead lanes at D=96, correctness unaffected.
+- version: tilelang 0.1.14, GB10 (sm121), found via `norm_rope.py` (ticket 0011), 2026-09-14.
+- trigger: `T.reduce_*` over a `T.alloc_fragment([M, N], ...)` with **N not a power of two**
+  (96, 80, 48; either reduce dim) fails at compile with
+  `Check failed: (has_best) is false: no available layout found`. Elementwise-only fragments at
+  N=96 are fine, and so are GEMM accumulators (the `T.gemm` anchors an mma layout -- `indexer`
+  runs Di=96); only the `T.Parallel`-filled-then-reduced case has no layout to infer.
+- rule: give the reduced fragment a power-of-two last dim (pad and guard the fill with
+  `if d < dim: ... else: 0.0`, as `make_fwd` does), **or** read a per-row `[M]` fragment inside the
+  same fill loop, which anchors the row->thread mapping and makes N=96 infer (`make_bwd`'s `GD`
+  loop reads `dot[i]`; verified by the D=96 test shape).
+- caveat: rule 2 relies on an inference side effect; prefer rule 1 (pad) for new code.
+- status: not reported upstream (repro below; loud failure, low priority).
+- repro (fails as written, compiles if `F[i, d] = X[i, d]` becomes `F[i, d] = X[i, d] * rowv[i]`
+  with `rowv = T.alloc_fragment([M], T.float32)` filled first):
 
-## `T.reduce_sum(..., dim=0)` silently miscompiles
+```python
+M, N = 128, 96
+@tilelang.jit
+def k():
+    @T.prim_func
+    def main(X: T.Tensor([M, N], T.float32), S: T.Tensor([N], T.float32)):
+        with T.Kernel(1, threads=256) as bx:
+            F, s = T.alloc_fragment([M, N], T.float32), T.alloc_fragment([N], T.float32)
+            for i, d in T.Parallel(M, N):
+                F[i, d] = X[i, d]
+            T.reduce_sum(F, s, dim=0)
+            for d in T.Parallel(N):
+                S[d] = s[d]
+    return main
+```
 
-- version: tilelang 0.1.14, GB10 (sm121), `src/mzoo/layers/attn/norm_rope.py` (ticket 0011)
-- symptom: reducing a `[M, N]` fragment over `dim=0` into an `[N]` fragment returns wrong
-  values (verified standalone: column sums off, no error raised). The last-dim reduce
-  (`dim=1`, the FA2 pattern) is correct, including on a transposed fragment.
-- workaround (applied): store the to-be-reduced data transposed in the fragment
-  (`F[d, i]` writes in the same `T.Parallel` loop) and reduce `dim=1`.
+## retracted: `T.reduce_sum(..., dim=0)` does *not* miscompile
+
+- claimed (0011 worker): reducing a `[M, N]` fragment over `dim=0` returned wrong sums in
+  `norm_rope`'s backward, so the dw partials were stored transposed and reduced `dim=1`.
+- repro (2026-09-14) says otherwise: a standalone fill-and-reduce at (M, N, threads) =
+  (128, 128, 256), (128, 64, 256) and (128, 96->128 padded, 256) matches torch column sums to
+  1e-6 in both the direct and the transposed form, and `make_bwd` rewritten to reduce `dim=0`
+  directly passes the whole of `norm_rope_test.py` (all 5 shapes, D=96 included).
+- what the worker most likely hit is the entry above (non-pow2 last dim), which raises at compile
+  in the transposed-free form unless the fill loop anchors a layout. `dim=0` is sound; the
+  transposed workaround is gone.

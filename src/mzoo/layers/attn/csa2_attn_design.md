@@ -50,7 +50,7 @@ Out of kernel (elementwise, stays in torch): Q/KV RoPE, inverse RoPE on the outp
 | [0008](../../../../tickets/0008-indexer-mxfp4-score.md) | `indexer_fp4` | todo | 0006, 0007 |
 | [0009](../../../../tickets/0009-indexer-hierarchical.md) | `indexer_hier` | todo | 0006 |
 | [0010](../../../../tickets/0010-csa2-fp-cache.md) | `csa2_fp_attn` | todo | 0005 |
-| [0011](../../../../tickets/0011-qk-prologue-norm-rope.md) | `norm_rope` (torch.compile prologue, no kernel) | todo | -- |
+| [0011](../../../../tickets/0011-qk-prologue-norm-rope.md) | `norm_rope` (fused RMSNorm+RoPE TileLang kernel, fwd+bwd) | done (2026-09-14, reviewed; untuned) | -- |
 | [0012](../../../../tickets/0012-dsv4-shared-dict-cross-group.md) | dsv4 model: `shared` dict cross-group accumulation (suspected) | todo, unverified | -- |
 
 Why this split: one ticket per package, except where a backward is a different kernel shape from its forward (0005's scatter-add dKV, 0007's relu-gated three-input reduce) -- those get their own; every other backward is folded into its package's ticket, so step 7 files no ticket of its own. The indexer's MXFP4 math path (0008) and hierarchical candidate list (0009) are separate packages, not variants, per the copy-forward rule. In-kernel fp8/fp4 dequant (steps 3v2 + 4v2) is one ticket (0010): one change, two sources, one shared risk.
@@ -154,6 +154,9 @@ This is where project conventions for this series live (not `CLAUDE.md`).
   tilelang 0.1.14 (`T.Pipelined` miscompiles it, tickets/0001). Atomics
   are cheap per instruction; repeated read-modify-write of a large buffer is
   not -- prefer an owner kernel that stores once even at +40% FLOPs.
+  A `T.Parallel`-filled fragment that is then reduced needs a power-of-two last
+  dim (or a per-row fragment read in the same fill loop to anchor the layout);
+  `T.reduce_sum` over any dim is sound -- the 0011 `dim=0` claim was retracted.
 - **Tuning (learned).** Tile tables do not transfer across loop shapes: the
   band inverted `latent_attn`'s bwd winners, the dense main loop will differ
   again. The deferred tuning pass must sweep each package on its own, and
@@ -167,6 +170,25 @@ This is where project conventions for this series live (not `CLAUDE.md`).
   +-5%; the verifier reruns benches alone. Independent verification found
   a real gap in every package so far (window=1 compile crash, D=256 bench
   drift) that the implementing worker's own report did not.
+- **Bug claims against tilelang.** Before recording one: grep upstream
+  examples/tests and our packages for the same construct, and commit a
+  minimal repro; no repro, no entry. Resolved entries are 3-5 lines
+  (trigger, rule, pointer to the repro/test); only unresolved ones keep the
+  evidence and a status.
+- **Done means ticketed.** A task is done only when its ticket has the
+  status line and a Result section, written by the implementing worker and
+  checked by the reviewer.
+- **Bugs in frozen packages.** Packages are never edited after they land,
+  so a bug found in package N (e.g. the padded-G mask leak found in
+  `csa_attn`, the duplicate-index double count found in `csa2_attn`'s
+  forward during its backward) is fixed in the newest package, checked in
+  every package copied from N since, and listed under Known issues of the
+  frozen ones. Check by diff: copy-forward means the same lines exist in
+  every later sibling.
+- **Model divergences.** Anything the kernel path does differently from the
+  vendored model (the indexer's fp4 straight-through estimator is the first)
+  is listed in `archs/dsv4/README.md` with the reconcile-or-delete rule, so
+  an upstream fix is never silently doubled.
 - **Parking notes.** Every real problem hit while implementing goes into
   `docs/evolution/attn/attention-kernels-impl.md` as one short section
   (problem / measurement / fix), per `CLAUDE.md`; tilelang quirks go to
@@ -197,8 +219,8 @@ This is where project conventions for this series live (not `CLAUDE.md`).
 - Tuning sweeps deferred from `csa_attn` (0003) onward (user decision
   2026-09-14): one config per dim that compiles and passes, flagged
   "untuned" in the README and ticket; a tuning pass comes later.
-- Fused QK-norm + RoPE prologue stays in torch via `torch.compile`, not in
-  the kernel: ticket 0011.
+- QK prologue (RMSNorm + RoPE) is a fused TileLang kernel, fwd + bwd with
+  autograd, untuned: ticket 0011.
 - Fixed sequence length for now; no varlen/packing.
 
 ## Next

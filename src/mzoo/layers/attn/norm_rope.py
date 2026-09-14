@@ -14,9 +14,9 @@ Semantics match exactly the vendored `dsv4` composition of
 nope channels pass through); `qk_norm_rope_eager` is that composition in plain
 torch and the test's reference. Nothing is imported from the modeling file.
 
-Backward is a custom `autograd.Function` (Liger-style): the forward saves only
-`rstd` (one fp32 per row) plus its inputs, and the backward kernel recomputes
-the normed values, so saved memory is ~1/8 of an fp32 activation copy.
+Backward is a custom `autograd.Function` (Liger-style): the forward saves its
+inputs (x, weight, cos, sin) plus `rstd` (one fp32 per row) and no activation
+copy at all — the backward kernel recomputes the normed values from x and rstd.
 """
 
 import torch
@@ -62,7 +62,9 @@ def make_fwd(rows, heads, dim, rope_dim, eps=1e-6, block_M=128, threads=256):
         Out: T.Tensor([rows, dim], T.bfloat16), Rstd: T.Tensor([rows], T.float32),
     ):
         with T.Kernel(T.ceildiv(rows, block_M), threads=threads) as (bx):
-            dpad = 1 << (dim - 1).bit_length()  # tilelang 0.1.14: no layout for non-pow2 fragment dims
+            # pad: a reduced fragment whose last dim is not a power of two has no
+            # layout unless the fill loop reads a per-row fragment (tickets/0001)
+            dpad = 1 << (dim - 1).bit_length()
             Xs = T.alloc_shared([block_M, dim], T.bfloat16)
             Xn = T.alloc_shared([block_M, dim], T.bfloat16)  # normed (bf16, as the reference rounds)
             Os = T.alloc_shared([block_M, dim], T.bfloat16)
@@ -81,7 +83,7 @@ def make_fwd(rows, heads, dim, rope_dim, eps=1e-6, block_M=128, threads=256):
                     Xf[i, d] = v * v
                 else:
                     Xf[i, d] = 0.0
-            T.reduce_sum(Xf, ss, dim=1)  # last-dim reduce only; dim=0 miscompiles (0.1.14)
+            T.reduce_sum(Xf, ss, dim=1)
             for i in T.Parallel(block_M):
                 rstd[i] = T.rsqrt(ss[i] / dim + eps)
                 tok[i] = (bx * block_M + i) // heads
@@ -135,9 +137,10 @@ def make_bwd(rows, heads, dim, rope_dim, eps=1e-6, block_M=128, threads=256):
     ):
         with T.Kernel(T.ceildiv(rows, block_M), threads=threads) as (bx):
             DYs = T.alloc_shared([block_M, dim], T.bfloat16)
-            # dw partials live transposed: tilelang 0.1.14 miscompiles
-            # `reduce_sum(..., dim=0)`, only the last-dim reduce (as in FA2) is sound.
-            GD = T.alloc_fragment([dim, block_M], T.float32)
+            # dw partials, reduced over rows (`dim=0`). Legal at non-pow2 dim only
+            # because the fill loop below also reads `dot[i]`, which anchors the
+            # row->thread layout -- see tickets/0001 (non-pow2 fragment reduce).
+            GD = T.alloc_fragment([block_M, dim], T.float32)
             dot = T.alloc_fragment([block_M], T.float32)
             dwb = T.alloc_fragment([dim], T.float32)
             for i, d in T.Parallel(block_M, dim):
@@ -176,10 +179,10 @@ def make_bwd(rows, heads, dim, rope_dim, eps=1e-6, block_M=128, threads=256):
                     rs = Rstd[r]
                     DX[r, d] = T.cast(rs * (g - xf * rs * rs * dot[i] / dim), T.bfloat16)
                     # dw[d] = sum_rows dxn * x * rstd -- NO w factor (d(w*h)/dw = h)
-                    GD[d, i] = T.if_then_else(d < nope, dyf, rot) * xf * rs
+                    GD[i, d] = T.if_then_else(d < nope, dyf, rot) * xf * rs
                 else:
-                    GD[d, i] = 0.0
-            T.reduce_sum(GD, dwb, dim=1)
+                    GD[i, d] = 0.0
+            T.reduce_sum(GD, dwb, dim=0)
             if bx * block_M < rows:
                 for d in T.Parallel(dim):
                     T.atomic_add(DW[d], dwb[d])

@@ -22,23 +22,13 @@ preview port="4485":
     docker image inspect mzoo-quarto >/dev/null 2>&1 || docker build -t mzoo-quarto docs/docker
     {{docker_run}} -p {{port}}:{{port}} mzoo-quarto quarto preview --host 0.0.0.0 --port {{port}} --no-browser
 
-# needs a gh-pages remote; mounts git identity and ssh keys read-only
+# render in docker, push to gh-pages from the host (host git/gh auth; no git/ssh in docker)
 [no-cd]
-publish:
-    docker image inspect mzoo-quarto >/dev/null 2>&1 || docker build -t mzoo-quarto docs/docker
-    docker run --rm -u {{uid}}:{{gid}} -e HOME=/tmp/home \
-        -v "$HOME/.gitconfig:/tmp/home/.gitconfig:ro" \
-        -v "$HOME/.ssh:/tmp/home/.ssh:ro" \
-        -e GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=accept-new -o UserKnownHostsFile=/tmp/home/known_hosts" \
-        -v "$PWD:/data" -w /data mzoo-quarto quarto publish gh-pages
+publish: render
+    docs/publish.sh
 
 # whole-book single-column pdf: just docs/ pdf [a4|a5] [out.pdf]
 # runs quarto+latex inside docker (image built once from docs/docker/Dockerfile)
 [no-cd]
 pdf papersize="a4" out="book.pdf":
-    #!/usr/bin/env bash
-    set -exuo pipefail
-    docker image inspect mzoo-quarto >/dev/null 2>&1 || docker build -t mzoo-quarto docs/docker
-    docker run --rm -u "$(id -u):$(id -g)" -e HOME=/tmp/home -v "$PWD:/data" -w /data mzoo-quarto \
-        quarto render docs/book.qmd --to pdf -M papersize:{{papersize}} \
-            -M title:"mzoo — Evolution" --output "{{out}}"
+    docs/pdf.sh {{papersize}} {{out}}
