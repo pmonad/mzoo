@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.33">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>index – mzoo</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../../">
+<script src="../../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-ea385d0e468b0dd5ea5bf0780b1290d9.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-dark-bc185b5c5bdbcb35c2eb49d8a876ef70.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-ea385d0e468b0dd5ea5bf0780b1290d9.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../../site_libs/bootstrap/bootstrap-fa320aee69b3ba8d25f984a718ce839a.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../../site_libs/bootstrap/bootstrap-dark-bdcacf09e97898037313a1503a5bc8da.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../../site_libs/bootstrap/bootstrap-fa320aee69b3ba8d25f984a718ce839a.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar floating nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../../index.html">
+    <span class="navbar-title">mzoo</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/pmonad/mzoo"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../docs/evolution/index.html">Evolution</a></li><li class="breadcrumb-item"><a href="../../../docs/evolution/02-normalisation/index.html">2 Normalisation</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Evolution</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../docs/evolution/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">From GPT-2 to DeepSeek-V4.1</span></a>
+  </div>
+</li>
+          <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">1 GPT-2</span></span>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">2 Normalisation</span></span>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">3 Positions</span></span>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">4 Feed-forward</span></span>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false">
+ <span class="menu-text">6 Mixture of experts</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../docs/evolution/06-moe/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">6. Mixture of experts</span></a>
+  </div>
+</li>
+          <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">Routing</span></span>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">Fine-grained and shared experts</span></span>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">Load balancing</span></span>
+  </li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="false">
+ <span class="menu-text">Attention</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-10" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">5 The KV cache</span></span>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-12" role="navigation" aria-expanded="false">
+ <span class="menu-text">7 Low-rank attention</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-12" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-12" class="collapse list-unstyled sidebar-section depth3 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../docs/evolution/07-low-rank-attention/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">7. Low-rank attention</span></a>
+  </div>
+</li>
+          <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">MLA</span></span>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">Single shared latent</span></span>
+  </li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">8 Local attention</span></span>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-16" role="navigation" aria-expanded="false">
+ <span class="menu-text">9 Compressed attention</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-16" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-16" class="collapse list-unstyled sidebar-section depth3 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../docs/evolution/09-compressed-attention/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">9. Compressed shared attention</span></a>
+  </div>
+</li>
+          <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">Compressor</span></span>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">Sharing across layers</span></span>
+  </li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-19" role="navigation" aria-expanded="false">
+ <span class="menu-text">10 Sparse selection</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-19" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-19" class="collapse list-unstyled sidebar-section depth3 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../docs/evolution/10-sparse-selection/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">10. Sparse selection</span></a>
+  </div>
+</li>
+          <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">Indexer</span></span>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">Hierarchical selection</span></span>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">Training the indexer</span></span>
+  </li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-23" role="navigation" aria-expanded="false">
+ <span class="menu-text">16 Attention kernels</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-23" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-23" class="collapse list-unstyled sidebar-section depth3 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../docs/evolution/16-attention-kernels/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">16. Attention kernels and low precision</span></a>
+  </div>
+</li>
+          <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">The FA2 template on SM120</span></span>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">One kernel for CSA2</span></span>
+  </li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-26" role="navigation" aria-expanded="false">
+ <span class="menu-text">17 Low-precision attention</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-26" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-26" class="collapse list-unstyled sidebar-section depth3 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../docs/evolution/17-low-precision-attention/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">17. Low-precision attention</span></a>
+  </div>
+</li>
+          <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">The variants</span></span>
+  </li>
+      </ul>
+  </li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-28" role="navigation" aria-expanded="false">
+ <span class="menu-text">11 Residual stream</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-28" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-28" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../docs/evolution/11-residual/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">11. The residual stream</span></a>
+  </div>
+</li>
+          <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">Hyper-connections</span></span>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">mHC</span></span>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">Single-pass mHC</span></span>
+  </li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-32" role="navigation" aria-expanded="false">
+ <span class="menu-text">12 Numerics</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-32" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-32" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../docs/evolution/12-numerics/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">12. Numerics</span></a>
+  </div>
+</li>
+          <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">bf16 and FP8</span></span>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">Low-precision matmuls</span></span>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">FP4</span></span>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">Gradients through quantisation</span></span>
+  </li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">13 Engram</span></span>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">14 Beyond the block</span></span>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">15 Assembly</span></span>
+  </li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#normalisation" id="toc-normalisation" class="nav-link active" data-scroll-target="#normalisation">2. Normalisation</a>
+  <ul class="collapse">
+  <li><a href="#why-normalise" id="toc-why-normalise" class="nav-link" data-scroll-target="#why-normalise">Why normalise</a></li>
+  <li><a href="#layer-normalisation" id="toc-layer-normalisation" class="nav-link" data-scroll-target="#layer-normalisation">Layer normalisation</a>
+  <ul class="collapse">
+  <li><a href="#what-a-norm-costs-on-the-reference-model" id="toc-what-a-norm-costs-on-the-reference-model" class="nav-link" data-scroll-target="#what-a-norm-costs-on-the-reference-model">What a norm costs on the reference model</a></li>
+  </ul></li>
+  <li><a href="#rmsnorm" id="toc-rmsnorm" class="nav-link" data-scroll-target="#rmsnorm">RMSNorm</a></li>
+  <li><a href="#placement" id="toc-placement" class="nav-link" data-scroll-target="#placement">Placement</a></li>
+  <li><a href="#normalising-inside-attention" id="toc-normalising-inside-attention" class="nav-link" data-scroll-target="#normalising-inside-attention">Normalising inside attention</a></li>
+  <li><a href="#predecessor-batch-normalisation" id="toc-predecessor-batch-normalisation" class="nav-link" data-scroll-target="#predecessor-batch-normalisation">Predecessor: batch normalisation</a></li>
+  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary">Summary</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../docs/evolution/index.html">Evolution</a></li><li class="breadcrumb-item"><a href="../../../docs/evolution/02-normalisation/index.html">2 Normalisation</a></li></ol></nav></header>
+
+
+
+
+
+<section id="normalisation" class="level1">
+<h1>2. Normalisation</h1>
+<p>Chapter 1 left a LayerNorm at the entry of each sublayer and said only that it maps the <span class="math inline">D</span> dimensions of a token to zero mean and unit variance. This chapter takes that component apart. It is the smallest thing in the block. Its parameters are <span class="math inline">2D</span> against the <span class="math inline">12D^2</span> of the block, it moves none of the three cost formulas of chapter 1, and its arithmetic is a rounding error next to the matrix products around it. It is also the component that every model after GPT-2 changed, because the choice of statistic and the placement of the norm decide whether a stack of 80 blocks trains at all.</p>
+<p>Three changes are covered. The statistic was simplified from mean and variance to root mean square. The placement was settled on pre-norm. And a norm was added inside attention, on the queries and keys, to stop the logits from growing during training. The chapter ends with the predecessor these forms displaced, batch normalisation, because the reasons it does not suit a language model explain what the surviving forms are for.</p>
+<section id="why-normalise" class="level2">
+<h2 class="anchored" data-anchor-id="why-normalise">Why normalise</h2>
+<p>A language model is a stack of transformer blocks, and each block acts on the vector that represents one token. The activations of a deep stack drift in scale from block to block. The gradient of a layer then depends on where the layer sits in the stack, so one learning rate cannot suit all layers, and training either needs a very small learning rate or diverges. Normalising the activations to a fixed scale at the entry of each block removes the drift and makes the layers comparable.</p>
+<p>The drift is not an accident of initialisation. In the residual arrangement of chapter 1 every sublayer adds its output to the running sum, so the sum grows as depth increases even when every sublayer is well behaved. A sublayer near the top therefore receives an input several times larger than one near the bottom, and it must learn weights several times smaller to produce an output of the same size. Two layers with identical roles then need different learning rates.</p>
+<p>Normalisation also changes the geometry of the optimisation. A norm placed before a linear layer makes the composition invariant to the scale of its input, so multiplying <span class="math inline">x</span> by any positive constant leaves the output unchanged. Two facts follow. The gradient with respect to <span class="math inline">x</span> has no component along <span class="math inline">x</span>, because moving along <span class="math inline">x</span> does not change the output, so an update can only rotate the representation rather than inflate it. And the gradient with respect to the weights of the layer that produced <span class="math inline">x</span> shrinks as those weights grow, which bounds a runaway in which large weights produce large activations that produce large gradients.</p>
+<p>The historical claim, from Ioffe and Szegedy 2015, “Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift”, was that normalisation removes a shift in the distribution of each layer’s inputs during training. Santurkar et al.&nbsp;2018, “How Does Batch Normalization Help Optimization?”, showed that the shift is not the mechanism and that the benefit comes from a smoother loss surface with better bounded gradients. The practical conclusion is the same either way. Normalise the input of each sublayer, and the stack becomes trainable at a learning rate that does not depend on depth.</p>
+</section>
+<section id="layer-normalisation" class="level2">
+<h2 class="anchored" data-anchor-id="layer-normalisation">Layer normalisation</h2>
+<p>Layer normalisation is the form GPT-2 uses. It comes from Ba et al.&nbsp;2016, “Layer Normalization”, which adapted batch normalisation to recurrent networks by taking the statistics over the dimensions of one example instead of over the batch. LayerNorm takes its statistics per token over the <span class="math inline">D</span> dimensions. It subtracts the mean, divides by the standard deviation, and applies a learned gain and bias:</p>
+<p><span class="math display">
+\operatorname{LN}(x) = g \odot \frac{x - \mu}{\sqrt{\sigma^2 + \epsilon}} + b .
+</span></p>
+<p>The mean and the variance are those of the <span class="math inline">D</span> dimensions of that one token, so <span class="math inline">\mu = \tfrac{1}{D}\sum_i x_i</span> and <span class="math inline">\sigma^2 = \tfrac{1}{D}\sum_i (x_i - \mu)^2</span>.</p>
+<p>Here <span class="math inline">g, b \in \mathbb{R}^D</span> are learned vectors and <span class="math inline">\odot</span> is the elementwise product, so dimension <span class="math inline">i</span> of the normalised vector is multiplied by its own gain <span class="math inline">g_i</span> and shifted by its own bias <span class="math inline">b_i</span>. The same symbol is used for elementwise products throughout the book. The constant <span class="math inline">\epsilon</span> is a small positive number, typically <span class="math inline">10^{-5}</span> or <span class="math inline">10^{-6}</span>, added so that a token whose dimensions are all equal does not divide by zero.</p>
+<p>Read geometrically, the operation maps <span class="math inline">x</span> onto a sphere. Subtracting the mean removes the component of <span class="math inline">x</span> along the all-ones direction, and dividing by the standard deviation fixes the length of what remains at <span class="math inline">\sqrt{D}</span>. Every token entering a sublayer therefore has the same length and lies in the same <span class="math inline">D - 1</span> dimensional subspace, and only its direction carries information. The gain and bias then restore the freedom to give dimensions different scales and offsets, but as learned constants rather than as something the previous layers can inflate.</p>
+<p>The statistics belong to a single token, so the result is independent of the batch, is the same for one token as for a full batch, and needs no running averages. The cost is two reductions over <span class="math inline">D</span>, one for the mean and one for the variance, followed by an elementwise gain and bias.</p>
+<section id="what-a-norm-costs-on-the-reference-model" class="level3">
+<h3 class="anchored" data-anchor-id="what-a-norm-costs-on-the-reference-model">What a norm costs on the reference model</h3>
+<p>On the reference model one norm acts on a vector of <span class="math inline">D = 8192</span> numbers, which is 16 KB in bf16. LayerNorm makes two passes over that vector, one to accumulate the mean and the variance and one to subtract, scale, and apply the gain and the bias, and it performs a few operations per dimension, at most about <span class="math inline">4D = 33</span> thousand multiply-adds. The block that surrounds it performs 805 million multiply-adds on the same token, one for each parameter of chapter 1. The norm is therefore about one twenty-thousandth of the arithmetic of the block, and its parameters are <span class="math inline">2D = 16</span> thousand against <span class="math inline">12D^2 = 805</span> million. Over the whole model, 161 norms at two vectors each come to 2.6 million parameters out of 65 billion.</p>
+<p>The cost of a norm is not arithmetic. It is memory traffic and serialisation. The vector must be read, reduced to two scalars, and read again, and the matrix product that follows cannot begin until the reduction has finished. As chapter 5 sets out for the cache, a current accelerator performs several hundred floating-point operations in the time it takes to read one byte from memory, so an operation that moves 16 KB in order to do 33 thousand multiply-adds runs at a small fraction of the machine’s rate and is charged for its bytes rather than its operations. This is why the useful saving in the next section is a pass over the activation removed, and not a multiply saved.</p>
+</section>
+</section>
+<section id="rmsnorm" class="level2">
+<h2 class="anchored" data-anchor-id="rmsnorm">RMSNorm</h2>
+<p>Two of the operations in LayerNorm are unnecessary. Removing the mean was found not to hurt quality, and the bias <span class="math inline">b</span> is redundant with the bias of the following linear layer. Circuit analyses make the same simplification when they fold the LayerNorm gain and bias into the next linear layer, as in Elhage et al.&nbsp;2021, “A Mathematical Framework for Transformer Circuits”. Dropping both gives</p>
+<p><span class="math display">
+\operatorname{RMSNorm}(x) = g \odot \frac{x}{\sqrt{\tfrac{1}{D}\sum_i x_i^2 + \epsilon}} .
+</span></p>
+<p>The form is due to Zhang and Sennrich 2019, “Root Mean Square Layer Normalization”. The denominator is the root mean square of the <span class="math inline">D</span> dimensions, so the operation fixes the length of <span class="math inline">x</span> at <span class="math inline">\sqrt{D}</span> and leaves its direction alone. Compared with LayerNorm it keeps the scale invariance, which is the property that made normalisation useful, and gives up the shift invariance, which was doing no work in a network whose next operation is an affine map.</p>
+<p>This is one reduction instead of two, and one fewer parameter vector. Each removed operation was a separate pass over the activation, and on accelerators such small memory-bound operations take a noticeable share of the non-matmul time. All LLaMA-family models and every DeepSeek model use this form. The statistic is computed in fp32 even when activations are bf16, because the sum of squares overflows or loses precision in half precision. On the reference model that sum runs over 8192 squared values, and bf16 carries eight bits of mantissa, so an accumulation in bf16 would stop adding small terms long before the end of the vector.</p>
+<p>In owlet1 this is <code>DeepseekV41RMSNorm</code> in <code>src/mzoo/archs/owlet1/norm_rope.py</code>, which casts to fp32, takes the mean of squares, and casts back. An unweighted variant in the same file drops <span class="math inline">g</span> as well, and is used where the following layer supplies the scale.</p>
+</section>
+<section id="placement" class="level2">
+<h2 class="anchored" data-anchor-id="placement">Placement</h2>
+<p>GPT-2 already used pre-norm. Pre-norm normalises the sublayer input and adds the raw sublayer output to the residual. The alternative is post-norm from the original transformer, which normalises the sum:</p>
+<p><span class="math display">
+\text{post-norm:}\quad x \leftarrow \operatorname{Norm}\big(x + f(x)\big), \qquad
+\text{pre-norm:}\quad x \leftarrow x + f\big(\operatorname{Norm}(x)\big).
+</span></p>
+<p>Pre-norm keeps an unnormalised path from input to output, so gradients reach early layers without passing through a norm at every block. It trains stably at depth without learning-rate warm-up, at the cost of the residual growing in magnitude with depth. Xiong et al.&nbsp;2020, “On Layer Normalization in the Transformer Architecture”, made the difference precise. Under post-norm the expected gradient at the output layer grows with depth at initialisation, which is why the original recipe needs a warm-up schedule, and under pre-norm it does not.</p>
+<p>The growth of the pre-norm residual can be estimated. Each sublayer writes a vector that is roughly independent of what is already there, so the variances add and the length of the residual grows about as the square root of the number of writes. After the 160 writes of the reference model the residual is about thirteen times the length of the embedding it started from. The norm at the entry of each sublayer divides that length out, so a sublayer high in the stack sees the same input scale as one low in the stack, and what changes with depth is that each new write is a smaller fraction of the sum. Deep pre-norm stacks therefore tend to make small relative edits near the top.</p>
+<p>Post-norm bounds the output of every block and gives a better conditioned final representation, and it was used in the original transformer and in BERT, but at depth it needs warm-up and careful initialisation. Wang et al.&nbsp;2022, “DeepNet: Scaling Transformers to 1,000 Layers”, showed that post-norm can be pushed to very large depth if the residual branch is scaled down by a factor derived from the depth, which confirms that the difficulty is the magnitude of the residual branch rather than the placement as such. Some models add a second norm after the sublayer output, a form called sandwich norm and used in Gemma 2, to limit that growth. Every model in this document is pre-norm. Chapter 11 returns to the residual itself.</p>
+<p>Pre-norm has one consequence at the top of the stack. The last sublayer output is added to the residual without ever being normalised, so the final state has no fixed scale. That is why the model of chapter 1 ends with a separate normalisation before the output projection. In owlet1 the two per-sublayer norms are <code>attn_norm</code> and <code>ffn_norm</code> in <code>src/mzoo/archs/owlet1/decoder.py</code>, and the final norm is at the end of the same file.</p>
+</section>
+<section id="normalising-inside-attention" class="level2">
+<h2 class="anchored" data-anchor-id="normalising-inside-attention">Normalising inside attention</h2>
+<p>Attention logits are <span class="math inline">q \cdot k / \sqrt{d}</span>. If the projections grow during training, logits grow with them, the softmax saturates, and training destabilises. Applying RMSNorm to <span class="math inline">q</span> and <span class="math inline">k</span> per head bounds the logit magnitude:</p>
+<p><span class="math display">
+s_{ij} = \frac{\operatorname{RMSNorm}(q_i) \cdot \operatorname{RMSNorm}(k_j)}{\sqrt{d}} .
+</span></p>
+<p>Chapter 1 divided by <span class="math inline">\sqrt{d}</span> on the assumption that the dimensions of <span class="math inline">q</span> and <span class="math inline">k</span> have unit variance. Nothing enforces that assumption. The norms of <span class="math inline">W_Q</span> and <span class="math inline">W_K</span> are free to grow, and a model can reduce its loss by growing them, because larger logits give a sharper softmax and a more confident copy of whatever the head has found. The failure mode is that the softmax reaches the region where one weight is one and the rest are zero, where its gradient is zero, and the head stops learning at a pattern it can no longer adjust. Zhai et al.&nbsp;2023, “Stabilizing Transformer Training by Preventing Attention Entropy Collapse”, describes this collapse and shows that controlling the logit scale prevents it. With the norms in place, <span class="math inline">\operatorname{RMSNorm}(q)</span> and <span class="math inline">\operatorname{RMSNorm}(k)</span> both have length <span class="math inline">\sqrt{d}</span>, so the logit is at most <span class="math inline">\sqrt{d}</span> regardless of what the projections do, and a learned per-head gain remains the only way for the model to sharpen the distribution.</p>
+<p>The form is from Henry et al.&nbsp;2020, “Query-Key Normalization for Transformers”, and it entered large models through Dehghani et al.&nbsp;2023, “Scaling Vision Transformers to 22 Billion Parameters”, which needed it to train at that size. Qwen3 in 2025 uses grouped-query attention with QK-norm in every attention layer, and GLM-4.5 in 2025 uses it as well.</p>
+<p>DeepSeek applies a norm to the low-rank query and key/value latents of chapter 7 rather than to the per-head vectors. This has the same effect at lower cost. The latents are smaller than the concatenated per-head vectors, and normalising them before they are expanded bounds every head at once. In owlet1 these are <code>q_norm</code> and <code>kv_norm</code> in <code>src/mzoo/archs/owlet1/attention.py</code>.</p>
+</section>
+<section id="predecessor-batch-normalisation" class="level2">
+<h2 class="anchored" data-anchor-id="predecessor-batch-normalisation">Predecessor: batch normalisation</h2>
+<p>Batch normalisation is the earlier method, and it suits convolutional networks on fixed-size images. It takes its statistics per dimension over the batch. For dimension <span class="math inline">c</span>, let <span class="math inline">\mu_c</span> and <span class="math inline">\sigma_c^2</span> be the mean and variance of that dimension over all tokens in the batch:</p>
+<p><span class="math display">
+\operatorname{BN}(x)_c = g_c \frac{x_c - \mu_c}{\sqrt{\sigma_c^2 + \epsilon}} + b_c .
+</span></p>
+<p>The difference from the two forms above is which axis is reduced. LayerNorm and RMSNorm reduce over the <span class="math inline">D</span> dimensions of one token and treat each token separately. Batch normalisation reduces over the tokens and treats each dimension separately, so its output for one token depends on every other token in the batch.</p>
+<p>It does not suit language models, for three reasons. The statistics depend on the composition of the batch, so the output for one sequence changes when the other sequences change. Sequences have variable length, so the number of tokens contributing to a dimension is not fixed and padding positions distort the statistics. Inference often processes one sequence at a time, where there is no batch to average over. Batch normalisation therefore keeps running averages of <span class="math inline">\mu_c</span> and <span class="math inline">\sigma_c^2</span> collected during training and uses them at inference, which makes the function at test time different from the function that was trained.</p>
+<p>A fourth reason is distributed training. The statistics of a batch that is split across accelerators require a reduction across all of them at every normalisation, in the forward pass and again in the backward pass. A per-token statistic needs no communication at all, which is what makes it usable at the scale of the models in this book.</p>
+</section>
+<section id="summary" class="level2">
+<h2 class="anchored" data-anchor-id="summary">Summary</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th>Statistics over</th>
+<th>Parameters</th>
+<th>Reductions per token</th>
+<th>Batch dependent</th>
+<th>Used in</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>LayerNorm</td>
+<td><span class="math inline">D</span> dimensions of one token</td>
+<td>gain and bias, <span class="math inline">2D</span></td>
+<td>two</td>
+<td>no</td>
+<td>GPT-2 and BERT</td>
+</tr>
+<tr class="even">
+<td>RMSNorm</td>
+<td><span class="math inline">D</span> dimensions of one token</td>
+<td>gain, <span class="math inline">D</span></td>
+<td>one</td>
+<td>no</td>
+<td>LLaMA and DeepSeek</td>
+</tr>
+<tr class="odd">
+<td>BatchNorm</td>
+<td>batch, per dimension</td>
+<td>gain and bias per dimension</td>
+<td>two, over the batch</td>
+<td>yes</td>
+<td>CNNs</td>
+</tr>
+</tbody>
+</table>
+<p>Every model from here on uses pre-norm RMSNorm at the entry of both sublayers, a final RMSNorm before the output projection, and a norm on the query and key side of attention. On the reference model that choice costs 1.3 million parameters out of 65 billion and one reduction per norm per token, and it is what allows the remaining chapters to change the contents of the sublayers without revisiting whether the stack still trains.</p>
+<p>Chapter 3 turns to the other component chapter 1 left provisional. Position in GPT-2 is a learned table added to the embedding, which caps the context and encodes absolute rather than relative position. The models that follow remove it from the residual stream entirely and put position inside the attention dot product.</p>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/pmonad\.github\.io\/mzoo\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

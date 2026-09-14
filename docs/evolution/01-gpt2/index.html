@@ -1,0 +1,1255 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.33">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>index – mzoo</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../../">
+<script src="../../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-ea385d0e468b0dd5ea5bf0780b1290d9.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-dark-bc185b5c5bdbcb35c2eb49d8a876ef70.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-ea385d0e468b0dd5ea5bf0780b1290d9.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../../site_libs/bootstrap/bootstrap-fa320aee69b3ba8d25f984a718ce839a.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../../site_libs/bootstrap/bootstrap-dark-bdcacf09e97898037313a1503a5bc8da.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../../site_libs/bootstrap/bootstrap-fa320aee69b3ba8d25f984a718ce839a.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar floating nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../../index.html">
+    <span class="navbar-title">mzoo</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/pmonad/mzoo"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../docs/evolution/index.html">Evolution</a></li><li class="breadcrumb-item"><a href="../../../docs/evolution/01-gpt2/index.html">1 GPT-2</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Evolution</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../docs/evolution/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">From GPT-2 to DeepSeek-V4.1</span></a>
+  </div>
+</li>
+          <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">1 GPT-2</span></span>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">2 Normalisation</span></span>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">3 Positions</span></span>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">4 Feed-forward</span></span>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false">
+ <span class="menu-text">6 Mixture of experts</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../docs/evolution/06-moe/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">6. Mixture of experts</span></a>
+  </div>
+</li>
+          <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">Routing</span></span>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">Fine-grained and shared experts</span></span>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">Load balancing</span></span>
+  </li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="false">
+ <span class="menu-text">Attention</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-10" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">5 The KV cache</span></span>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-12" role="navigation" aria-expanded="false">
+ <span class="menu-text">7 Low-rank attention</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-12" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-12" class="collapse list-unstyled sidebar-section depth3 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../docs/evolution/07-low-rank-attention/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">7. Low-rank attention</span></a>
+  </div>
+</li>
+          <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">MLA</span></span>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">Single shared latent</span></span>
+  </li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">8 Local attention</span></span>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-16" role="navigation" aria-expanded="false">
+ <span class="menu-text">9 Compressed attention</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-16" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-16" class="collapse list-unstyled sidebar-section depth3 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../docs/evolution/09-compressed-attention/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">9. Compressed shared attention</span></a>
+  </div>
+</li>
+          <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">Compressor</span></span>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">Sharing across layers</span></span>
+  </li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-19" role="navigation" aria-expanded="false">
+ <span class="menu-text">10 Sparse selection</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-19" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-19" class="collapse list-unstyled sidebar-section depth3 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../docs/evolution/10-sparse-selection/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">10. Sparse selection</span></a>
+  </div>
+</li>
+          <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">Indexer</span></span>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">Hierarchical selection</span></span>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">Training the indexer</span></span>
+  </li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-23" role="navigation" aria-expanded="false">
+ <span class="menu-text">16 Attention kernels</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-23" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-23" class="collapse list-unstyled sidebar-section depth3 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../docs/evolution/16-attention-kernels/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">16. Attention kernels and low precision</span></a>
+  </div>
+</li>
+          <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">The FA2 template on SM120</span></span>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">One kernel for CSA2</span></span>
+  </li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-26" role="navigation" aria-expanded="false">
+ <span class="menu-text">17 Low-precision attention</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-26" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-26" class="collapse list-unstyled sidebar-section depth3 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../docs/evolution/17-low-precision-attention/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">17. Low-precision attention</span></a>
+  </div>
+</li>
+          <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">The variants</span></span>
+  </li>
+      </ul>
+  </li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-28" role="navigation" aria-expanded="false">
+ <span class="menu-text">11 Residual stream</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-28" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-28" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../docs/evolution/11-residual/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">11. The residual stream</span></a>
+  </div>
+</li>
+          <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">Hyper-connections</span></span>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">mHC</span></span>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">Single-pass mHC</span></span>
+  </li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-32" role="navigation" aria-expanded="false">
+ <span class="menu-text">12 Numerics</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-32" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-32" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../docs/evolution/12-numerics/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">12. Numerics</span></a>
+  </div>
+</li>
+          <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">bf16 and FP8</span></span>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">Low-precision matmuls</span></span>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">FP4</span></span>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">Gradients through quantisation</span></span>
+  </li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">13 Engram</span></span>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">14 Beyond the block</span></span>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">15 Assembly</span></span>
+  </li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#the-reference-block-gpt-2" id="toc-the-reference-block-gpt-2" class="nav-link active" data-scroll-target="#the-reference-block-gpt-2">1. The reference block: GPT-2</a>
+  <ul class="collapse">
+  <li><a href="#where-gpt-2-sits" id="toc-where-gpt-2-sits" class="nav-link" data-scroll-target="#where-gpt-2-sits">Where GPT-2 sits</a></li>
+  <li><a href="#input" id="toc-input" class="nav-link" data-scroll-target="#input">Input</a></li>
+  <li><a href="#the-block" id="toc-the-block" class="nav-link" data-scroll-target="#the-block">The block</a>
+  <ul class="collapse">
+  <li><a href="#attention" id="toc-attention" class="nav-link" data-scroll-target="#attention">Attention</a></li>
+  <li><a href="#the-feed-forward-sublayer" id="toc-the-feed-forward-sublayer" class="nav-link" data-scroll-target="#the-feed-forward-sublayer">The feed-forward sublayer</a></li>
+  </ul></li>
+  <li><a href="#the-residual-stream" id="toc-the-residual-stream" class="nav-link" data-scroll-target="#the-residual-stream">The residual stream</a></li>
+  <li><a href="#output" id="toc-output" class="nav-link" data-scroll-target="#output">Output</a></li>
+  <li><a href="#what-it-costs" id="toc-what-it-costs" class="nav-link" data-scroll-target="#what-it-costs">What it costs</a>
+  <ul class="collapse">
+  <li><a href="#parameters-per-block" id="toc-parameters-per-block" class="nav-link" data-scroll-target="#parameters-per-block">Parameters per block</a></li>
+  <li><a href="#arithmetic-per-token" id="toc-arithmetic-per-token" class="nav-link" data-scroll-target="#arithmetic-per-token">Arithmetic per token</a></li>
+  <li><a href="#cache-bytes-per-token" id="toc-cache-bytes-per-token" class="nav-link" data-scroll-target="#cache-bytes-per-token">Cache bytes per token</a></li>
+  </ul></li>
+  <li><a href="#what-the-later-chapters-change" id="toc-what-the-later-chapters-change" class="nav-link" data-scroll-target="#what-the-later-chapters-change">What the later chapters change</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../docs/evolution/index.html">Evolution</a></li><li class="breadcrumb-item"><a href="../../../docs/evolution/01-gpt2/index.html">1 GPT-2</a></li></ol></nav></header>
+
+
+
+
+
+<section id="the-reference-block-gpt-2" class="level1">
+<h1>1. The reference block: GPT-2</h1>
+<p>GPT-2 comes first because almost every later change is a local edit to it. The model is an embedding, a stack of identical blocks, and a projection back to the vocabulary. Every design in this book keeps that outer shape and rewrites one part of one block, so the GPT-2 version of each part is the baseline the rest of the book measures against. This chapter sets out that version in full and fixes the notation.</p>
+<p>The chapter also works the arithmetic of the reference model of the preface through once. Three quantities come out of it: the parameters in one block, the floating-point operations per token, and the bytes of key-value cache per token. Every chapter from here to chapter 12 changes one factor of one of those three, and each quotes the values computed here rather than recomputing them. The last section is a table of which chapter moves which factor.</p>
+<section id="where-gpt-2-sits" class="level2">
+<h2 class="anchored" data-anchor-id="where-gpt-2-sits">Where GPT-2 sits</h2>
+<p>The transformer is due to Vaswani et al.&nbsp;2017, “Attention Is All You Need”, as an encoder-decoder model for translation. GPT-2, from Radford et al.&nbsp;2019, “Language Models are Unsupervised Multitask Learners”, keeps only the decoder half. It has no encoder and no cross-attention, every block is identical, and the single training objective is to predict the next token of ordinary text. That shape has not changed since. DeepSeek-V4.1 in 2026 is still an embedding, a stack of identical blocks and an unembedding, trained to predict the next token.</p>
+<p>Two smaller decisions of GPT-2 also survived. It placed the normalisation at the input of each sublayer rather than after it, the arrangement chapter 2 calls pre-norm, and it added a final normalisation before the output projection. Both are in every model in this book.</p>
+<p>The largest GPT-2 has 48 blocks, a residual width of 1600, a context of 1024 positions, a byte-pair vocabulary of 50257 entries and about 1.5 billion parameters. The reference model of this book is a hundred times larger in nothing but its dimensions. It has 80 blocks, a width of 8192 and a context of 4096, and its block is the GPT-2 block unchanged.</p>
+</section>
+<section id="input" class="level2">
+<h2 class="anchored" data-anchor-id="input">Input</h2>
+<p>Text is first cut into tokens by a byte-pair encoder, so a token is a common byte string rather than a word, and the vocabulary <span class="math inline">V</span> is a fixed list of such strings. The model never sees characters. It sees an index into that list.</p>
+<p>Each token gets a learned vector and a learned position vector, added together:</p>
+<p><span class="math display">
+x_0 = E[\text{id}] + P[\text{pos}], \qquad E \in \mathbb{R}^{V \times D},\ P \in \mathbb{R}^{S_{\max} \times D}.
+</span></p>
+<p><span class="math inline">E</span> holds one row of width <span class="math inline">D</span> per vocabulary entry and <span class="math inline">P</span> one row of width <span class="math inline">D</span> per position. The two rows are added rather than concatenated, so from the first layer onward position occupies the same <span class="math inline">D</span> dimensions as content and no part of the vector is reserved for either.</p>
+<p>Positions come from a lookup table. The model cannot run past <span class="math inline">S_{\max}</span>. It has no representation of relative distance beyond what the table learns. Both defects follow from the table being indexed by absolute position. Row 4097 does not exist, and rows 500 and 501 are learned independently of rows 1500 and 1501 even though the offset between the members of each pair is the same. On the reference model with <span class="math inline">S_{\max} = 4096</span> the table holds <span class="math inline">4096 \cdot 8192 = 33.6</span> million parameters, small against the 65 billion of the whole model, so the table is not expensive. It is inflexible. Chapter 3 removes it.</p>
+</section>
+<section id="the-block" class="level2">
+<h2 class="anchored" data-anchor-id="the-block">The block</h2>
+<p>Two sublayers, each wrapped in a residual connection with a LayerNorm applied before it:</p>
+<p><span class="math display">
+\begin{aligned}
+x &amp;\leftarrow x + \operatorname{Attn}\big(\operatorname{LN}(x)\big) \\
+x &amp;\leftarrow x + \operatorname{MLP}\big(\operatorname{LN}(x)\big)
+\end{aligned}
+</span></p>
+<p>The two arrows are applied in order, and the block is this pair repeated <span class="math inline">L</span> times with separate weights. The additions are residual connections in the sense of He et al.&nbsp;2015, “Deep Residual Learning for Image Recognition”. Each sublayer computes a correction to its input rather than a replacement for it, so a sublayer that has learned nothing yet is the zero function and leaves the stack intact, and the gradient of the loss reaches every depth through the chain of additions without being multiplied by a weight matrix at each step.</p>
+<p>Here <span class="math inline">\operatorname{LN}</span> is layer normalisation. It normalises the <span class="math inline">D</span> dimensions of one token to zero mean and unit variance, then applies a learned gain and bias. Chapter 2 defines it and its successors.</p>
+<section id="attention" class="level3">
+<h3 class="anchored" data-anchor-id="attention">Attention</h3>
+<p>Attention is the only operation in the block that moves information between positions. Each position forms a query, every position offers a key and a value, and the position reads a weighted average of the values of the positions whose keys match its query.</p>
+<p>Attention has <span class="math inline">H</span> heads. For head <span class="math inline">h</span> and position <span class="math inline">i</span>, with queries, keys and values projected from the normed input,</p>
+<p><span class="math display">
+o_{h,i} = \sum_{j \le i} \operatorname{softmax}_j\!\left(\frac{q_{h,i} \cdot k_{h,j}}{\sqrt{d}}\right) v_{h,j},
+\qquad
+\operatorname{Attn}(x) = W_O\,[\,o_1 \,\|\, \dots \,\|\, o_H\,].
+</span></p>
+<p>Read this from the inside out. The vectors <span class="math inline">q_{h,i}</span>, <span class="math inline">k_{h,j}</span> and <span class="math inline">v_{h,j}</span> each have width <span class="math inline">d</span> and come from the <span class="math inline">D \times D</span> projections <span class="math inline">W_Q</span>, <span class="math inline">W_K</span> and <span class="math inline">W_V</span> applied to <span class="math inline">\operatorname{LN}(x)</span> and then cut into <span class="math inline">H</span> pieces of width <span class="math inline">d</span>. The dot product <span class="math inline">q_{h,i} \cdot k_{h,j}</span> scores position <span class="math inline">j</span> as a source for position <span class="math inline">i</span>. The softmax over <span class="math inline">j</span> turns those scores into weights that are positive and sum to one, so the output is an average of the values and stays at the scale of a single value. The restriction <span class="math inline">j \le i</span> is the causal mask. Without it a position could read from its own future and next-token prediction would be trivial. With it, one forward pass over a sequence of length <span class="math inline">S</span> produces <span class="math inline">S</span> separate predictions, each conditioned only on its own prefix.</p>
+<p>The division by <span class="math inline">\sqrt{d}</span> has a reason. If the dimensions of <span class="math inline">q</span> and <span class="math inline">k</span> are independent with unit variance, the dot product of two <span class="math inline">d</span>-dimensional vectors has variance <span class="math inline">d</span> and therefore a typical magnitude of <span class="math inline">\sqrt{d}</span>. Dividing by <span class="math inline">\sqrt{d}</span> returns the score to unit scale, which keeps the softmax away from the flat region where all weights are equal and away from the saturated region where one weight is one and the gradient vanishes. Chapter 2 returns to this point, because the assumption of unit-variance dimensions is exactly what fails as training proceeds.</p>
+<p>There are <span class="math inline">H</span> heads rather than one because a position usually needs to gather several unrelated things at once, and one softmax can only concentrate on one set of positions. Splitting the width <span class="math inline">D</span> into <span class="math inline">H</span> pieces of width <span class="math inline">d = D/H</span> buys <span class="math inline">H</span> independent attention patterns at no extra parameter cost, since the projections are <span class="math inline">D \times D</span> either way. The head outputs, each of width <span class="math inline">d</span>, are concatenated into one vector of width <span class="math inline">D</span> and mixed by <span class="math inline">W_O</span>. Four matrices of <span class="math inline">D \times D</span> make up the whole sublayer.</p>
+<p>In an implementation the per-head sum is written as three matrix products over the whole sequence,</p>
+<p><span class="math display">
+\operatorname{Attn}_h(X) = \operatorname{softmax}\!\left(\frac{Q_h K_h^{\top}}{\sqrt{d}} + M\right) V_h ,
+</span></p>
+<p>where <span class="math inline">Q_h</span>, <span class="math inline">K_h</span> and <span class="math inline">V_h</span> stack the per-position vectors as rows and <span class="math inline">M</span> is zero where <span class="math inline">j \le i</span> and <span class="math inline">-\infty</span> elsewhere. The <span class="math inline">S \times S</span> score matrix in the middle is the term that makes training cost grow with the square of the sequence length.</p>
+</section>
+<section id="the-feed-forward-sublayer" class="level3">
+<h3 class="anchored" data-anchor-id="the-feed-forward-sublayer">The feed-forward sublayer</h3>
+<p>GPT-2 uses an MLP with one hidden layer of width <span class="math inline">4D</span>. The ratio 4 is a convention taken from the original transformer rather than a derived quantity, and later models use other ratios.</p>
+<p><span class="math display">
+\operatorname{MLP}(x) = W_2\, \operatorname{GELU}(W_1 x), \qquad W_1 \in \mathbb{R}^{4D \times D}.
+</span></p>
+<p><span class="math inline">W_1</span> lifts the token from <span class="math inline">D</span> to <span class="math inline">4D</span>, the activation applies a nonlinearity to each of the <span class="math inline">4D</span> hidden units, and <span class="math inline">W_2 \in \mathbb{R}^{D \times 4D}</span> projects the result back to width <span class="math inline">D</span>. The activation is the Gaussian error linear unit of Hendrycks and Gimpel 2016, “Gaussian Error Linear Units (GELUs)”, which is</p>
+<p><span class="math display">
+\operatorname{GELU}(z) = z\,\Phi(z),
+</span></p>
+<p>with <span class="math inline">\Phi</span> the standard normal cumulative distribution function. It behaves like the identity for large positive <span class="math inline">z</span> and decays smoothly to zero for negative <span class="math inline">z</span>, and unlike a rectified linear unit it has a nonzero gradient everywhere.</p>
+<p>This sublayer acts on one token at a time and never compares two positions. Attention decides what to read, and the feed-forward layer decides what to do with it. Chapter 4 changes the activation and the shape of the MLP, and chapter 6 replaces the single MLP with many copies of it.</p>
+</section>
+</section>
+<section id="the-residual-stream" class="level2">
+<h2 class="anchored" data-anchor-id="the-residual-stream">The residual stream</h2>
+<p>The two sublayers add into a running sum, so the state at any depth is the embedding plus everything written into it so far. Elhage et al.&nbsp;2021, “A Mathematical Framework for Transformer Circuits”, describe this sum as a shared medium that every layer reads from and writes to. On the reference model that medium is 8192 numbers wide, its width is the same at every depth, and it is written into 160 times, twice in each of 80 blocks. The logit lens of nostalgebraist 2020, “interpreting GPT: the logit lens”, decodes an intermediate state with the unembedding <span class="math inline">E</span> and shows the prediction being refined from layer to layer. This picture of the residual as a shared medium of fixed width is used in chapter 11.</p>
+<p>One consequence matters for the chapters in between. Because every sublayer reads the whole residual and writes the whole residual, a change that alters what one sublayer computes does not alter the interface between sublayers. That is why the changes in this book compose. A model can take the normalisation of chapter 2, the positions of chapter 3, the feed-forward layer of chapter 4 and the attention of chapter 7 independently of each other, and chapter 15 does exactly that.</p>
+</section>
+<section id="output" class="level2">
+<h2 class="anchored" data-anchor-id="output">Output</h2>
+<p>A final LayerNorm, then the transposed embedding matrix as the output projection, then cross-entropy on the next token:</p>
+<p><span class="math display">
+z = E\, \operatorname{LN}(x_L), \qquad
+\mathcal{L} = -\sum_t \log \operatorname{softmax}(z_t)_{\text{id}_{t+1}}.
+</span></p>
+<p>The vector <span class="math inline">z</span> has one entry per vocabulary item, called a logit, and the softmax turns the logits into a distribution over the next token. The loss is the negative log probability the model assigned to the token that actually followed. Using the same matrix <span class="math inline">E</span> for the input embedding and the output projection is weight tying, from Press and Wolf 2017, “Using the Output Embedding to Improve Language Models”. It saves <span class="math inline">V \cdot D</span> parameters and forces a token’s input vector and the direction that predicts it to coincide.</p>
+<p>The loss is summed over positions, and the causal mask means every position of a training sequence supplies one prediction, so a batch of <span class="math inline">B</span> sequences of length <span class="math inline">S</span> yields <span class="math inline">BS</span> predictions from one forward pass. Generation reverses the arrangement. The model emits one token, that token is fed back as the next input, and the pass is repeated. Chapter 5 is about what that reversal costs.</p>
+</section>
+<section id="what-it-costs" class="level2">
+<h2 class="anchored" data-anchor-id="what-it-costs">What it costs</h2>
+<p>Three quantities are used in the later chapters. All three are worked out here on the reference model of the preface, with <span class="math inline">L = 80</span> blocks, <span class="math inline">D = 8192</span>, <span class="math inline">H = 64</span> heads of width <span class="math inline">d = 128</span>, <span class="math inline">V = 32000</span> and two bytes per element.</p>
+<section id="parameters-per-block" class="level3">
+<h3 class="anchored" data-anchor-id="parameters-per-block">Parameters per block</h3>
+<p>Per token and per layer, the parameter count is dominated by the four attention matrices at <span class="math inline">4D^2</span> and the two MLP matrices at <span class="math inline">8D^2</span>:</p>
+<p><span class="math display">
+4D^2 = 4 \cdot 8192^2 = 268\,\text{M}, \qquad 8D^2 = 537\,\text{M}, \qquad 12D^2 = 805\,\text{M}.
+</span></p>
+<p>The two norms contribute <span class="math inline">4D = 32768</span> parameters per block, one part in twenty thousand of the block, and are left out of every count in this book. Over 80 blocks the stack holds <span class="math inline">80 \cdot 805\,\text{M} = 64.4</span> billion parameters, the embedding adds <span class="math inline">V \cdot D = 32000 \cdot 8192 = 262</span> million, and the total is about 65 billion. LLaMA-2 70B, from Touvron et al.&nbsp;2023, “Llama 2: Open Foundation and Fine-Tuned Chat Models”, reaches 70 billion at the same depth and width with a wider feed-forward layer, worked out in chapter 4. At two bytes per parameter its weights occupy 140 GB, the figure the cache is compared against in chapter 5.</p>
+<p>Two thirds of a block, 537 M of 805 M, is the feed-forward layer, and the ratio is fixed by the constants 8 and 4 in <span class="math inline">8D^2</span> and <span class="math inline">4D^2</span> rather than by the width. That ratio is the reason chapter 6 changes the feed-forward layer rather than attention when it separates parameter count from compute.</p>
+</section>
+<section id="arithmetic-per-token" class="level3">
+<h3 class="anchored" data-anchor-id="arithmetic-per-token">Arithmetic per token</h3>
+<p>A matrix of <span class="math inline">m</span> rows and <span class="math inline">n</span> columns applied to a vector costs <span class="math inline">mn</span> multiply-adds, counted as <span class="math inline">2mn</span> floating-point operations. Every weight is used exactly once per token, so compute per token is about twice the parameter count in FLOPs, which is about 130 GFLOPs on the reference model. The backward pass costs about twice the forward pass, one product for the gradient with respect to the input and one for the gradient with respect to the weights, which gives the usual estimate of six FLOPs per parameter per token of training. At the twenty tokens per parameter of Hoffmann et al.&nbsp;2022, “Training Compute-Optimal Large Language Models”, training the reference model on 1.3 trillion tokens costs about <span class="math inline">6 \cdot 65 \times 10^9 \cdot 1.3 \times 10^{12} \approx 5 \times 10^{23}</span> FLOPs.</p>
+<p>The attention scores and the weighted sum are not accounted for by any parameter, because they involve the sequence rather than the weights, and they grow with sequence length:</p>
+<p><span class="math display">
+\text{FLOPs}_{\text{attn scores}} \propto S \cdot H d = S D \quad \text{per token}.
+</span></p>
+<p>For one head, comparing the query against <span class="math inline">S</span> keys of width <span class="math inline">d</span> is <span class="math inline">Sd</span> multiply-adds and the weighted sum over <span class="math inline">S</span> values of width <span class="math inline">d</span> is another <span class="math inline">Sd</span>. Over <span class="math inline">H</span> heads that is <span class="math inline">2SHd = 2SD</span> multiply-adds, or <span class="math inline">4SD</span> FLOPs per token per block. At the training length <span class="math inline">S = 4096</span> this is <span class="math inline">4 \cdot 4096 \cdot 8192 = 134</span> MFLOPs per block and 10.7 GFLOPs over the 80 blocks, about eight percent of the 130 GFLOPs from the weights. At the long-context target <span class="math inline">S = 131072</span> it is 344 GFLOPs, more than twice the weights, so at that length the sequence term dominates the model term. The term is linear in <span class="math inline">S</span> for one token and therefore quadratic in <span class="math inline">S</span> over a whole sequence, which is why chapters 8 and 10 reduce the number of keys a query reads.</p>
+</section>
+<section id="cache-bytes-per-token" class="level3">
+<h3 class="anchored" data-anchor-id="cache-bytes-per-token">Cache bytes per token</h3>
+<p>At inference every generated token must attend to all previous keys and values, so they are kept in a cache. Its size per token is</p>
+<p><span class="math display">
+\text{KV bytes per token} = 2 \cdot L \cdot H \cdot d \cdot \text{bytes per element},
+</span></p>
+<p>where the factor 2 counts one key and one value. In bf16 on the reference model this is <span class="math inline">2 \cdot 80 \cdot 64 \cdot 128 \cdot 2 = 2.6</span> MB for every token held in context, so a sequence at the training length carries 10.7 GB of cache and one at the long-context target carries 344 GB against 140 GB of weights. For long contexts this cache, not the weights, becomes the limit on batch size and therefore on throughput. Chapters 5, 7, 8, 9 and 12 each reduce a different term in this formula.</p>
+</section>
+</section>
+<section id="what-the-later-chapters-change" class="level2">
+<h2 class="anchored" data-anchor-id="what-the-later-chapters-change">What the later chapters change</h2>
+<p>Each of the next eleven chapters edits one factor of one of the three quantities above.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>chapter</th>
+<th>change</th>
+<th>factor it moves</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>2</td>
+<td>LayerNorm to RMSNorm, pre-norm placement</td>
+<td>none of the three, one reduction per norm</td>
+</tr>
+<tr class="even">
+<td>3</td>
+<td>learned table to RoPE</td>
+<td>removes <span class="math inline">P</span> and the bound <span class="math inline">S_{\max}</span></td>
+</tr>
+<tr class="odd">
+<td>4</td>
+<td>GELU MLP to SwiGLU</td>
+<td>the shape of the <span class="math inline">8D^2</span> term</td>
+</tr>
+<tr class="even">
+<td>5</td>
+<td>multi-head to grouped-query attention</td>
+<td><span class="math inline">H</span> in the cache formula</td>
+</tr>
+<tr class="odd">
+<td>6</td>
+<td>dense feed-forward to routed experts</td>
+<td>separates its parameters from its FLOPs</td>
+</tr>
+<tr class="even">
+<td>7</td>
+<td>per-head keys and values to one latent</td>
+<td><span class="math inline">H d</span> in the cache formula</td>
+</tr>
+<tr class="odd">
+<td>8</td>
+<td>full attention to a sliding window</td>
+<td>the positions each layer keeps and reads</td>
+</tr>
+<tr class="even">
+<td>9</td>
+<td>compression and cross-layer sharing</td>
+<td><span class="math inline">L</span>, and the tokens per stored entry</td>
+</tr>
+<tr class="odd">
+<td>10</td>
+<td>sparse selection</td>
+<td>the bytes read per step rather than stored</td>
+</tr>
+<tr class="even">
+<td>11</td>
+<td>one residual stream to several</td>
+<td>the shared medium of the residual section above</td>
+</tr>
+<tr class="odd">
+<td>12</td>
+<td>bf16 to FP8 and FP4</td>
+<td>bytes per element</td>
+</tr>
+</tbody>
+</table>
+<p>Chapters 13 and 14 add components outside the block, and chapter 15 assembles the whole of DeepSeek-V4.1 from these pieces.</p>
+<p>The first change is the smallest. Normalisation moves no term in any of the three formulas and adds parameters that round to nothing against 65 billion, and every model after GPT-2 still changed it. Chapter 2 sets out what the GPT-2 form does, what of it is unnecessary, and where in the block the norm belongs.</p>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/pmonad\.github\.io\/mzoo\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
