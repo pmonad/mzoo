@@ -39,6 +39,10 @@ trusting a real run.
 - `__post_init__` auto-derives and cross-validates `compress_ratios`, `kv_source_layer_ids`, `index_source_layer_ids`, `candidate_source_layer_id`, `layer_types` from the layer count, with a web of invariants between them. Leave them `None` — hand-picking means replicating all the invariants yourself.
 - Engram (conditional memory) is disabled by default (`engram_layer_ids=[]`) and we leave it that way.
 
+## Local fixes to the vendored modeling file (marked `mzoo:`)
+
+- **Ticket 0012 — cross-group `shared` state.** Without a cache the one per-forward `shared` dict used to carry a kv-source group's `compress_kv` / `index_k` into the *next* group: with `compress_ratios=[0,2,2,1]`, sources `[1,3]`, `S=130`, layer 3's KV axis was `130 + 65 + 130` instead of `130 + 130`, and the logits differed from the with-cache run by 0.388. A kv-source layer with `cache_layer is None` now clears `compress_kv` / `index_k` / `topk_bias` / `candidates` before compressing (cache path untouched). **Not a divergence** — the PR head (62d7ebd) does the same; this is a backport of just that reset. Regression: `model_test.py::test_no_cache_matches_cache`.
+
 ## Open questions before a real run
 
 - Sparse-attention indexer never trains (random init) — the fp4 fake-quant on its q/k detaches the graph; needs a straight-through estimator. **Divergence (ticket 0007):** the kernel path now ships that estimator — `mzoo.layers.attn.indexer.attn.scores(..., fake_quant_fp4=True)` round-trips q/k through `_fake_quant_fp4_block` with a straight-through gradient (forward bit-identical, backward the identity over the dequantized bf16 values, quantizer scales stop-gradiented). The model's own call site still detaches; if upstream ever fixes it there, reconcile with (or delete) the kernel-side STE rather than silently running both.

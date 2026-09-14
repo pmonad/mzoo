@@ -719,6 +719,17 @@ class DeepseekV41Attention(nn.Module):
             cache_layer = past_key_values.layers[self.layer_idx] if past_key_values is not None else None
             latent, first_group_position = (None, 0)
             if self.is_kv_source:
+                if cache_layer is None:
+                    # mzoo (ticket 0012): no cache -> the per-forward `shared` dict is the
+                    # ONLY group state, and it is handed to every layer of the stack. A
+                    # kv-source layer opens a NEW group (possibly at a different
+                    # `compress_ratio`), so its group-scoped entries must start fresh
+                    # instead of being appended onto the previous group's. With a cache
+                    # each source owns a `DeepseekV41CSACache`, which isolates the groups.
+                    # Backport of the same fix at the PR head (62d7ebd): upstream clears
+                    # `shared["compress_kv"]` here and `shared["index_k"]` in the indexer.
+                    for key in ("compress_kv", "index_k", "topk_bias", "candidates"):
+                        shared.pop(key, None)
                 latent, first_group_position = self.compressor(hidden_states, cache_layer)
 
             # The indexer consumes the PRE-rope latent; it must run before the latent is
