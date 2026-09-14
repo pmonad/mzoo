@@ -1,0 +1,96 @@
+---
+title: "mzoo — Evolution"
+format:
+  pdf:
+    documentclass: article
+    papersize: a4
+    geometry:
+      - margin=2.2cm
+    fontsize: 10pt
+    colorlinks: true
+    toc: true
+    toc-depth: 2
+    number-sections: false
+    citeproc: true
+    header-includes:
+      - \usepackage{calc}
+      - \usepackage{array}
+bibliography: references.bib
+link-citations: true
+---
+
+{{< include evolution/index.md >}}
+
+{{< include evolution/01-gpt2/index.md >}}
+
+{{< include evolution/02-normalisation/index.md >}}
+
+{{< include evolution/03-positions/index.md >}}
+
+{{< include evolution/04-feed-forward/index.md >}}
+
+{{< include evolution/05-kv-cache/index.md >}}
+
+{{< include evolution/06-moe/index.md >}}
+
+{{< include evolution/06-moe/routing.md >}}
+
+{{< include evolution/06-moe/experts.md >}}
+
+{{< include evolution/06-moe/balancing.md >}}
+
+{{< include evolution/07-low-rank-attention/index.md >}}
+
+{{< include evolution/07-low-rank-attention/mla.md >}}
+
+{{< include evolution/07-low-rank-attention/shared-latent.md >}}
+
+{{< include evolution/08-local-attention/index.md >}}
+
+{{< include evolution/09-compressed-attention/index.md >}}
+
+{{< include evolution/09-compressed-attention/compressor.md >}}
+
+{{< include evolution/09-compressed-attention/sharing.md >}}
+
+{{< include evolution/10-sparse-selection/index.md >}}
+
+{{< include evolution/10-sparse-selection/indexer.md >}}
+
+{{< include evolution/10-sparse-selection/hierarchical.md >}}
+
+{{< include evolution/10-sparse-selection/training.md >}}
+
+{{< include evolution/11-residual/index.md >}}
+
+{{< include evolution/11-residual/hyper-connections.md >}}
+
+{{< include evolution/11-residual/mhc.md >}}
+
+{{< include evolution/11-residual/single-pass.md >}}
+
+{{< include evolution/12-numerics/index.md >}}
+
+{{< include evolution/12-numerics/fp8.md >}}
+
+{{< include evolution/12-numerics/matmuls.md >}}
+
+{{< include evolution/12-numerics/fp4.md >}}
+
+{{< include evolution/12-numerics/ste.md >}}
+
+{{< include evolution/13-engram/index.md >}}
+
+{{< include evolution/14-beyond-the-block/index.md >}}
+
+{{< include evolution/15-assembly/index.md >}}
+
+{{< include evolution/16-attention-kernels/index.md >}}
+
+{{< include evolution/16-attention-kernels/fa2.md >}}
+
+{{< include evolution/16-attention-kernels/csa2.md >}}
+
+{{< include evolution/17-low-precision-attention/index.md >}}
+
+{{< include evolution/17-low-precision-attention/variants.md >}}

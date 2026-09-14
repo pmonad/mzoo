@@ -19,28 +19,13 @@ preview:
 publish:
     {{QUARTO}} publish gh-pages
 
-# pdf of one chapter: just docs/ pdf evolution/03-positions/index.md [out.pdf]
-# runs pandoc+latex inside docker; image is built once from docs/latex/Dockerfile:
-#   docker build -t mzoo-pandoc docs/latex
+# whole-book A4 pdf: just docs/ pdf [out.pdf]
+# runs quarto+latex inside docker (image built once from docs/docker/Dockerfile)
 [no-cd]
-pdf chapter *out="":
+pdf *out="book.pdf":
     #!/usr/bin/env bash
     set -exuo pipefail
-    src="docs/{{chapter}}"
-    [ -f "$src" ] || { echo "no such chapter: $src" >&2; exit 1; }
-    docker image inspect mzoo-pandoc >/dev/null 2>&1 || docker build -t mzoo-pandoc docs/latex
-    outname="{{out}}"
-    outname="${outname:-chapter}"
-    # strip python-markdown attr_list lines ({: ...}) that pandoc would render literally
-    sed 's/^\s*{:.*$//' "$src" > .pdf-src.md
-    docker run --rm -v "$PWD:/data" -w /data mzoo-pandoc \
-        pandoc .pdf-src.md \
-        -o "/data/${outname}.pdf" \
-        --pdf-engine=xelatex -V classoption=twocolumn \
-        --lua-filter=docs/latex/table-star.lua \
-        --include-in-header=docs/latex/header.tex \
-        --citeproc --bibliography=docs/references.bib \
-        -V geometry:margin=2.2cm -V fontsize=10pt -V colorlinks \
-        --shift-heading-level-by=-1 \
-        -M title="$(basename "$(dirname "$src")")"
-    rm -f .pdf-src.md
+    docker image inspect mzoo-quarto >/dev/null 2>&1 || docker build -t mzoo-quarto docs/docker
+    docker run --rm -v "$PWD:/data" -w /data mzoo-quarto \
+        quarto render docs/book.qmd --to pdf --output "{{out}}"
+    mv "docs/book.pdf" "{{out}}"
