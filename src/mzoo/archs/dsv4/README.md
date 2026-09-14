@@ -41,7 +41,7 @@ trusting a real run.
 
 ## Open questions before a real run
 
-- Sparse-attention indexer never trains (random init) — the fp4 fake-quant on its q/k detaches the graph; needs a straight-through estimator.
+- Sparse-attention indexer never trains (random init) — the fp4 fake-quant on its q/k detaches the graph; needs a straight-through estimator. **Divergence (ticket 0007):** the kernel path now ships that estimator — `mzoo.layers.attn.indexer.attn.scores(..., fake_quant_fp4=True)` round-trips q/k through `_fake_quant_fp4_block` with a straight-through gradient (forward bit-identical, backward the identity over the dequantized bf16 values, quantizer scales stop-gradiented). The model's own call site still detaches; if upstream ever fixes it there, reconcile with (or delete) the kernel-side STE rather than silently running both.
 - MoE expert load is unmonitored (no aux loss, harness hook never fires).
 - `eval_loss` isn't logged. Fixed in `owlet1` (its forward takes `shift_labels` via `**kwargs`, so `find_labels` returns just `["labels"]`); left as-is here to keep this baseline frozen.
 - Generation/inference is broken (`use_cache` incompatibility) — training-only for now.

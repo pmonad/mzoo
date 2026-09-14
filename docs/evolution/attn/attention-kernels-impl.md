@@ -178,3 +178,33 @@ little and `dS = P * (dP - delta)` amplifies that more than the output does.
 constants through all three kernels: tensor shapes, grid and loop bounds use the
 padded one, every mask uses the true one. Kept a non-tile-aligned `G` in both the
 forward and the gradient test matrix so this cannot regress silently.
+
+## indexer bwd: tilelang `out_idx` outputs are empty-allocated, atomics accumulated garbage
+
+**Problem.** `bwd.py` first declared `DQ`/`DW`/`DK` as `out_idx` outputs like `fwd.py`
+does for `Scores`. `dq` and `dw` are written block-exclusively with `T.copy`, but
+`dk` is only ever *accumulated* with `T.atomic_add` -- nothing ever writes its pad
+rows or initialises it, and tilelang's returned tensors come from an empty
+allocation.
+
+**Measurement.** `dq`/`dw` inside the 2x bound, `ddk` at 245-590x the torch bf16
+error (values of the order of the gradient itself, i.e. garbage memory), on every
+shape in the sweep.
+
+**Fix.** Drop `out_idx`; allocate all three gradient buffers in the wrapper
+(`dk` with `torch.zeros`) and pass them as in-out tensors.
+
+## indexer bwd: `dk` fp32 atomics are order-nondeterministic
+
+**Problem.** Bit-exact repeat checks (`bwd` twice on identical inputs, and
+`scores().backward()` vs a direct `bwd` call) failed on `dk` alone, ~2 of 128x128
+elements differing by 6.1e-5.
+
+**Measurement.** Same kernel, same inputs, two launches: `dq`/`dw` bit-identical,
+`dk` differs where many query blocks' fp32 atomic adds land in different orders.
+On the 256x128 test the reorder error occasionally exceeded 1e-4 (flaky test), on
+gradients of magnitude ~2.
+
+**Fix.** Treat `dk` as deterministic only up to fp32 sum reordering: the tests
+assert `dq`/`dw` bit-exact and `dk` within rtol/atol 1e-3; documented in the README
+with the two-stage-reduce escape hatch if training reproducibility ever needs it.

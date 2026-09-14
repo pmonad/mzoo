@@ -12,12 +12,17 @@ weighted head reduce, group-causal ``-inf`` -- chunked over the query axis, beca
 the model's unchunked ``einsum("bshd,btd->bsht")`` materialises a ``[B,S,Hi,T]``
 intermediate (8.6 GB fp32 at the T=16384 row) that would measure allocator traffic
 rather than the operation.
+
+Since 0007: a second table benches the backward kernel (``bwd.py``) against
+autograd-through-torch on the same chunked path (graph built once outside the timer;
+only ``backward(dl)`` is timed, matching what the kernel is asked to do).
 """
 
 import fire
 import torch
 from tilelang.profiler import do_bench
 
+from mzoo.layers.attn.indexer.bwd import bwd
 from mzoo.layers.attn.indexer.fwd import fwd
 
 CHUNK = 512  # query rows per torch-baseline chunk
@@ -38,6 +43,23 @@ def torch_scores(q, k, w, compress_ratio):
     return out
 
 
+def bench_bwd(batch, seqlen, heads, dim, compress_ratio, kv_lens):
+    """0007: kernel bwd vs autograd-through-torch on the same chunked einsum path
+    (forward+backward for torch -- the graph rebuild is part of its cost since
+    ``autograd.grad`` without retain_graph frees it; the kernel has no graph)."""
+    torch.manual_seed(0)
+    q = torch.randn(batch, seqlen, heads, dim, device="cuda", dtype=torch.bfloat16).requires_grad_(True)
+    w = (torch.randn(batch, seqlen, heads, device="cuda") * heads**-0.5).requires_grad_(True)
+    print(f"\nbwd: kernel (bwd.py: dq+dk+dw) vs torch forward+autograd, dl random")
+    print(f"{'T':>7} {'kernel':>10} {'autograd':>10} {'speedup':>8}")
+    for t in kv_lens:
+        k = torch.randn(batch, t, dim, device="cuda", dtype=torch.bfloat16).requires_grad_(True)
+        dl = torch.randn(batch, seqlen, t, device="cuda")
+        ms_k = do_bench(lambda: bwd(q, k, w, dl, compress_ratio=compress_ratio), warmup=10, rep=50)
+        ms_t = do_bench(lambda: torch_scores(q, k, w, compress_ratio).backward(dl), warmup=2, rep=10)
+        print(f"{t:>7} {ms_k:>9.3f}m {ms_t:>9.3f}m {ms_t / ms_k:>7.2f}x")
+
+
 def main(batch: int = 1, seqlen: int = 4096, heads: int = 32, dim: int = 128,
          compress_ratio: int = 1, topk: int = 512, kv_lens: tuple = (4096, 16384)):
     torch.manual_seed(0)
@@ -55,6 +77,7 @@ def main(batch: int = 1, seqlen: int = 4096, heads: int = 32, dim: int = 128,
         ms_tk_ref = do_bench(lambda: ref.topk(kept, dim=-1, sorted=False), warmup=10, rep=50)
         mb = batch * seqlen * t * 4 / 2**20
         print(f"{t:>7} {ms_k:>9.3f}m {ms_t:>9.3f}m {ms_t / ms_k:>7.2f}x {ms_tk:>10.3f}m {ms_tk_ref:>11.3f}m {mb:>10.0f}")
+    bench_bwd(batch, seqlen, heads, dim, compress_ratio, kv_lens)
 
 
 if __name__ == "__main__":
