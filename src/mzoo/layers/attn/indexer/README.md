@@ -164,9 +164,10 @@ See the parking note in `docs/evolution/attn/attention-kernels-impl.md`.
 ### Backward (0007)
 
 `bwd_test.py`, same criterion on `dq`/`dk`/`dw`: the reference is autograd through
-the torch einsum path (the model's forward with the detach removed) on fp32 inputs;
-the baseline is the same autograd on bf16 q/k, so only tiling is compared. Observed:
-within 2x of torch's own bf16 error everywhere in the shape sweep, usually ~1x.
+`golden_ref.indexer_scores` (the model's forward with the detach removed) on fp32
+inputs; the baseline is the same autograd with a bf16 q.k matmul, so only tiling is
+compared. Observed: within 2x of torch's own bf16 error everywhere in the shape
+sweep, usually ~1x.
 
 Pinned exactly, beyond the 2x criterion:
 

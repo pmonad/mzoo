@@ -1,5 +1,7 @@
-"""GPU tests for the indexer backward (ticket 0007) against autograd through the
-torch einsum path with the detach removed.
+"""GPU tests for the indexer backward (ticket 0007) against autograd through
+``golden_ref.indexer_scores`` -- the model's forward steps 2-3 with the detach
+removed. The bf16 *baseline* (same autograd with a bf16 q.k matmul) is a test
+artifact local to this file, per the fwd_test.py/README convention.
 
 Three layers of checking:
 
@@ -18,15 +20,24 @@ import pytest
 import torch
 
 from mzoo.layers.attn.dense_attn.ref import assert_within_2x_torch
+from mzoo.layers.attn.golden_ref import indexer_scores
 from mzoo.layers.attn.indexer.attn import _fake_quant_fp4_ste, scores
 from mzoo.layers.attn.indexer.bwd import bwd
 from mzoo.layers.attn.indexer.fwd_test import inputs
 
 
-def torch_bwd(q, k, w, dl, compress_ratio):
-    """Autograd through the torch einsum path (the model's forward with the detach
-    removed). Returns fp32 grads when the inputs are fp32, bf16-matmul grads when
-    they are bf16 -- used as reference and baseline respectively."""
+def ref_bwd(q, k, w, dl, compress_ratio):
+    """The one reference: autograd through ``golden_ref.indexer_scores`` on fp32
+    inputs (``masked_fill`` zeroes the gradient of the -inf slots, so arbitrary ``dl``
+    there is already ignored by construction)."""
+    q, k, w = (x.detach().clone().float().requires_grad_(True) for x in (q, k, w))
+    indexer_scores(q, k, w, compress_ratio).backward(dl)
+    return q.grad, k.grad, w.grad
+
+
+def bf16_bwd(q, k, w, dl, compress_ratio):
+    """Baseline: the same math with a bf16 q.k matmul (fp32 accumulate) -- what the
+    kernel's gemms do, so the 2x-torch comparison isolates tiling, not dtype."""
     q, k, w = (x.detach().clone().requires_grad_(True) for x in (q, k, w))
     raw = torch.einsum("bshd,btd->bsht", q, k).float().relu_() * q.shape[-1]**-0.5
     L = (raw * w.float().unsqueeze(-1)).sum(2)
@@ -42,8 +53,8 @@ def check(batch, seq_len, heads, dim, seq_kv, compress_ratio, seed=0):
     dl = torch.randn(batch, seq_len, seq_kv, device="cuda", dtype=torch.float32,
                      generator=torch.Generator("cuda").manual_seed(seed + 1))
     got = bwd(q, k, w, dl, compress_ratio=compress_ratio)
-    ref = torch_bwd(q.float(), k.float(), w, dl, compress_ratio)
-    base = torch_bwd(q, k, w, dl, compress_ratio)  # bf16 matmul autograd
+    ref = ref_bwd(q, k, w, dl, compress_ratio)
+    base = bf16_bwd(q, k, w, dl, compress_ratio)
     for name, g, r, b in zip(("dq", "dk", "dw"), got, ref, base):
         assert g.shape == r.shape, f"{name} shape {g.shape} vs {r.shape}"
         assert_within_2x_torch(g.float(), r, b.float(), f"d{name}")
@@ -108,7 +119,7 @@ def test_relu_zero_subgradient_is_zero():
     assert torch.count_nonzero(dq[:, :, 0, :]) == 0, "dq at r == 0 must be exactly 0"
     assert torch.count_nonzero(dw[:, :, 0]) == 0, "dw at r == 0 must be exactly 0"
     # and torch agrees (the convention is pinned, not arbitrary): full compare
-    ref = torch_bwd(q.float(), k.float(), w, dl, 1)
+    ref = ref_bwd(q, k, w, dl, 1)
     for g, r in zip((dq, dk, dw), ref):
         assert torch.allclose(g.float(), r, atol=2e-2, rtol=2e-2)
 
