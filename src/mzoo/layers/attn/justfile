@@ -33,4 +33,9 @@ bench-csa *args:
 # qk prologue: fused (torch.compile) RMSNorm+RoPE vs eager norm-then-rope; add `memory` for the autograd footprint
 [no-cd]
 bench-prologue *args:
-    uv run --env-file .env python -m mzoo.layers.attn.norm_rope_bench {{args}}
+    uv run --env-file .env python -m mzoo.layers.attn.norm_rope_bench main {{args}}
+
+# csa2_attn (window + top-k gathered compressed KV) vs csa_attn (dense main loop) on the same inputs
+[no-cd]
+bench-csa2 *args:
+    uv run --env-file .env python -m mzoo.layers.attn.csa2_attn.bench {{args}}

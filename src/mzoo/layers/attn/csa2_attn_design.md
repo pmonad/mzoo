@@ -1,6 +1,6 @@
 # Design: FA2-style attention for SM120 in TileLang, growing into DSV4.1 CSA2
 
-Status: `dense_attn`, `latent_attn`, `swa_attn` complete for training (fwd + lse + sink, bwd, autograd, tests, bench) and independently verified; `csa_attn` (0003) and `indexer` (0006) done and verified (untuned); `csa2_attn` fwd (0004) in progress. Target GB10 (sm121, SM120 family), tilelang 0.1.14.
+Status: `dense_attn`, `latent_attn`, `swa_attn` complete for training (fwd + lse + sink, bwd, autograd, tests, bench) and independently verified; `csa_attn` (0003) and `indexer` (0006) done and verified (untuned); `csa2_attn` fwd+bwd (0004, 0005) done and verified; `indexer` bwd (0007) done on a branch, unmerged. Attention track complete through CSA2; remaining: 0008-0010, the tuning pass, 0011, 0012. Target GB10 (sm121, SM120 family), tilelang 0.1.14.
 Scope: head dims `{64, 96, 128, 256}` only. `D=512` (the released V4.1-Flash size) is out of scope, so no Split-D.
 Training only for now: prefill-shaped forward plus backward; no decode, no paged cache, no split-KV.
 
@@ -43,10 +43,10 @@ Out of kernel (elementwise, stays in torch): Q/KV RoPE, inverse RoPE on the outp
 | -- | `latent_attn` | done (2026-09-14, verified) | `dense_attn` |
 | [0002](../../../../tickets/0002-swa-attn.md) | `swa_attn` (fwd+bwd) | done (2026-09-14, verified) | `latent_attn` |
 | [0003](../../../../tickets/0003-csa-attn.md) | `csa_attn` (fwd+bwd) | done (2026-09-14, verified; configs untuned) | 0002 |
-| [0004](../../../../tickets/0004-csa2-attn-sparse-fwd.md) | `csa2_attn` (fwd) | in progress | 0003 |
-| [0005](../../../../tickets/0005-csa2-attn-sparse-bwd.md) | `csa2_attn` (bwd) | todo | 0004 |
+| [0004](../../../../tickets/0004-csa2-attn-sparse-fwd.md) | `csa2_attn` (fwd) | done (2026-09-14, verified; configs untuned; bench absolute numbers taken on a shared GPU) | 0003 |
+| [0005](../../../../tickets/0005-csa2-attn-sparse-bwd.md) | `csa2_attn` (bwd) | done (2026-09-14, verified; configs untuned) | 0004 |
 | [0006](../../../../tickets/0006-indexer-bf16-score.md) | `indexer` (bf16 fwd) | done (2026-09-14, verified; configs untuned) | 0004 as consumer only (contract pinned by `golden_ref.topk_indices`) |
-| [0007](../../../../tickets/0007-indexer-backward.md) | `indexer` (bwd) | todo | 0006 |
+| [0007](../../../../tickets/0007-indexer-backward.md) | `indexer` (bwd) | done in worktree `mzoo-0007` (branch `0007-indexer-backward`, verified 2026-09-14, not merged; ticket file not yet flipped) | 0006 |
 | [0008](../../../../tickets/0008-indexer-mxfp4-score.md) | `indexer_fp4` | todo | 0006, 0007 |
 | [0009](../../../../tickets/0009-indexer-hierarchical.md) | `indexer_hier` | todo | 0006 |
 | [0010](../../../../tickets/0010-csa2-fp-cache.md) | `csa2_fp_attn` | todo | 0005 |
@@ -178,6 +178,11 @@ This is where project conventions for this series live (not `CLAUDE.md`).
   "Steps" is the status tracker; a package's `README.md` records what was built.
 - **Working mode.** The main session reviews and verifies (reruns tests and
   benches); workers implement; model choice is by task difficulty.
+- **Test scope.** Workers and verifiers run the changed package's tests only
+  (`pytest src/mzoo/layers/attn/<pkg> -q`); `golden_ref_test.py` when
+  `golden_ref.py` changed; `just smoke` only when shared files or several
+  packages changed. Earlier packages are frozen, so rerunning them proves
+  nothing.
 - **Tooling.** `uv run --env-file .env` everywhere (machine-specific env in
   the gitignored repo-root `.env`); one justfile per folder, invoked from
   repo root with a trailing slash, e.g. `just src/mzoo/layers/attn/ test`.

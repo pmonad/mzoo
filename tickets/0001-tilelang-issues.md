@@ -142,3 +142,56 @@ symptom, cause, workaround, status.
   `bwd_main.py`'s query loop keeps `T.Pipelined` -- it uses `swa_attn`'s variable-*start* form
   and does not show the bug.
 - status: not reported upstream yet; needs a minimal repro outside the attention kernel.
+
+## `block_M=16` fails layout inference too, even at `threads=128` (the per-token gather tile)
+
+- version: tilelang 0.1.14, GB10 (sm121), `src/mzoo/layers/attn/csa2_attn/fwd.py`
+- context: `csa2_attn` gathers per token, so the natural block is *one token x H heads*.
+  At `H = 16` that is a 16-row tile; the earlier entries only ever tested `block_M >= 32`.
+- symptom: `Layout infer conflict between acc_s and acc_s_cast in T.Parallel loop` with
+  `loop Fragment((16, 32) -> (16,), replicate: 4, thread: 128, ...)` vs
+  `fragment Fragment((16, 32) -> (4,), replicate: 1, thread: 128, ...)` -- the same
+  replicate-N loop fragment vs replicate-1 accumulator conflict as every entry above, now at
+  `block_M=16` with only 128 threads.
+- so the working rule widens to: **`block_M * block_N` must give every thread its own
+  accumulator elements without replication** -- in practice `block_M >= 64` at `threads=128`
+  and `block_M % 128 == 0` at `threads=256`. `block_M=16/32` never compiles in this kernel
+  family at any thread count we have tried.
+- workaround: `block_M = 64` rows, i.e. `ceil(64 / H)` tokens per block, and gather once per
+  token of the block (`csa2_attn/README.md` -> Known issues). Costs nothing at `H = 64`.
+
+## `T.Pipelined` *is* correct when the trip count is a compile-time constant (csa2_attn's gather)
+
+- version: tilelang 0.1.14, GB10 (sm121), `src/mzoo/layers/attn/csa2_attn/fwd.py`
+- the positive counterpart to the `csa_attn` entry above: `csa2_attn`'s gathered loop runs
+  `ceil(topk / block_N)` times -- a constant, with no division of a block-dependent expression
+  in the bound -- and `T.Pipelined(0, gather_tiles, num_stages=2)` over a *data-dependent
+  gather* (`M_shared[i, :] = MainKV[Indices[...], :]`) produces correct results at every shape
+  tested (D 64/96/128/256, H 4/16/64, topk 64/100/512, G 0..16384, non-tile-aligned topk),
+  including two bit-for-bit equalities against `csa_attn` and `swa_attn`.
+- it is worth ~9% of the gathered source's time (1.68 -> 1.52 ms at B1 S4096 D128 H64
+  topk=512), so the `T.serial` workaround should stay scoped to the bound shape that
+  actually miscompiles, not applied to every second-source loop.
+
+## A bf16 fragment cannot feed one `T.gemm` as `A` and another as `A^T`
+
+- version: tilelang 0.1.14, GB10 (sm121), `src/mzoo/layers/attn/csa2_attn/bwd_dq.py`
+- context: the sparse backward's query-owning kernel needs `dS` twice per gathered tile --
+  `dQ += dS M` (normal `A`) and `dMainKV += dS^T Q` (`transpose_A=True`) -- and the natural
+  thing is one `T.alloc_fragment([block_M, block_N], bfloat16)` feeding both.
+- symptom: compile-time
+  `tvm.error.InternalError: Get different layout for cast`, printing the two fragments,
+  `forward_thread: _j // 16 * 32 + _j % 8 * 4 + _i % 8 // 2` against
+  `forward_thread: _i // 16 * 32 + _i % 8 * 4 + _j % 8 // 2` -- i.e. the same tile with `_i`
+  and `_j` swapped, which is exactly what the transposed operand wants.
+- not a bug, a constraint: layout inference assigns **one** layout per buffer, and the two
+  GEMM roles want transposed layouts. It is worth recording because the error message names
+  the buffer, not the two GEMMs, so it reads like a codegen failure.
+- workaround (applied, and what the upstream template does): stage the transposed operand
+  through **shared** memory. `examples/dsa_sparse_finetune/sparse_mla_bwd.py` allocates
+  `P_shared_cast` / `dP_shared_cast` as `T.alloc_shared`, not fragments, for the same reason.
+  One `[block_M, block_N]` bf16 shared tile is enough if the two transposed GEMMs are
+  ordered (`P` first, then `dS`); a second *fragment* does not help.
+- cost: the staging tile is what pushes the `D=128, block_N=64` backward over the 99 KB smem
+  cap at `gather_stages=2` (107776 B), so the backward's gathered loop runs serial there
+  while the forward's is pipelined. Budget, not bug.

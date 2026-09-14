@@ -178,3 +178,93 @@ little and `dS = P * (dP - delta)` amplifies that more than the output does.
 constants through all three kernels: tensor shapes, grid and loop bounds use the
 padded one, every mask uses the true one. Kept a non-tile-aligned `G` in both the
 forward and the gradient test matrix so this cannot regress silently.
+
+## csa2_attn: the per-token gather does not fit the packed-heads block, and a 16-row tile does not compile
+
+**Problem.** Every package since `latent_attn` packs `T_q = block_M // H` *tokens* x `H`
+heads into a block's rows (`block_M = 256` at `csa_attn`'s tuned configs, so 4 tokens at
+`H = 64`). The top-k indices are per token, so one gathered smem tile can only serve one
+token's rows -- a 4-token block would have to gather four times, or the block has to shrink
+to one token. Shrinking looked free at `H = 64` (64 rows) and cheap at `H = 16` (16 rows).
+
+**Measurement.** `block_M = 16` does not compile at all here: `Layout infer conflict between
+acc_s and acc_s_cast in T.Parallel loop`, loop fragment `(16, 32) -> (16,), replicate: 4`
+against accumulator fragment `(16, 32) -> (4,), replicate: 1`, at `threads=128` (the only
+thread count a 16-row tile could use anyway). That is the same replicate-mismatch bug
+`tickets/0001-tilelang-issues.md` already records for `block_M=32/64 x threads=256`, one step
+smaller. `block_M = 64` compiles and runs everywhere.
+
+**Fix.** `block_M = 64` fixed, `T_q = ceil(64 / H)` tokens per block, and the gathered section
+repeated once per token of the block with the other tokens' rows masked to `-inf` (the
+`neg_floor` rowmax already handles "this row sees nothing in this tile", so the repeat needs
+no new machinery). At the model's `H = 64` that is `T_q = 1` and no repeat; `H = 16` gathers
+4x and `H = 4` 16x, at head counts the model does not use. `threads` drops from 256 to 128
+for the same layout-inference reason. Both are compile-time limits, not measurements -- the
+`block_N` / `num_stages` half of the config table is still `csa_attn`'s, untuned.
+
+## csa2_attn: pipelining the gathered loop is safe, unlike csa_attn's dense main loop
+
+**Problem.** `csa_attn`'s second KV source had to run on `T.serial` because `T.Pipelined`
+silently mis-peeled a loop whose trip count nested a division (section above). `csa2_attn`
+inherits that loop's position in the kernel, so the cheap thing is to inherit `T.serial` too
+-- at the cost of the gathered source's async prefetch, which is most of its cost.
+
+**Measurement.** The gathered loop's trip count is `ceil(topk / block_N)`, a compile-time
+constant: the documented trigger is absent. Turning `T.Pipelined(num_stages=2)` on and
+re-running the whole matrix (28 tests: D 64/96/128/256, H 4/16/64, topk 64/100/512, G
+0/100/256/1024/16384, plus the bit-for-bit equalities against `csa_attn` and `swa_attn`) gave
+identical results to the serial version, and the bench moved from 1.68 ms to 1.52 ms for the
+gathered source alone (316-339 -> 353-374 GB/s effective on the gathered rows).
+
+**Fix.** Keep `T.Pipelined` for the gather, with the evidence recorded in the package README
+and `tickets/0001`; the `T.serial` workaround stays scoped to the bound shape that actually
+miscompiles. Fallback is one line if a future shape ever disagrees.
+
+## csa2_attn bwd: duplicate indices double-count, and the golden reference cannot express that
+
+**Problem.** The ticket asked for a duplicate-index test -- the same main entry listed twice
+in one token's top-k list -- because a scatter-add's correctness is invisible without one.
+Writing it exposed a semantic disagreement that has nothing to do with the backward:
+`golden(level="sparse")` renders an index list by `sparse_bias.scatter_(-1, indices, 0.0)`,
+and `scatter_` of a constant is **idempotent**, so a duplicated entry gets exactly one
+softmax column. The kernel (forward, since ticket 0004, following
+`examples/dsa_sparse_finetune/sparse_mla_fwd.py`) builds one gathered column per *slot*, so
+it gives the entry two columns: `2 * exp(s)` in the denominator and twice the weight in the
+numerator.
+
+**Measurement.** At B2 S512 H16 D128 G256 with entry 0 forced into two slots of every
+token's list, the kernel's `o` is 6.4e-1 from the deduplicated `golden` -- 44x the bf16 noise
+floor of 1.5e-2 -- and within the normal 2x criterion (0.5-0.7x) of a reference built by
+*cloning* entry 0 into a fresh entry `G` and pointing the second slot at it. So the kernel is
+unambiguously computing the two-column rendering, and its gradient is the consistent gradient
+of that: `dmain_kv[0]` equals `dmain_ref[0] + dmain_ref[G]` to the same criterion.
+
+**Fix.** None in the kernel -- reported, not silently changed, per the ticket. The model's
+index producer is `torch.topk`, whose output is a set, so duplicates cannot occur on the
+model path, and "trust `indices` completely" is the documented contract of both `golden` and
+the kernel. What landed is the test (`test_grads_duplicate_indices`, which pins both the
+agreement with the cloned-row reference and the disagreement with plain `golden`) and a
+Known-issues entry saying that any future index producer that can emit duplicates must
+either dedup or teach the kernel to mask repeats within a token's list.
+
+## csa2_attn bwd: the dmain_kv scatter is a third of the dQ kernel, but the atomic is a tenth
+
+**Problem.** `dmain_kv` has no owner kernel in the sparse package: a block of main entries
+cannot enumerate the tokens that picked it without an inverse index. The upstream template
+(`sparse_mla_bwd.py`) scatters with `T.atomic_add`, but the `latent_attn` note above says
+atomics cost 5% as an instruction and 2x as a repeated read-modify-write of a large buffer,
+so copying the template blind was not an option -- an owner kernel fed a torch-built CSR was
+the alternative on the table.
+
+**Measurement.** `bwd_dq.py` got a three-way `scatter` knob: `"atomic"` (real), `"store"`
+(a plain store to the *same* scattered addresses, so only the read-modify-write and the
+contention go away) and `"none"` (the whole `dmain_kv` half, its two GEMMs included, dies).
+At B1 S4096 D128 H64 topk=512, `dQ` = 3.43 ms: `atomic - none` = 1.09-1.13 ms (32%),
+`atomic - store` = 0.30-0.39 ms (9-11%). So the atomic itself is ~7% of the 5.0 ms backward
+and the rest is the `dS^T Q` / `P^T dO` GEMMs, which an owner kernel would still have to run.
+
+**Fix.** Keep the scatter. An inverse-index owner kernel is bounded above by a ~0.35 ms win
+before it pays for building the CSR, which does not justify a fourth kernel; the knob stays
+in the file so the number can be re-measured after the tuning pass. The cost is
+non-determinism: fp32 atomic ordering varies, so `dmain_kv` is not bitwise reproducible
+(`dq`/`dkv` are), which is documented in the package README rather than fixed.

@@ -16,6 +16,7 @@ standards
 - source builds: clone into ~/git/<org>/<proj>, checkout the required tag, install editable
 - use justfiles(minimal cmd) and define at source folder. but they will always be invoked from repo root `just path/to/folder <cmd>` so assume that to be cwd and adjust justfile accordingly
 - benches: compare only against baselines built for the same task (a torch path doing the same math, or the previous package); never against SDPA with masks it was not designed for
+- run only the tests of the files you changed (`uv run --env-file .env pytest <package> -q`); `just smoke` (the full GPU suite) only when a shared file (golden_ref, ref helpers, justfiles) or several packages changed
 - attention kernels: read src/mzoo/layers/attn/csa2_attn_design.md first (conventions live there); known TileLang/sm121 bugs and workarounds: tickets/0001-tilelang-issues.md; `just smoke` runs all GPU smoke tests
 
 goal:
