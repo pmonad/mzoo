@@ -1,17 +1,20 @@
 # indexer
 
-DSV4.1 lightning-indexer, **forward only, bf16**: the score kernel of step 6a of
-`../csa2_attn_design.md` plus the top-k of step 6b that turns its output into the
-`Indices` tensor `csa2_attn` consumes. Ticket:
-[0006](../../../../../tickets/0006-indexer-bf16-score.md). The backward is 0007, the
-MXFP4 math path is 0008, the hierarchical candidate variant is 0009.
+DSV4.1 lightning-indexer, **bf16, forward + backward**: the score kernel of step 6a
+of `../csa2_attn_design.md`, the top-k of step 6b that turns its output into the
+`Indices` tensor `csa2_attn` consumes, and (0007) the relu-gated backward that makes
+it trainable. Tickets:
+[0006](../../../../../tickets/0006-indexer-bf16-score.md),
+[0007](../../../../../tickets/0007-indexer-backward.md). The MXFP4 math path is 0008,
+the hierarchical candidate variant is 0009.
 
 | file | what |
 |---|---|
 | `fwd.py` | the score kernel (`fwd(q, k, w, *, compress_ratio) -> [B, S, T]` fp32) |
-| `attn.py` | public entry (`attn(q, k, w, *, compress_ratio, topk) -> Indices [B, S, topk]` int32) |
-| `bench.py` | score kernel and top-k vs a torch einsum + `torch.topk` baseline |
-| `fwd_test.py`, `attn_test.py` | GPU tests |
+| `bwd.py` | the backward kernel (`bwd(q, k, w, dl, *, compress_ratio) -> dq, dk, dw`) |
+| `attn.py` | public entries: `attn(...) -> Indices` (forward only) and the differentiable `scores(...)` with the fp4 STE |
+| `bench.py` | score kernel + top-k + backward vs torch einsum + `torch.topk` + autograd baselines |
+| `fwd_test.py`, `attn_test.py`, `bwd_test.py` | GPU tests |
 
 ## What it is
 
@@ -111,6 +114,16 @@ intermediate (8.6 GB fp32 on the `T=16384` row) and would measure the allocator.
 | 4096 | 0.977 ms | 81.6 ms | 83.5x | 1.89 ms | 1.89 ms | 64 MB |
 | 16384 | 1.540 ms | 331.0 ms | 215.0x | 6.09 ms | 6.01 ms | 256 MB |
 
+Backward (same bench run, 0007): `bwd.py` (dq+dk+dw) vs torch forward+autograd on
+the chunked einsum path, `dl` random. The kernel recomputes the score GEMM (the relu
+gate is re-derived, not loaded), so it is ~7x the forward kernel's cost and still
+28-114x ahead of autograd.
+
+| `T` | bwd kernel | torch fwd+autograd | speedup |
+|---|---|---|---|
+| 4096 | 7.079 ms | 204.6 ms | 28.9x |
+| 16384 | 7.146 ms | 816.4 ms | 114.2x |
+
 Two readings:
 
 - The score kernel is ~70 TFLOPS at the `T=4096` row (137 GFLOP full, ~half of it
@@ -148,6 +161,30 @@ visible scores are exactly 0.0 (all four heads relu'd to zero) and `torch.topk` 
 those ties arbitrarily. Observed difference of the sorted score vectors: exactly 0.0.
 See the parking note in `docs/evolution/attn/attention-kernels-impl.md`.
 
+### Backward (0007)
+
+`bwd_test.py`, same criterion on `dq`/`dk`/`dw`: the reference is autograd through
+`golden_ref.indexer_scores` (the model's forward with the detach removed) on fp32
+inputs; the baseline is the same autograd with a bf16 q.k matmul, so only tiling is
+compared. Observed: within 2x of torch's own bf16 error everywhere in the shape
+sweep, usually ~1x.
+
+Pinned exactly, beyond the 2x criterion:
+
+- **Masked entries get exactly zero gradient** -- `dl` junk (even nan) in the
+  group-causally invisible slots cannot change any output; `dl` supported only on
+  masked slots gives exactly zero `dq`/`dk`/`dw`.
+- **relu subgradient at `r == 0` is 0** (torch's convention): a head whose `q` is
+  exactly zero receives exactly zero `dq`/`dw`.
+- **fp64 gradcheck** on the pure-torch semantics (mask applied multiplicatively,
+  `-inf` slots being outside autograd's domain) on a tiny non-power-of-two shape.
+
+The fp4 STE (`scores(..., fake_quant_fp4=True)`) is checked bit-for-bit: its forward
+equals `fwd` on model-quantized inputs, and its gradient equals `bwd` on those
+quantized values (identity through the quantizer). The feature-off default
+(`fake_quant_fp4=False`) is bit-identical to 0006's `fwd` on the forward and its
+backward is the plain relu-gated gradient.
+
 ## Decisions
 
 - **No `ref.py`.** The reference is `../golden_ref.py`: `indexer_scores` (steps 2-3 of
@@ -158,11 +195,29 @@ See the parking note in `docs/evolution/attn/attention-kernels-impl.md`.
 - **Keys in M, query heads in N** (not queries in M). It makes the weighted head reduce
   a last-axis `reduce_sum`, which is what the template does and what tilelang handles
   natively; a reduce over sub-blocks of an MMA accumulator's row dimension is not.
+  `bwd.py` keeps the same orientation for the recomputed score GEMM and gets both
+  gradient GEMMs (`dr^T @ K -> dq`, `dr @ Q -> dk`) off the same staged `dr` tile.
+- **Recompute, don't store, the relu mask** (ticket risk item): the backward re-runs
+  the score GEMM instead of loading a saved `[S, Hi, T]` mask (bitmask would be 16 MB
+  at S=T=4096). The autograd wrapper therefore saves only `q, k, w`.
+- **`dk` via fp32 atomics** over the query axis, not the two-stage split buffer: every
+  query block contributes to every visible key tile, and the atomic version is the
+  simpler correct thing at these sizes (untuned scope). Consequence: `dk` is
+  order-nondeterministic at ~1e-4 abs (fp32 sum reordering) -- the tests treat `dq`/
+  `dw` as bit-exact and `dk` with a tight tolerance.
+- **The STE lives here, not in the model** (`attn.py::_fake_quant_fp4_ste`): the
+  model's own `_fake_quant_fp4_block` call site detaches and stays untouched; the
+  divergence is flagged in `archs/dsv4/README.md`. Per ticket: gradient w.r.t. q/k is
+  the identity with the quantizer scales stop-gradiented; the backward itself runs
+  bf16 over the dequantized values, and this stays true once 0008 makes the forward
+  fp4.
+- **Top-k is discrete**: no gradient through the selection; the training signal is the
+  indexer's own auxiliary loss applied to `scores`, never routed through `csa2_attn`.
 - **Materialise the `[B, S, T]` score matrix** and run `torch.topk` on it, per ticket
   0006's "v1 keeps the top-k in `torch.topk`". Simplest thing that is correct, and it
   makes the fuse/no-fuse question measurable rather than assumed. See Known issues.
 - **fp4 stays outside the kernel** (ticket semantics): the kernel is bf16-in.
-- **Forward only, `compress_ratio` a kernel constant** (it specialises the mask and the
+- **`compress_ratio` a kernel constant** (it specialises the mask and the
   loop bound, and it is fixed per layer).
 - Configs are **untuned**, one per head dim; see Tile configs.
 
@@ -180,13 +235,18 @@ See the parking note in `docs/evolution/attn/attention-kernels-impl.md`.
   also the performance answer, not just the memory one.
 - Configs are untuned; ~70 TFLOPS against a ~250 TFLOPS peak.
 - `Di=256` is shape support only (smem-capped to `block_M=64`, 1 stage).
-- No backward (0007), no MXFP4 matmul (0008), no decode/varlen, no cross-batch varying
+- The backward's `dk` atomics are order-nondeterministic (~1e-4 abs); if that ever
+  matters for training reproducibility, the two-stage reduce (per-query-block partials
+  + a cheap second kernel) is the fix.
+- The backward costs ~7x the forward (the recomputed score GEMM dominates); fusing the
+  relu-gate recompute with 0008's fp4 path, or the saved-bitmask alternative, is where
+  that would shrink.
+- No MXFP4 matmul (0008), no decode/varlen, no cross-batch varying
   `position_ids` -- prefill positions are assumed to be `0..S-1`.
 
 ## Next
 
-0007 (backward: the relu-gated three-input reduce, plus the straight-through estimator
-the model's detached `_fake_quant_fp4_block` needs), then 0008 (MXFP4 matmul, which the
-`ue8m0`-per-32 format makes native on this hardware) and 0009 (hierarchical candidates,
-which is where the score-matrix materialisation has to go away). A tuning pass over
-`CONFIGS` is orthogonal and can happen any time.
+0008 (MXFP4 matmul, which the `ue8m0`-per-32 format makes native on this hardware)
+and 0009 (hierarchical candidates, which is where the score-matrix materialisation has
+to go away). A tuning pass over `CONFIGS` -- forward and backward -- is orthogonal and
+can happen any time.

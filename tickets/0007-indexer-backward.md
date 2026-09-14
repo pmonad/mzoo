@@ -1,6 +1,6 @@
 # 0007 indexer: backward + autograd (bf16, straight-through)
 
-- status: todo
+- status: done (2026-09-14): 22 bwd tests pass (`assert_within_2x_torch` on dq/dk/dw vs autograd through `golden_ref.indexer_scores`, masked-entry exactly-zero gradient, relu'(0)=0 pinned, fp64 gradcheck, STE bit-exactness, feature-off bit-identical to 0006); bench B1 S4096 Hi32 Di128: bwd kernel 7.08 ms at T=4096 (28.9x torch fwd+autograd) / 7.15 ms at T=16384 (114.2x).
 - depends on: 0006 (`indexer` forward)
 - package: `src/mzoo/layers/attn/indexer/` (backward half)
 
@@ -75,3 +75,31 @@ and the accuracy / **Known issues** sections of `indexer/README.md`. Extend `jus
 - `_fake_quant_fp4_block` detaches the graph in the model; the fp32 reference for the backward
   is `golden_ref.indexer_scores` (no quant), not the model.
 - No tuning sweeps (user decision 2026-09-14): one config per dim, flagged untuned.
+
+## Result
+
+Package `src/mzoo/layers/attn/indexer/`: `bwd.py` (161) new; `attn.py` (81) gains the
+differentiable `scores()` + `_fake_quant_fp4_ste`; `bench.py` gains the bwd table;
+`bwd_test.py` (181) new. Reference stays `golden_ref.indexer_scores` (autograd, detach
+removed); the bf16 baseline is a local test artifact, per the fwd_test convention.
+
+**Kernel.** Same tiling as `fwd.py` (keys in M, packed query-head rows in N). The
+backward recomputes the score GEMM to re-derive the relu gate (no `[S, Hi, T]` mask
+saved -- the wrapper saves only `q, k, w`), stages one `dr` tile and gets both gradient
+GEMMs off it: `dr^T @ K -> dq` (block-exclusive), `dr @ Q -> dk` (fp32 atomics over the
+query axis), `dw` via a fragment reduce. Subgradient: relu'(0) = 0 (torch's).
+
+**STE.** `_fake_quant_fp4_ste = x - x.detach() + quant` in `x`'s own dtype: forward
+bit-identical to the model's `_fake_quant_fp4_block`, backward the identity; scales
+stop-gradiented inside the quantizer. The model's detach stays untouched; the
+divergence is flagged in `archs/dsv4/README.md`.
+
+**Two tilelang quirks hit** (details in `docs/evolution/attn/attention-kernels-impl.md`
+and `tickets/0001`): `out_idx` outputs are empty-allocated so an atomics-only output
+accumulated garbage (fixed by wrapper-allocated in-out buffers), and fp32 atomics make
+`dk` order-nondeterministic at ~1e-4 (tests: `dq`/`dw` bit-exact, `dk` at 1e-3).
+
+**Bench** (GB10, B1 S4096 Hi32 Di128, ratio 1): bwd kernel 7.08 ms at T=4096 /
+7.15 ms at T=16384 vs torch fwd+autograd 204.6 / 816.4 ms (28.9x / 114.2x). The
+recomputed score GEMM puts the backward at ~7x the forward kernel's cost -- see the
+README's Known issues for the bitmask/two-stage escape hatches.

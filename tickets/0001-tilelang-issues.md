@@ -195,3 +195,19 @@ symptom, cause, workaround, status.
 - cost: the staging tile is what pushes the `D=128, block_N=64` backward over the 99 KB smem
   cap at `gather_stages=2` (107776 B), so the backward's gathered loop runs serial there
   while the forward's is pipelined. Budget, not bug.
+
+## `@tilelang.jit(out_idx=...)` outputs are empty-allocated -- silently fatal for atomic-only accumulation
+
+- hit in: `indexer/bwd.py` (ticket 0007). `dq`/`dw` are written block-exclusively with
+  `T.copy`, but `dk` is only ever accumulated with `T.atomic_add` -- nothing ever
+  initialises it, and the tensors tilelang returns for `out_idx` slots come from an
+  empty allocation, not a zeroed one.
+- symptom: `dq`/`dw` inside the 2x-torch bound while `ddk` sat at 245-590x -- errors
+  of the order of the gradient itself (uninitialised memory), on every shape. The
+  forward never noticed because `fwd.py`'s single output is fully overwritten.
+- workaround (applied): drop `out_idx`, allocate every output in the wrapper
+  (`torch.zeros` for the atomic one) and pass them as in-out tensors. Harmless for
+  copy-written outputs and it makes buffer ownership explicit.
+- related, same ticket: fp32 `T.atomic_add` over many blocks is order-nondeterministic
+  (~1e-4 abs reorder error at 256x128) -- expected fp32 behaviour, but it breaks
+  bit-exact repeat tests on the accumulated tensor.
