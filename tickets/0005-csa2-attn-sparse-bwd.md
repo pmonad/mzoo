@@ -62,3 +62,18 @@ accuracy sections of `csa2_attn/README.md` filled in. Extend `just smoke`.
   the split.
 - Layout-inference limits from `tickets/0001-tilelang-issues.md` bite hardest in the bwd
   (`block_M=32` unusable); budget tuning time for D=256.
+
+## Learnings from earlier steps (2026-09-14)
+
+- Scatter-add into gathered main entries: the `sparse_mla_bwd.py` template uses atomics. In
+  `latent_attn` the atomic *instruction* cost ~5%; the repeated read-modify-write of a large
+  buffer cost 2x. Measure before copying the template; an owner-based `dmain_kv` (each main
+  block walks the tokens whose indices reference it -- needs an inverse index / CSR built in
+  torch) may win. Decide by measurement, record it.
+- Any loop whose trip count nests a division by `ratio` must be `T.serial` (tickets/0001
+  pipeline miscompile); the gathered loop's trip count is a constant, so it may pipeline --
+  verify at a non-power-of-two `topk`.
+- Test matrix: `topk` in {64, 100, 512}, `G` non-power-of-two, rows with all `-1` indices,
+  H in {4, 64}, and an all-visible-indices case equal to `csa_attn`'s backward bit-for-bit.
+  `dsinks` straddles 2x at small B*S in every package; check it at D 64/128 H 16.
+- Keep true `G` and padded `G` as separate constants in every kernel (the csa_attn mask leak).

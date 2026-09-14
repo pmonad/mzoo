@@ -31,6 +31,9 @@ symptom, cause, workaround, status.
 ## misc
 
 - default `/usr/bin/nvcc` is CUDA 12.0 and rejects `sm_121a`; needs `CUDA_HOME=/usr/local/cuda-13.0`.
+- no `T.all` / `T.any` in 0.1.14 (`AttributeError: module 'tilelang.language' has no attribute 'all'`),
+  and python `and` between two `PrimExpr`s is a truth-value test, not a TIR conjunction. The
+  two-sided band mask of `swa_attn` needs `T.And(a, b)` / `T.Or(a, b)`, which do exist.
 
 ## FA2 bwd: `block_M=32` (any threads) and `block_M=64` + `threads=256` fail layout inference
 
@@ -63,3 +66,79 @@ symptom, cause, workaround, status.
   but 10-30x *slower* at 128 threads (1.53 -> 21.8 ms, D=64 block_N=128 B1 H64 S4096) -- 8 warps are
   needed to tile a 256-row M. All 36 failures in the `latent_attn` bwd sweep were smem-budget
   (`Failed to set the allowed dynamic shared memory size to N`), none were layout inference.
+
+## The same layout-inference conflict extends to `block_M=192`, and to a third kernel shape
+
+- version: tilelang 0.1.14, GB10 (sm121), `src/mzoo/layers/attn/latent_attn/{fwd.py,bwd_dq.py}`
+- context: sweeping `latent_attn` for `D in {96, 256}` and re-tuning the restructured backward
+  (which gained a query-owning `dQ` kernel, `bwd_dq.py`).
+- new datapoints, both the same bug as the two entries above:
+  - `block_M=192` + `threads=256` fails exactly like `block_M=64` + `threads=256`:
+    `Layout infer conflict between acc_s and acc_s_cast in T.Parallel loop`, with
+    `loop Fragment((192, 64) -> (96,), replicate: 2, ...)` vs `fragment Fragment((192, 64) -> (48,), replicate: 1, ...)`.
+    All 9 `block_M=192` x `threads=256` points of the D=96 forward sweep failed; `threads=128` compiles.
+  - `bwd_dq.py` is a third tile shape (query rows in M, fp32 `acc_s` cast into a separate bf16
+    `ds_cast` fragment rather than into `acc_s_cast`) and it fails identically:
+    `Layout infer conflict between acc_s and ds_cast in T.Parallel loop` for every
+    `block_M=64` + `threads=256` point.
+- so the working rule on this stack is: **with `threads=256`, `block_M` must be a multiple of 128.**
+  It is the replicate-2 loop fragment vs the replicate-1 accumulator fragment that conflicts,
+  independent of the buffer names, of what the rows mean, and of the head dim.
+- workaround: unchanged -- per-dim config table, drop to `threads=128` whenever a 64-row tile is
+  forced (`latent_attn` D=256 uses 128 threads in both backward kernels for this reason).
+
+## smem accounting: tilelang aliases shared buffers by liveness
+
+- version: tilelang 0.1.14, GB10 (sm121), `src/mzoo/layers/attn/latent_attn/fwd.py`
+- not a bug, but it invalidates hand-computed smem budgets: the forward's `Q_shared` and
+  `O_shared` are both `[block_M, dim]` bf16 and naively sum to 96 KB at `block_M=256, D=96`,
+  before the `K_shared` pipeline -- yet the kernel compiles and runs. `O_shared` is only live
+  after the KV loop, so tilelang reuses `Q_shared`'s allocation for it.
+- consequence: predict "fits / does not fit" by compiling, not by adding up tile sizes; the
+  runtime error to grep for is `Failed to set the allowed dynamic shared memory size to N`
+  (N > 101376 = 99 KB).
+
+## swa_attn: `window=1` at D=64 H=4 fails in the TVM arith analyzer (degenerate band loop)
+
+- version: tilelang 0.1.14, GB10 (sm121), `src/mzoo/layers/attn/swa_attn/fwd.py`
+- symptom: compile-time `tvm.error.InternalError: Check failed: ... Trying to update var 'k' with a
+  different maximum value: original=T.min(bx, 3), new=T.min(T.min(bx, 3), 3)` for `window=1`, D=64,
+  H=4, S in {256, 512}. Same window compiles and runs finite at D=64 H=16, and at D=128 H=4/H=16;
+  window=2 and window=63 compile at the failing shape.
+- cause (probable): with `window=1` and this tile shape the band loop's start and end bounds collapse
+  to the same nested `T.min` expression and the analyzer sees two different "maximum" bindings for
+  the pipelined loop var. Degenerate case only; the model's window is 128.
+- impact: none for the model; the swa tests cover window=1 only at D=128 H=16.
+- workaround: none applied. Found by the independent verifier on 2026-09-14, not chased (user rule:
+  correctness on model shapes first). Revisit with the tuning pass.
+
+## `T.Pipelined` miscompiles a loop whose trip count nests a division (csa_attn's second KV source)
+
+- version: tilelang 0.1.14, GB10 (sm121), `src/mzoo/layers/attn/csa_attn/{fwd.py,bwd_dq.py}`
+- context: `csa_attn` walks a second KV source after the window tiles, with trip count
+  `T.min(G // block_N, T.ceildiv(T.floordiv((bx + 1) * T_q, ratio), block_N))` -- the inner
+  `floordiv` by the compression ratio is the new thing; every earlier package's bound was a
+  plain `ceildiv` of a linear expression.
+- symptom A (silent, the dangerous one): at `num_stages in {1, 2}` the kernel compiles, runs,
+  and returns **wrong results** for some `(dim, block_N, G)` -- e.g. D=64 H=16 S=512 `ratio=4`
+  `G=128` `block_N=64`: `o` off by 7.9e-1 (57x the bf16 torch error), tokens 3..255 wrong and
+  256..511 right, i.e. every query block that should have walked exactly one main tile walked
+  none. Other shapes on the same code are correct, so it looks like a passing kernel.
+- symptom B (loud): the same loop at `num_stages=3` fails codegen with
+  `TypeError: Downcast from tirx.Sub to ir.IntImm failed` under
+  `CodeGenTileLangCUDA::VisitExpr_(CallNode)`.
+- cause (from the generated CUDA): the software pipeline peels the loop into a prologue whose
+  `cp_async` reads `MainKV[... - 1024]` (a negative global offset) followed by
+  `for (int kg = 0; kg < 1; ++kg)`, with the mask's tile offset folded in as if `kg == 2`.
+  The bound expression itself is fine: a standalone kernel that only *stores*
+  `T.min(G // block_N, T.ceildiv(T.floordiv((bx + 1) * T_q, ratio), block_N))` returns the
+  correct value for every block index. At `ratio == 1` the `floordiv` collapses and the bound
+  becomes `latent_attn`'s long-tested form -- correct for every `G` there.
+- not the trigger: the loop being the second pipelined loop in the kernel (making the window
+  loop `T.serial` and pipelining only the main loop reproduces it), the loop starting at a
+  literal `0`, the `T.min` (dropping it reproduces it), or the loop-variable name.
+- workaround (applied): `T.serial` for that loop. Correct at every dim/heads/ratio/G tested,
+  including non-tile-aligned `G` and S=4096. Costs the main source its async prefetch.
+  `bwd_main.py`'s query loop keeps `T.Pipelined` -- it uses `swa_attn`'s variable-*start* form
+  and does not show the bug.
+- status: not reported upstream yet; needs a minimal repro outside the attention kernel.

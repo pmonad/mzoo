@@ -64,3 +64,14 @@ bool mask, so level two can gather), `fwd.py` (candidate-gather score kernel), `
   is not itself the bottleneck.
 - Reuse/Reindex scheduling across layers is a model-level concern -- the kernel only takes pointers,
   as in 0004.
+
+## Learnings from earlier steps (2026-09-14)
+
+- Decided in 0006: v1 materialises the full score matrix and runs `torch.topk` on it, which
+  is 256 MB at S 4096 T 16384 B 1 and 2-4x the score kernel's time. This ticket only pays off
+  if the full matrix is never materialised: emit per-query-block top-k (the
+  `indexer_topk_reducesum.py` shape) and score only the candidate list.
+- `select_candidate_blocks` pins the newest partially-filled block; replicate that exactly and
+  test on a non-multiple-of-block `compressed_len`.
+- Model top-k ties: compare chosen-set score values, not index sets.
+- No tuning sweeps (user decision 2026-09-14).

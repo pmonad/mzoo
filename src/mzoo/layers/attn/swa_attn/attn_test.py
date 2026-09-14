@@ -1,13 +1,15 @@
-"""GPU tests for latent_attn gradients against the fp32 golden reference's autograd.
+"""GPU tests for swa_attn gradients against the fp32 golden reference's autograd.
 
 ``o``, ``dq``, ``dkv`` and ``dsinks`` are all checked with the FlashAttention
 acceptance criterion (the shared ``dense_attn.ref.assert_within_2x_torch``): each
-tensor's max-abs error against the fp32 ``golden(..., level="latent")`` autograd
-result must be <= 2x the error torch's own bf16 pass makes on the same inputs and
-the same ``do``.
+tensor's max-abs error against the fp32 ``golden(..., level="window", window=W)``
+autograd result must be <= 2x the error torch's own bf16 pass makes on the same
+inputs and the same ``do``.
 
 ``dkv`` is the MQA reduction: one ``[B, S, 1, D]`` gradient summed over all H
-query heads, and since K == V it is ``dK + dV``.
+query heads, and since K == V it is ``dK + dV``. The band matters on both sides:
+``bwd_kv`` only walks the query tiles that can see its latent block and
+``bwd_dq`` only the KV tiles in the band, with the same per-row mask.
 """
 
 import pytest
@@ -15,7 +17,9 @@ import torch
 
 from mzoo.layers.attn.dense_attn.ref import assert_within_2x_torch
 from mzoo.layers.attn.golden_ref import golden
-from mzoo.layers.attn.latent_attn.attn import attn
+from mzoo.layers.attn.swa_attn.attn import attn
+
+WINDOW = 128  # the model's sliding_window
 
 
 def _leaves(batch, heads, seq_len, dim, use_sink, seed=0):
@@ -27,7 +31,7 @@ def _leaves(batch, heads, seq_len, dim, use_sink, seed=0):
     return q, kv, sinks, do
 
 
-def _grads(batch, heads, seq_len, dim, causal, use_sink=False):
+def _grads(batch, heads, seq_len, dim, window=WINDOW, use_sink=False):
     """Returns ``(o, o_ref, o_bf16, got, ref_grads, bf16_grads)``; grad lists are
     ``[dq, dkv]`` plus ``dsinks`` when ``use_sink``."""
     q, kv, sinks, do = _leaves(batch, heads, seq_len, dim, use_sink)
@@ -42,10 +46,10 @@ def _grads(batch, heads, seq_len, dim, causal, use_sink=False):
         o.backward(do.float() if dtype is torch.float32 else do)
         return o, [x.grad for x in ins] + ([sk.grad] if use_sink else [])
 
-    o, got = run(lambda a, b, s: attn(a, b, causal=causal, sinks=s))
-    o_ref, ref_grads = run(lambda a, b, s: golden(a, b, level="latent", causal=causal, sinks=s)[0], torch.float32)
-    o_bf16, bf16_grads = run(
-        lambda a, b, s: golden(a, b, level="latent", causal=causal, sinks=s, dtype=torch.bfloat16)[0])
+    gold = lambda a, b, s, dt: golden(a, b, level="window", window=window, sinks=s, dtype=dt)[0]  # noqa: E731
+    o, got = run(lambda a, b, s: attn(a, b, window=window, sinks=s))
+    o_ref, ref_grads = run(lambda a, b, s: gold(a, b, s, torch.float32), torch.float32)
+    o_bf16, bf16_grads = run(lambda a, b, s: gold(a, b, s, torch.bfloat16))
     return o, o_ref, o_bf16, got, ref_grads, bf16_grads
 
 
@@ -54,10 +58,9 @@ def _check(names, got, ref_grads, bf16_grads):
         assert_within_2x_torch(g, r, t, name)
 
 
-@pytest.mark.parametrize("causal", [True, False])
 @pytest.mark.parametrize("dim", [64, 96, 128])
-def test_grads_match_golden(dim, causal):
-    o, o_ref, o_bf16, got, ref_grads, bf16_grads = _grads(batch=2, heads=16, seq_len=512, dim=dim, causal=causal)
+def test_grads_match_golden(dim):
+    o, o_ref, o_bf16, got, ref_grads, bf16_grads = _grads(batch=2, heads=16, seq_len=512, dim=dim)
     assert_within_2x_torch(o, o_ref, o_bf16, "o")
     assert got[0].dtype == torch.bfloat16 and got[1].dtype == torch.bfloat16
     assert got[1].shape == (2, 512, 1, dim)  # dkv reduced over all H heads
@@ -65,40 +68,47 @@ def test_grads_match_golden(dim, causal):
 
 
 def test_grads_dim256():
-    """D=256 grads, kept small (H=4, B=1): smem forces 64-row tiles in both bwd kernels, so
-    H must divide 64 and the kernel is ~4x slower than D=128. See README -> Known issues."""
-    _, _, _, got, ref_grads, bf16_grads = _grads(batch=1, heads=4, seq_len=512, dim=256, causal=True)
+    """D=256 grads, kept small (H=4, B=1): smem forces 64-row tiles in both bwd kernels,
+    so H must divide 64. See README -> Known issues."""
+    _, _, _, got, ref_grads, bf16_grads = _grads(batch=1, heads=4, seq_len=512, dim=256)
     _check(["dq", "dkv"], got, ref_grads, bf16_grads)
 
 
 @pytest.mark.parametrize("heads", [4, 64])
 def test_grads_head_counts(heads):
     """H must divide the bwd ``block_N`` (64): H=4 -> 16 tokens/tile, H=64 -> 1 token/tile."""
-    _, _, _, got, ref_grads, bf16_grads = _grads(batch=1, heads=heads, seq_len=512, dim=128, causal=True)
+    _, _, _, got, ref_grads, bf16_grads = _grads(batch=1, heads=heads, seq_len=512, dim=128)
+    _check(["dq", "dkv"], got, ref_grads, bf16_grads)
+
+
+@pytest.mark.parametrize("window", [100, 4096])
+def test_grads_window_edges(window):
+    """A window that is not a multiple of any ``block_N``, and ``window >= seq_len``
+    (plain causal): both backward kernels must derive their loop bounds per row."""
+    _, _, _, got, ref_grads, bf16_grads = _grads(batch=1, heads=16, seq_len=512, dim=128, window=window)
     _check(["dq", "dkv"], got, ref_grads, bf16_grads)
 
 
 def test_grads_long_seq():
-    _, _, _, got, ref_grads, bf16_grads = _grads(batch=1, heads=64, seq_len=4096, dim=128, causal=True)
+    _, _, _, got, ref_grads, bf16_grads = _grads(batch=1, heads=64, seq_len=4096, dim=128)
     _check(["dq", "dkv"], got, ref_grads, bf16_grads)
 
 
-@pytest.mark.parametrize("causal", [True, False])
-@pytest.mark.parametrize("dim", [64, 96, 128])
-def test_grads_with_sink_match_golden(dim, causal):
-    o, o_ref, o_bf16, got, ref_grads, bf16_grads = _grads(batch=2, heads=16, seq_len=512, dim=dim,
-                                                          causal=causal, use_sink=True)
+@pytest.mark.parametrize("dim", [64, 128])
+def test_grads_with_sink_match_golden(dim):
+    o, o_ref, o_bf16, got, ref_grads, bf16_grads = _grads(batch=2, heads=16, seq_len=512, dim=dim, use_sink=True)
     assert_within_2x_torch(o, o_ref, o_bf16, "o")
     assert got[2].dtype == torch.float32 and got[2].shape == (16,)
     _check(["dq", "dkv", "dsinks"], got, ref_grads, bf16_grads)
 
 
 def test_backward_saves_only_q_kv_o_lse():
-    """FA2 recompute: forward must save exactly (q, kv, o, lse), never an S x S matrix."""
+    """FA2 recompute: forward must save exactly (q, kv, o, lse), never an S x S matrix.
+    ``window`` rides on ``ctx`` as a plain int, so the saved set is unchanged."""
     batch, heads, seq_len, dim = 1, 16, 1024, 64
     q = torch.randn(batch, seq_len, heads, dim, device="cuda", dtype=torch.bfloat16).requires_grad_()
     kv = torch.randn(batch, seq_len, 1, dim, device="cuda", dtype=torch.bfloat16).requires_grad_()
-    o = attn(q, kv)
+    o = attn(q, kv, window=WINDOW)
 
     saved = o.grad_fn.saved_tensors
     assert len(saved) == 4
@@ -114,7 +124,7 @@ def test_backward_saves_only_q_kv_o_lse():
 
     # with a sink the saved set grows by exactly the [H] vector
     sinks = torch.randn(heads, device="cuda", dtype=torch.float32)
-    saved_s = attn(q, kv, sinks=sinks).grad_fn.saved_tensors
+    saved_s = attn(q, kv, window=WINDOW, sinks=sinks).grad_fn.saved_tensors
     assert len(saved_s) == 5
     assert saved_s[4].shape == (heads,)
     assert sum(t.numel() for t in saved_s) == expect + heads

@@ -1,6 +1,6 @@
 # Design: FA2-style attention for SM120 in TileLang, growing into DSV4.1 CSA2
 
-Status: `dense_attn` complete for training (fwd + lse + sink, bwd, autograd, tests, bench); next up is `latent_attn`. Target GB10 (sm121, SM120 family), tilelang 0.1.14.
+Status: `dense_attn`, `latent_attn`, `swa_attn` complete for training (fwd + lse + sink, bwd, autograd, tests, bench) and independently verified; `csa_attn` (0003) and `indexer` (0006) done and verified (untuned); `csa2_attn` fwd (0004) in progress. Target GB10 (sm121, SM120 family), tilelang 0.1.14.
 Scope: head dims `{64, 96, 128, 256}` only. `D=512` (the released V4.1-Flash size) is out of scope, so no Split-D.
 Training only for now: prefill-shaped forward plus backward; no decode, no paged cache, no split-KV.
 
@@ -40,16 +40,18 @@ Out of kernel (elementwise, stays in torch): Q/KV RoPE, inverse RoPE on the outp
 | ticket | package | status | depends on |
 |---|---|---|---|
 | -- | `dense_attn` | done | -- |
-| -- | `latent_attn` | next session | `dense_attn` |
-| [0002](../../../../tickets/0002-swa-attn.md) | `swa_attn` (fwd+bwd) | todo | `latent_attn` |
-| [0003](../../../../tickets/0003-csa-attn.md) | `csa_attn` (fwd+bwd) | todo | 0002 |
-| [0004](../../../../tickets/0004-csa2-attn-sparse-fwd.md) | `csa2_attn` (fwd) | todo | 0003 |
+| -- | `latent_attn` | done (2026-09-14, verified) | `dense_attn` |
+| [0002](../../../../tickets/0002-swa-attn.md) | `swa_attn` (fwd+bwd) | done (2026-09-14, verified) | `latent_attn` |
+| [0003](../../../../tickets/0003-csa-attn.md) | `csa_attn` (fwd+bwd) | done (2026-09-14, verified; configs untuned) | 0002 |
+| [0004](../../../../tickets/0004-csa2-attn-sparse-fwd.md) | `csa2_attn` (fwd) | in progress | 0003 |
 | [0005](../../../../tickets/0005-csa2-attn-sparse-bwd.md) | `csa2_attn` (bwd) | todo | 0004 |
-| [0006](../../../../tickets/0006-indexer-bf16-score.md) | `indexer` (bf16 fwd) | todo | 0004 |
+| [0006](../../../../tickets/0006-indexer-bf16-score.md) | `indexer` (bf16 fwd) | done (2026-09-14, verified; configs untuned) | 0004 as consumer only (contract pinned by `golden_ref.topk_indices`) |
 | [0007](../../../../tickets/0007-indexer-backward.md) | `indexer` (bwd) | todo | 0006 |
 | [0008](../../../../tickets/0008-indexer-mxfp4-score.md) | `indexer_fp4` | todo | 0006, 0007 |
 | [0009](../../../../tickets/0009-indexer-hierarchical.md) | `indexer_hier` | todo | 0006 |
 | [0010](../../../../tickets/0010-csa2-fp-cache.md) | `csa2_fp_attn` | todo | 0005 |
+| [0011](../../../../tickets/0011-qk-prologue-norm-rope.md) | `norm_rope` (torch.compile prologue, no kernel) | todo | -- |
+| [0012](../../../../tickets/0012-dsv4-shared-dict-cross-group.md) | dsv4 model: `shared` dict cross-group accumulation (suspected) | todo, unverified | -- |
 
 Why this split: one ticket per package, except where a backward is a different kernel shape from its forward (0005's scatter-add dKV, 0007's relu-gated three-input reduce) -- those get their own; every other backward is folded into its package's ticket, so step 7 files no ticket of its own. The indexer's MXFP4 math path (0008) and hierarchical candidate list (0009) are separate packages, not variants, per the copy-forward rule. In-kernel fp8/fp4 dequant (steps 3v2 + 4v2) is one ticket (0010): one change, two sources, one shared risk.
 
@@ -60,7 +62,7 @@ Fwd + lse + sink, bwd, autograd wrapper, tests, bench. Design, tile configs,
 bench numbers and accuracy table are in `dense_attn/README.md`. Deliverables:
 `fwd.py`, `bwd.py`, `attn.py`, `ref.py`, `bench.py`, tests.
 
-### 2. Shared-latent MQA layout -- next session
+### 2. Shared-latent MQA layout -- done (see `latent_attn/README.md`)
 - Switch to K==V, 1 KV head: block = `(T_q query tokens x H heads)` rows, e.g. 1 token x 64 heads. Mask per row derives from the row's token, not the block.
 - Reuse the same smem KV tile for `S = Q K^T` and `O += P K`. Drop the V load entirely.
 - Q resident in smem (`64 x 256` bf16 = 32 KB worst case), KV tile `64 x 256` = 32 KB, so 1-2 stages fit. No D-split needed at these dims; ffpa-attn's Split-D only matters for `D > 256`.
@@ -117,6 +119,58 @@ This is where project conventions for this series live (not `CLAUDE.md`).
   it never leaves fp32. `dense_attn/ref.py::assert_within_2x_torch` (+
   `torch_bf16_ref`) is the shared helper every package reuses instead of
   reintroducing fixed atols (sparse steps feed identical indices to both).
+- **References.** `golden_ref.py::golden(level=...)` is the fp32 reference
+  (and, with `dtype=bf16`, the torch-bf16 baseline) for every level; it is
+  pinned against the vendored model's eager path. `golden_ref.gpt_oss_ref`
+  (transformers' gpt-oss eager attention, MQA + sinks + sliding window) is
+  the implementation-independent second reference for the latent/window
+  levels. Packages carry no `ref.py` of their own unless torch-side model
+  pieces (compressor, quant) need a home.
+- **Benches.** Compare only against baselines built for the same task: the
+  previous package on identical inputs, or a torch path doing the same math
+  (SDPA with the latent expanded for dense/latent; einsum + topk for the
+  indexer). Never SDPA with masks it was not designed for (band, group-
+  causal, sparse) -- those numbers say nothing. Correctness is the
+  deliverable; a bench is one small table for the README and ticket.
+- **Test matrix (learned 2026-09-14).** Every package's tests must include
+  (a) non-tile-aligned / non-power-of-two sizes for every new extent (window
+  100, G 100 and 37, topk 100): all "natural" shapes are powers of two and
+  hid a padded-G mask leak in `csa_attn` that only the G=100 *gradient* test
+  caught; (b) a feature-off case that must equal the previous package
+  bit-for-bit (`window >= S` == `latent_attn`, `G == 0` == `swa_attn`,
+  all-visible indices == `csa_attn`): the cheapest regression check there is;
+  (c) the smallest AND largest head count, since packed-heads tiles count
+  `T_q * H` rows and smem depends on H (`indexer` D=256 fit at Hi=32, not
+  at Hi=4); (d) the vendored model replay via `golden_ref_test`'s capture
+  helpers. `dsinks` is a thin reduce whose 2x ratio straddles the bound at
+  small B*S in every package; check it where stable (D 64/128, H 16) and
+  say so, do not loosen the criterion for the other tensors.
+- **Kernel invariants (learned 2026-09-14).** Loop bounds are per block,
+  masks are per row, so a row can meet a tile it sees nothing in: floor the
+  running rowmax at `-1e30`, never mask logits with a finite constant. Carry
+  the true extent and the padded extent as separate constants: shapes, grid
+  and loops use the padded one, every mask the true one. A loop whose trip
+  count nests a division (`floordiv(..., ratio)`) must be `T.serial` on
+  tilelang 0.1.14 (`T.Pipelined` miscompiles it, tickets/0001). Atomics
+  are cheap per instruction; repeated read-modify-write of a large buffer is
+  not -- prefer an owner kernel that stores once even at +40% FLOPs.
+- **Tuning (learned).** Tile tables do not transfer across loop shapes: the
+  band inverted `latent_attn`'s bwd winners, the dense main loop will differ
+  again. The deferred tuning pass must sweep each package on its own, and
+  validate every config at the smallest supported H. Sweeps decide fit by
+  compiling (smem is aliased by liveness).
+- **Working mode (learned).** A stopped worker leaves an uncommitted,
+  half-edited tree and the previously verified state is unrecoverable
+  without git history (`latent_attn` had to be re-derived): commit or tag
+  each package right after its independent verification, before the next
+  worker touches the tree. Two workers on one GPU make bench numbers
+  +-5%; the verifier reruns benches alone. Independent verification found
+  a real gap in every package so far (window=1 compile crash, D=256 bench
+  drift) that the implementing worker's own report did not.
+- **Parking notes.** Every real problem hit while implementing goes into
+  `docs/evolution/attn/attention-kernels-impl.md` as one short section
+  (problem / measurement / fix), per `CLAUDE.md`; tilelang quirks go to
+  `tickets/0001-tilelang-issues.md`.
 - **Design docs.** Each package has its own `README.md` with the same section
   order -- what/how, configs, bench, accuracy, decisions, known issues, next
   -- and this overall doc only links to them, it does not duplicate them.
@@ -133,18 +187,22 @@ This is where project conventions for this series live (not `CLAUDE.md`).
 - Training only, no decode/inference path for now.
 - Fast-math kept (`TL_ENABLE_FAST_MATH`): FA1-FA4 all build with fast math.
 - No gradient-checkpoint guard; only the save/recompute invariant is tested.
-- Scope is `D in {64, 96, 128, 256}`; 64 and 128 are tuned, 96/256 are
-  shape-support only. `D=512` is out of scope, so no Split-D.
+- Scope is `D in {64, 96, 128, 256}`; 64/96/128 are the mandatory tuned
+  dims, 256 is shape-support only. `D=512` is out of scope, so no Split-D.
+- Tuning sweeps deferred from `csa_attn` (0003) onward (user decision
+  2026-09-14): one config per dim that compiles and passes, flagged
+  "untuned" in the README and ticket; a tuning pass comes later.
+- Fused QK-norm + RoPE prologue stays in torch via `torch.compile`, not in
+  the kernel: ticket 0011.
 - Fixed sequence length for now; no varlen/packing.
 
 ## Next
 
-`latent_attn` (step 2) next; the table above is the running order, one ticket
-per row. Before or alongside it, write the golden end-to-end torch reference
-extracted from `eager_attention_forward` + the indexer in
-`archs/dsv4/modeling_deepseek_v41.py` that every later package tests against,
-instead of re-deriving per-step references. Testing today reruns the vendored
-eager forward layer-by-layer against the 6-layer smoke config
-(`archs/dsv4/model.py`, heads 4, D 64) plus a shape check at H 64, D 256.
+`csa_attn` (0003) and `indexer` (0006) are running in parallel; then 0004/0005
+(sparse), with the indexer track (0007-0009) continuing beside the attention
+track until they meet at `csa2_attn`. The golden reference exists
+(`golden_ref.py`, all five levels, checked against the vendored model layer by
+layer and against gpt-oss). Deferred: the tuning pass over every package built
+without sweeps, and ticket 0011 (fused norm + RoPE prologue).
 
 Open question: variable-length / packed batches -- currently assumed no.

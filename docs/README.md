@@ -111,9 +111,23 @@ binding — each chapter should make its own call based on what it needs to say.
 
 ## Algorithms
 
-1. Step-narrated procedures — decode walkthroughs, update rules, loops — go as
-   pseudocode: `aligned` display math, `←` assignments, `//` comments between phases.
-   Prose carries why (exactness, cost), never what happens in what order.
+1. Step-narrated procedures — decode walkthroughs, update rules, loops — go as pseudocode in
+   display math; prose carries why (exactness, cost), never what happens in what order. Blocks
+   are only as formal as the algorithm needs: some want phase rules and comments, some are five
+   lines.
+2. The form is a two-column `array{ll}`: statements left, side conditions right ("for each head
+   $h$"); a bold signature row names the block, since prose references blocks by name and
+   nothing is numbered; italic `//` comments label phases when it helps; `\hline` between
+   phases, sparingly; `\quad` indentation. Keywords are `\textbf{for}`/`\textbf{if}`/...,
+   assignment is `\leftarrow`, and `=` stays equality.
+3. Stick to the command set that renders on both paths (`array`, `\hline`, `\text`/`\textbf`/
+   `\textit`, `\operatorname`, `\leftarrow`, `\quad`, `\big[`,`\big]`, `\dots`): KaTeX is the
+   tighter side (no `\multicolumn`, no algorithm packages), so anything outside the set gets a
+   render check in `just docs/ preview` *and* `just docs/ pdf` before it enters a chapter.
+4. Type-check the block as you write it: every line should compose — a $d_c$-wide query does
+   not dot a $(d_c{+}d_r)$-wide key. Say a symbol's shape in words whenever the line alone
+   doesn't make it obvious.
+5. The decode block in `attn/low-rank-attention/mla.md` is the reference example.
 
 ## Book and site
 

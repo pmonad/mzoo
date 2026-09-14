@@ -23,13 +23,15 @@ recomputed P is sink-normalised and only
 ``dsinks[h] = -sum_{b,s} exp(sink[h] - lse[b,h,s]) * delta[b,h,s]`` is left --
 O(B*H*S) elementwise, so it stays a plain fp32 torch reduce.
 
-``CONFIGS`` is re-tuned per head dim (see ``README.md``). In ``bwd_kv``
-``block_M`` counts latent tokens and ``block_N`` packed query rows; in
-``bwd_dq`` it is the other way round, matching ``fwd.py``. Whichever of the two
-counts packed query rows must be a multiple of ``H``, which at D=256 (where
-smem forces 32-row query tiles in ``bwd_kv``) caps the backward at H <= 32.
-The tilelang layout-inference limits of ``tickets/0001-tilelang-issues.md``
-still apply: ``block_M=32`` never compiles and ``block_M=64`` needs 128 threads.
+``CONFIGS`` is re-tuned per head dim (see ``README.md``), and is the same at
+H=16 and H=64 -- the sweep's H=16 winner is within 1.3% of the H=64 pick at
+every dim, so there is no per-(dim, H) table. In ``bwd_kv`` ``block_M`` counts
+latent tokens and ``block_N`` packed query rows; in ``bwd_dq`` it is the other
+way round, matching ``fwd.py``. Whichever of the two counts packed query rows
+must be a multiple of ``H``, and both are 64 at D=256, so H must divide 64
+there (H <= 64, the model's shape, still fits). The tilelang layout-inference
+limits of ``tickets/0001-tilelang-issues.md`` still apply: ``block_M=32`` never
+compiles, and 64-row tiles need 128 threads in both backward kernels.
 """
 
 import torch
@@ -41,14 +43,14 @@ from mzoo.layers.attn.latent_attn.fwd import check_shapes
 # head dim -> kv=(block_M latent tokens, block_N packed query rows, stages, threads),
 #             dq=(block_M packed query rows, block_N latent tokens, stages, threads)
 CONFIGS = {
-    64: dict(kv=dict(block_M=256, block_N=128, num_stages=2, threads=256),
+    64: dict(kv=dict(block_M=256, block_N=64, num_stages=2, threads=256),
              dq=dict(block_M=128, block_N=128, num_stages=2, threads=256)),
     96: dict(kv=dict(block_M=256, block_N=64, num_stages=2, threads=256),
              dq=dict(block_M=128, block_N=128, num_stages=2, threads=256)),
-    128: dict(kv=dict(block_M=256, block_N=64, num_stages=2, threads=256),
-              dq=dict(block_M=128, block_N=128, num_stages=2, threads=256)),
-    256: dict(kv=dict(block_M=128, block_N=32, num_stages=1, threads=256),
-              dq=dict(block_M=64, block_N=64, num_stages=1, threads=128)),
+    128: dict(kv=dict(block_M=128, block_N=64, num_stages=2, threads=256),
+              dq=dict(block_M=128, block_N=64, num_stages=2, threads=256)),
+    256: dict(kv=dict(block_M=64, block_N=64, num_stages=1, threads=128),
+              dq=dict(block_M=64, block_N=32, num_stages=2, threads=128)),
 }
 
 TARGET_CTAS = 256  # >5 waves on GB10's 48 SMs; drives the query-loop split count

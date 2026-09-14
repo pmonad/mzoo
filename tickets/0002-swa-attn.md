@@ -1,7 +1,7 @@
 # 0002 swa_attn: sliding-window branch (fwd + bwd)
 
-- status: todo
-- depends on: `latent_attn` (step 2, next session)
+- status: done (2026-09-14): 39 swa tests green (152 in `attn/`), fwd+bwd at D128 H64 S4096 W128 is 5.10x `latent_attn` full causal and 34.4x SDPA with a band mask; model layer 0 replay passes the 2x criterion.
+- depends on: `latent_attn` (step 2, done and verified)
 - package: `src/mzoo/layers/attn/swa_attn/`
 
 ## Goal
@@ -61,3 +61,26 @@ bench, accuracy, decisions, **Known issues**, next). Tests reuse
   (`tickets/0001-tilelang-issues.md`), and `dense_attn`'s table does not carry over to MQA row
   packing.
 - Do not stash a bf16 copy of the dequantized cache for the backward; recompute.
+
+## Result
+
+- package `src/mzoo/layers/attn/swa_attn/`: `fwd.py`, `bwd.py` + `bwd_kernels.py` + `bwd_dq.py`,
+  `attn.py`, `bench.py`, `fwd_test.py`, `attn_test.py`, `model_test.py`, `README.md`.
+- final `CONFIGS` -- fwd (block_M/block_N/stages/threads): 64 -> 256/64/3/256, 96 -> 256/64/3/256,
+  128 -> 256/32/3/256, 256 -> 128/32/2/256. bwd `kv`: 64 -> 64/128/2/128, 96 -> 64/64/3/128,
+  128 -> 64/64/2/128, 256 -> 64/64/1/128; bwd `dq`: 64/96/128 -> 128/64/{3,3,2}/256, 256 -> 64/32/2/128.
+  `splits` from `pick_splits` (`TARGET_CTAS` 768, `MAX_SPLITS` 12; 12 at the headline shape).
+- bench B1 S4096 W128 D128 H64: fwd 0.624 ms vs `latent_attn` 2.903 (4.66x) vs SDPA+band-mask 21.27
+  (34.1x); fwd+bwd 3.073 vs 15.673 (5.10x) vs 105.6 (34.4x). Range over D{64,96,128,256} x H{16,64}:
+  3.5-5.1x `latent_attn`, 17-42x SDPA. Ideal band ratio is 16.3x; the gap is that the banded kernel
+  is launch/memory-bound (27 vs ~95 effective TFLOPS).
+- accuracy (B2 S512, per-head sink, vs fp32 `golden(level="window")`): `o` <= 0.60x, `dq` <= 0.93x,
+  `dkv` <= 0.77x, `lse` <= 1.4e-6 abs. `dsinks` reaches 2.07x at D=256 H=4 -- a pre-existing property
+  of that reduce (`latent_attn` hits 2.24x on the same shape across seeds), see README Known issues.
+- deviations from the ticket: `causal=False` asserts instead of being supported (documented, tested);
+  the "D 96/256 pass-only" line is superseded -- 64/96/128 are tuned, 256 is shape support;
+  no `ref.py` (the series-wide `golden_ref.py` replaced it, as in `latent_attn`); the model check is
+  its own `model_test.py` reusing `golden_ref_test.py`'s capture helpers.
+- one real problem hit, parked in `docs/evolution/attn/attention-kernels-impl.md`: a banded row can
+  meet a KV tile it sees nothing in, so FA2's `-inf - (-inf)` rescale produced NaN; fixed by flooring
+  the running rowmax at -1e30 instead of -inf.

@@ -65,3 +65,11 @@ pattern from `src/mzoo/kernels/sm120_nvfp4_blockscaled_gemm.py`; extend `just sm
   only in-repo call site, so expect layout surprises.
 - Its own example documents two bugs: `T.copy` of an SFA slice mis-lowers on the bulk-TMA path, and
   simultaneous M *and* N tail tiles are unsupported.
+
+## Learnings from earlier steps (2026-09-14)
+
+- `indexer` (0006) materialises the `[B,S,T]` fp32 score matrix (256 MB at S 4096, T 16384,
+  B 1) and `torch.topk` costs 2-4x the score kernel; the MXFP4 path inherits both unless 0009
+  lands first. Compare score values of chosen sets (not index sets) against the model.
+- `T.mma_gemm_blockscaled` needs the `SM120A_ENABLED` compile flag on sm121 (tickets/0001).
+- No tuning sweeps (user decision 2026-09-14): one config per dim, flagged untuned.

@@ -16,6 +16,7 @@ the heads-in-rows packing follows `examples/dsa_sparse_finetune/sparse_mla_fwd.p
   `[B, S, H, D]`, `lse` fp32 `[B, H, S]`.
   `bwd(q, kv, o, lse, do, *, causal, sinks) -> (dq, dkv, dsinks)` with `dkv`
   bf16 `[B, S, 1, D]`. `attn(q, kv, ...) -> o` is the autograd wrapper.
+  `D in {64, 96, 128, 256}`.
 - **Heads in the M dimension** (`fwd.py`). A block owns `block_M` rows that are
   `T_q = block_M // H` consecutive *tokens* x `H` heads. Because BSHD memory
   order is already (token, head, dim), that tile is one contiguous
@@ -23,10 +24,10 @@ the heads-in-rows packing follows `examples/dsa_sparse_finetune/sparse_mla_fwd.p
   causal mask therefore comes from the row's **token**, `bx * T_q + i // H`, not
   from the block index.
   The general rule is `T_q = block_M // H`, with `block_M % H == 0` and
-  `seq_len % T_q == 0` asserted. Every `block_M` in the config table is 128 or
-  256, so `H in {4, 8, 16, 32, 64}` all fit (H=64 -> 2 or 4 tokens/block, H=4 ->
-  32 or 64 tokens/block). `lse` is produced packed `[B, S*H]` and transposed to
-  `[B, H, S]` in the python wrapper (a ~25 us copy at the headline shape).
+  `seq_len % T_q == 0` asserted. Every `block_M` in the config tables is 64, 128
+  or 256, so `H in {4, 8, 16, 32, 64}` all fit. `lse` is produced packed
+  `[B, S*H]` and transposed to `[B, H, S]` in the python wrapper (a ~25 us copy
+  at the headline shape).
 - **One smem KV tile, two GEMMs.** `S = Q K^T` and `O += P K` both read
   `K_shared`; the V load is gone entirely. That frees `block_N x D` bf16 of the
   smem budget, which is what pays for `block_M=256` in the forward.
@@ -34,20 +35,27 @@ the heads-in-rows packing follows `examples/dsa_sparse_finetune/sparse_mla_fwd.p
   extra softmax column that only enlarges the denominator, included in `lse`,
   `has_sink` a static flag. With heads in rows the per-row sink is
   `Sinks[i % H]` instead of a single block-wide scalar.
-- **Backward** (`bwd.py` driver + `bwd_kernels.py`): the same three kernels as
-  `dense_attn` -- `preprocess` (`delta = rowsum(dO * O)`), the KV-block-owning
-  main kernel, `postprocess` (fp32 `dQ` -> bf16). Two MQA changes:
-  - `dK` and `dV` accumulate into **one** fp32 register tile (`dKV = dK + dV`,
-    because K == V), and the reduction over all H heads sharing the latent
-    happens inside that tile for free, since heads are rows of the query tile.
-  - the grid gains a **split** dimension over the query loop. With heads folded
-    into rows, the natural grid is only `B * S/block_M` CTAs (32 at B1 S4096 on
-    48 SMs) each doing H times the work; each split takes a contiguous chunk of
-    query tiles and writes its own fp32 slice of `dKV_partial [splits, B, S, D]`,
-    summed in torch and cast to bf16. **fp32 split buffers, never bf16 atomics.**
-    `pick_splits` targets ~256 CTAs, capped at 8.
-  `dQ` is still an fp32 `atomic_add` scatter. `dsinks` is still a plain fp32
-  torch reduce, no kernel.
+- **Backward**: `bwd.py` (driver) + `bwd_kernels.py` (`preprocess`, `bwd_kv`) +
+  `bwd_dq.py` (`bwd_dq`). Three kernels and **no atomics anywhere**:
+  1. `preprocess` -> `delta = rowsum(dO * O)` over the packed rows.
+  2. `bwd_kv` -> a CTA owns a latent block and a contiguous chunk of the query
+     tiles. `dK` and `dV` accumulate into **one** fp32 register tile
+     (`dKV = dK + dV`, because K == V) and the reduction over all H heads
+     sharing the latent happens inside that tile for free, since heads are rows
+     of the query tile. The grid gains a **split** dimension over the query
+     loop: with heads folded into rows the natural grid is only
+     `B * S/block_M` CTAs (32 at B1 S4096, on 48 SMs), so each split writes its
+     own fp32 slice of `dKV_partial [splits, B, S, D]`, summed in torch and cast
+     to bf16. **fp32 split buffers, never bf16 atomics.** `pick_splits` targets
+     ~256 CTAs, capped at 8.
+  3. `bwd_dq` -> a CTA owns a packed *query* tile (same layout and causal rule as
+     `fwd.py`), recomputes `S` and `dS` against the L2-resident latent, and
+     stores `dQ` bf16 **exactly once**. This replaces `dense_attn`'s fp32
+     `atomic_add` scatter, which ran once per KV block; see Decisions.
+  `dsinks` needs no kernel: `lse` already carries the sink column, so the
+  recomputed P is sink-normalised and only
+  `dsinks[h] = -sum_{b,s} exp(sink[h] - lse[b,h,s]) * delta[b,h,s]` is left, a
+  plain fp32 torch reduce.
 - **Autograd wrapper** (`attn.py`): saves exactly `(q, kv, o, lse[, sinks])` --
   one tensor fewer than dense -- pinned by `test_backward_saves_only_q_kv_o_lse`.
 
@@ -65,28 +73,53 @@ sink-free baseline, fed `kv.expand(B, S, H, D)`.
 
 ## Tile configs
 
-Re-tuned from scratch for the packed-heads layout: a full grid at B1 **H64**
-S4096 D{64,128} causal (the model's shape), 44 forward points and 72 backward
-points per dim. **Only D=64 and D=128 are supported** -- D=96/256 were not
-added, see Known issues.
+Re-tuned from scratch for the packed-heads layout at B1 **H64** S4096 causal
+(the model's shape), and re-swept again after the backward was restructured
+around the query-owning `dQ` kernel. D=64, 96 and 128 are tuned; **D=256 is
+shape support only** -- the 99 KB smem cap leaves it three usable forward tiles
+and exactly one backward tile per kernel.
 
 fwd `CONFIGS` (head dim -> block_M = `T_q * H` rows, block_N = KV tokens, num_stages, threads):
 
 | dim | block_M | block_N | num_stages | threads |
 |---|---|---|---|---|
 | 64 | 256 | 128 | 2 | 256 |
+| 96 | 256 | 64 | 3 | 256 |
 | 128 | 256 | 64 | 2 | 256 |
+| 256 | 128 | 32 | 2 | 256 |
 
-bwd `CONFIGS` (head dim -> block_M = latent tokens, block_N = packed query rows, num_stages, threads):
+bwd `CONFIGS`, two tiles per dim -- `kv` (`block_M` = latent tokens, `block_N` =
+packed query rows) and `dq` (the other way round, matching `fwd.py`):
 
-| dim | block_M | block_N | num_stages | threads |
-|---|---|---|---|---|
-| 64 | 128 | 64 | 1 | 256 |
-| 128 | 128 | 64 | 1 | 256 |
+| dim | kv: block_M / block_N / stages / threads | dq: block_M / block_N / stages / threads |
+|---|---|---|
+| 64 | 256 / 64 / 2 / 256 | 128 / 128 / 2 / 256 |
+| 96 | 256 / 64 / 2 / 256 | 128 / 128 / 2 / 256 |
+| 128 | 128 / 64 / 2 / 256 | 128 / 64 / 2 / 256 |
+| 256 | 64 / 64 / 1 / 128 | 64 / 32 / 2 / 128 |
 
-plus `splits`, chosen at call time by `pick_splits` (8 at the headline shape).
+plus `splits` for `bwd_kv`, chosen at call time by `pick_splits` (8 at the
+headline shape).
 
-Forward sweep, top 5 of each dim (ms, B1 H64 S4096 causal):
+### `seq_len` constraints
+
+Asserted in `check_shapes` (fwd) and `bwd` (both kernels). `T_q = block_M // H`
+is the token count of a packed query tile; the backward additionally needs
+`seq_len % kv.block_M == 0`, so the binding constraint per dim is:
+
+| dim | fwd: `seq_len %` | bwd: `seq_len %` |
+|---|---|---|
+| 64 | `256 // H` | 256 |
+| 96 | `256 // H` | 256 |
+| 128 | `256 // H` | 128 |
+| 256 | `128 // H` | 64 |
+
+`H` must divide the packed-row tile of every kernel it touches, i.e. `H | 256`
+at D<=128 and `H | 64` at D=256 -- `H in {4, 8, 16, 32, 64}` everywhere.
+
+### Sweeps
+
+Forward, top 5 per dim (ms, B1 H64 S4096 causal):
 
 | dim | block_M | block_N | stages | threads | ms |
 |---|---|---|---|---|---|
@@ -95,83 +128,135 @@ Forward sweep, top 5 of each dim (ms, B1 H64 S4096 causal):
 | 64 | 256 | 64 | 3 | 256 | 1.548 |
 | 64 | 256 | 64 | 2 | 256 | 1.562 |
 | 64 | 128 | 128 | 2 | 256 | 1.577 |
+| 96 | **256** | **64** | **3** | **256** | **2.139** |
+| 96 | 256 | 64 | 2 | 256 | 2.164 |
+| 96 | 128 | 128 | 3 | 256 | 2.212 |
+| 96 | 128 | 128 | 2 | 256 | 2.253 |
+| 96 | 256 | 32 | 3 | 256 | 2.262 |
 | 128 | **256** | **64** | **2** | **256** | **2.829** |
 | 128 | 256 | 32 | 3 | 256 | 2.906 |
 | 128 | 128 | 64 | 2 | 256 | 2.916 |
 | 128 | 128 | 128 | 2 | 256 | 2.921 |
 | 128 | 256 | 32 | 2 | 256 | 2.934 |
+| 256 | 64 | 64 | 2 | 128 | 6.119 |
+| 256 | **128** | **32** | **2** | **256** | **6.173** |
+| 256 | 128 | 32 | 1 | 256 | 6.334 |
+| 256 | 64 | 32 | 2 | 128 | 6.470 |
+| 256 | 128 | 64 | 1 | 256 | 6.528 |
 
-`block_M=256` wins by only ~3% over `block_M=128`, and only at 256 threads --
-`block_M=256` with 128 threads is 10-30x slower (1.53 -> 21.8 ms at D=64,
-block_N=128), so `threads=256` is not optional there. `block_M=64` is uniformly
-worst (1.89-3.90 ms) and caps at 128 threads anyway.
+At D=96 the sweep also covered `block_M=192`; every `block_M=192` point at 256
+threads fails layout inference (same bug as `block_M=64`, see Known issues), and
+the ones that do compile at 128 threads are 2.8-12.8 ms. At D=256 those five
+rows are the *entire* set that compiles and fits: every `block_M=256` tile and
+every `block_M>=128` tile with `block_N>=64, stages=2` is over the 99 KB cap, and
+`block_M=64 + threads=256` fails layout inference. `block_M=128, block_N=32`
+wins over the `block_M=64` alternative by supporting 2 tokens/block at H=64.
 
-Backward sweep, top 5 of each dim (ms, same shape; `sp` = splits):
+Backward `bwd_kv`, top 5 per dim (ms, same shape, `sp` = splits):
 
 | dim | block_M | block_N | stages | threads | sp | ms |
 |---|---|---|---|---|---|---|
-| 64 | **128** | **64** | **1** | **256** | **8** | **13.34** |
-| 64 | 128 | 64 | 1 | 128 | 8 | 13.69 |
-| 64 | 128 | 64 | 2 | 256 | 8 | 13.78 |
-| 64 | 128 | 64 | 1 | 256 | 4 | 13.81 |
-| 64 | 128 | 128 | 1 | 256 | 8 | 13.86 |
-| 128 | **128** | **64** | **1** | **256** | **4** | **28.05** |
-| 128 | 128 | 64 | 1 | 256 | 2 | 28.96 |
-| 128 | 128 | 64 | 1 | 256 | 8 | 29.38 |
-| 128 | 128 | 64 | 1 | 128 | 4 | 34.80 |
-| 128 | 128 | 64 | 1 | 256 | 1 | 35.46 |
+| 64 | **256** | **64** | **2** | **256** | **8** | **3.078** |
+| 64 | 256 | 64 | 3 | 256 | 8 | 3.084 |
+| 64 | 128 | 64 | 3 | 256 | 8 | 3.250 |
+| 64 | 128 | 128 | 2 | 256 | 8 | 3.293 |
+| 64 | 128 | 64 | 2 | 256 | 8 | 3.351 |
+| 96 | **256** | **64** | **2** | **256** | **8** | **4.699** |
+| 96 | 256 | 64 | 1 | 256 | 8 | 5.359 |
+| 96 | 128 | 64 | 2 | 256 | 8 | 5.588 |
+| 96 | 128 | 64 | 2 | 128 | 8 | 5.762 |
+| 96 | 128 | 128 | 1 | 256 | 8 | 5.793 |
+| 128 | **128** | **64** | **2** | **256** | **8** | **7.662** |
+| 128 | 128 | 128 | 1 | 256 | 8 | 7.812 |
+| 128 | 128 | 64 | 1 | 256 | 8 | 7.888 |
+| 128 | 256 | 64 | 1 | 256 | 8 | 7.926 |
+| 128 | 128 | 64 | 2 | 256 | 4 | 8.349 |
+| 256 | **64** | **64** | **1** | **128** | **8** | **30.39** |
+| 256 | 64 | 64 | 1 | 128 | 4 | 30.77 |
 
-The splits axis is the big one: at D=64 / `block_M=128, block_N=64, 1 stage,
-256 threads` it goes 18.36 (sp=1) -> 14.46 (2) -> 13.81 (4) -> 13.34 (8) ms.
-sp=4 vs sp=8 is within noise at D=128 (28.1 vs 29.4-30.1 across reruns), so
-`pick_splits` just targets ~5 waves and lands on 8. `block_M=64` is 2-4x worse
-(49-59 ms at D=128); `block_N=128` at D=128 does not fit smem at all.
+D=256 has only those two rows because everything else in the grid either
+overflows smem (`block_M=128` needs 132 KB at `block_N=64, stages=1`) or hits
+the 256-thread layout bug.
 
-36 of the 144 backward points failed, all of them smem-budget failures
-(`Failed to set the allowed dynamic shared memory size to ...`), not layout
-inference.
+Backward `bwd_dq`, top 5 per dim:
+
+| dim | block_M | block_N | stages | threads | ms |
+|---|---|---|---|---|---|
+| 64 | 256 | 32 | 3 | 256 | 2.182 |
+| 64 | **128** | **128** | **2** | **256** | **2.193** |
+| 64 | 128 | 64 | 3 | 256 | 2.193 |
+| 64 | 128 | 64 | 2 | 256 | 2.208 |
+| 64 | 128 | 128 | 3 | 256 | 2.223 |
+| 96 | **128** | **128** | **2** | **256** | **3.293** |
+| 96 | 128 | 64 | 2 | 256 | 3.328 |
+| 96 | 128 | 32 | 2 | 256 | 3.468 |
+| 96 | 64 | 128 | 2 | 128 | 3.476 |
+| 96 | 128 | 128 | 1 | 256 | 3.568 |
+| 128 | **128** | **64** | **2** | **256** | **4.272** |
+| 128 | 128 | 32 | 2 | 256 | 4.370 |
+| 128 | 128 | 128 | 1 | 256 | 4.490 |
+| 128 | 64 | 64 | 2 | 128 | 4.606 |
+| 128 | 128 | 64 | 1 | 256 | 4.608 |
+| 256 | **64** | **32** | **2** | **128** | **8.821** |
+| 256 | 64 | 32 | 1 | 128 | 9.741 |
+| 256 | 64 | 64 | 1 | 128 | 9.988 |
+
+At D=64 the `block_M=256` `dq` winner is 0.5% ahead of `block_M=128`, which is
+inside run-to-run noise, so `block_M=128` is kept for the looser `seq_len`
+constraint.
+
+**`CONFIGS` is keyed on head dim only, verified.** The same grids were re-run at
+H=16: at D=128 the H=16 winner *is* the H=64 pick in both kernels (`bwd_kv`
+1.435 ms, `bwd_dq` 1.117 ms), and at D=64 the H=16 winner (`bwd_kv` 128/128/2/256
+sp8, 0.756 ms) beats the H=64 pick by 1.3% (0.766 ms) while `bwd_dq` agrees
+exactly. A per-(dim, H) table would therefore buy <=1.3%; not added.
+
+**Splits still matter, CTA occupancy is why** (D=128 H=64 S=4096, `bwd_kv`
+`128/64/2/256`): sp=1 -> 15.38 ms at 32 CTAs, sp=2 -> 9.60 at 64, sp=4 -> 8.30 at
+128, sp=8 -> 7.79 at 256 CTAs on 48 SMs. `bwd_dq` needs no split axis at all --
+its grid is `S / T_q = 2048` CTAs.
 
 ## Bench
 
-GB10, S=4096 causal, bf16, `--mode fwd` = forward only, `--mode bwd` = fwd+bwd
-through autograd. `sdpa` is torch's default backend fed `kv.expand(B, S, H, D)`,
-sink-free. **B=1 H=64 D=128 is the headline (the model's shape).**
+GB10, B=1 S=4096 causal, bf16, `--mode fwd` = forward only, `--mode bwd` =
+fwd+bwd through autograd. `sdpa` is torch's default backend fed
+`kv.expand(B, S, H, D)`, sink-free. **D=128 H=64 is the headline (the model's
+shape).** The "before" column is the same bench on the previous, fused
+atomic-`dQ` backward (`dQ` scattered from the KV-owning kernel).
 
-| dim | heads | mode | latent_attn | sdpa |
-|---|---|---|---|---|
-| 128 | **64** | fwd | **2.904 ms (94.6 TFLOPS)** | 3.346 ms (82.2) |
-| 128 | 64 | fwd+bwd | 33.562 ms (20.5) | 15.100 ms (45.5) |
-| 64 | 64 | fwd | 1.579 ms (87.1) | 1.592 ms (86.3) |
-| 64 | 64 | fwd+bwd | 14.776 ms (23.3) | 7.404 ms (46.4) |
-| 128 | 16 | fwd | 0.830 ms (82.8) | 0.893 ms (77.0) |
-| 128 | 16 | fwd+bwd | 6.379 ms (26.9) | 3.688 ms (46.6) |
-| 64 | 16 | fwd | 0.476 ms (72.2) | 0.462 ms (74.4) |
-| 64 | 16 | fwd+bwd | 1.992 ms (43.1) | 1.887 ms (45.5) |
+| dim | heads | mode | latent_attn | sdpa | ratio | before (atomic dQ) |
+|---|---|---|---|---|---|---|
+| 64 | 16 | fwd | 0.477 ms (72.0 TFLOPS) | 0.467 ms (73.5) | 1.02x | -- |
+| 64 | 16 | fwd+bwd | 1.911 ms (45.0) | 1.905 ms (45.1) | 1.00x | 1.992 ms |
+| 64 | 64 | fwd | 1.559 ms (88.2) | 1.594 ms (86.2) | 0.98x | -- |
+| 64 | 64 | fwd+bwd | 7.194 ms (47.8) | 7.416 ms (46.3) | **0.97x** | 14.776 ms |
+| 96 | 16 | fwd | 0.642 ms (80.3) | 0.667 ms (77.3) | 0.96x | -- |
+| 96 | 16 | fwd+bwd | 2.796 ms (46.1) | 2.887 ms (44.6) | 0.97x | -- |
+| 96 | 64 | fwd | 2.175 ms (94.8) | 2.328 ms (88.6) | 0.93x | -- |
+| 96 | 64 | fwd+bwd | 10.747 ms (48.0) | 11.657 ms (44.2) | **0.92x** | -- |
+| 128 | 16 | fwd | 0.833 ms (82.5) | 0.901 ms (76.3) | 0.92x | -- |
+| 128 | 16 | fwd+bwd | 3.580 ms (48.0) | 3.725 ms (46.1) | 0.96x | 6.379 ms |
+| 128 | **64** | fwd | **2.906 ms (94.6)** | 3.354 ms (82.0) | 0.87x | -- |
+| 128 | **64** | fwd+bwd | **15.686 ms (43.8)** | 15.181 ms (45.3) | **1.03x** | 33.562 ms |
+| 256 | 16 | fwd | 1.563 ms (87.9) | 1.737 ms (79.1) | 0.90x | -- |
+| 256 | 64 | fwd | 6.675 ms (82.4) | 7.389 ms (74.4) | 0.90x | -- |
+
+(D=96 and D=256 did not exist before, hence the empty "before" cells.) The
+forward beats SDPA at every dim and both head counts; fwd+bwd is now 0.92-1.03x
+of SDPA everywhere, against 1.05-2.22x before.
+
+Backward kernel breakdown at D=128 H=64 S=4096 (splits=8): `bwd_kv` 7.79 ms,
+`bwd_dq` 4.31, `preprocess` 0.66 -- 12.8 ms of kernel time, plus 0.14 ms for the
+`dKV` split reduce and 0.03 ms for the `lse` transpose. The fused kernel it
+replaced was recorded at 28.1 ms on its own.
 
 Against the sibling package on the *same* shape (`dense_attn` fed the latent
-replicated to H heads, B1 H64 S4096 causal, no sink):
+replicated to H heads, B1 H64 S4096 causal, `--mode bwd`, i.e. fwd+bwd):
 
-| dim | latent fwd | dense fwd | latent bwd only | dense bwd only |
-|---|---|---|---|---|
-| 64 | 1.58 ms | 1.64 ms | ~13.4 ms | 16.32 ms |
-| 128 | 2.90 ms | 3.03 ms | ~30.0 ms | 33.92 ms |
-
-So the layout change is a 4-11% forward win and a ~12% backward win over dense
-at H=64 -- modest, because at S=4096 the replicated KV mostly hits L2 anyway;
-the real payoff is that a 1-head latent is what steps 3-5 need, and that the
-KV tile is now half the smem so the forward can run `block_M=256`.
-
-The forward beats SDPA at D=128 (both H=16 and H=64). The backward does not:
-at H=64 it is 2.2x SDPA's fwd+bwd. The cause is the same atomic-`dQ` design
-`dense_attn` flagged, and it gets worse as H grows -- replacing the
-`atomic_add` scatter with a plain store (wrong answer, timing probe only) takes
-the D=128 H=64 main kernel from 28.1 ms to 19.1 ms, i.e. ~32% of the backward
-is fp32 atomics on `dQ`. The remaining gap is the main kernel itself.
-
-Backward kernel breakdown at B1 H64 S4096 D128 (splits=8): main 27.8 ms,
-`postprocess` 1.09, `dQ` zero-fill 0.68, `preprocess` 0.64, `dKV` split reduce
-0.14, `lse` transpose 0.03 -- so the aux work is ~8% and the split buffers cost
-almost nothing.
+| dim | latent_attn | dense_attn (fused atomic dQ) |
+|---|---|---|
+| 64 | 7.19 ms | 18.75 ms |
+| 128 | 15.69 ms | 37.79 ms |
 
 ## Accuracy
 
@@ -185,22 +270,31 @@ number instead.
 |---|---|---|---|---|---|---|
 | 64 | 16 | 0.55 | 0.94 | 0.77 | 0.51 | 1.4e-6 |
 | 64 | 64 | 0.49 | 0.96 | 0.78 | 0.84 | 1.4e-6 |
+| 96 | 16 | 0.58 | 0.54 | 0.90 | 0.51 | 1.4e-6 |
+| 96 | 64 | 0.65 | 0.68 | 0.57 | 0.78 | 1.4e-6 |
 | 128 | 16 | 0.60 | 0.88 | 0.78 | 1.18 | 9.5e-7 |
 | 128 | 64 | 0.58 | 0.68 | 0.73 | 1.43 | 1.4e-6 |
+| 256 | 4 | 0.60 | 0.52 | 0.65 | 1.28 | 1.4e-6 |
+| 256 | 16 | 0.44 | 0.75 | 0.57 | 1.12 | 1.4e-6 |
 
 `dkv` sums over H heads and so has a larger absolute error than dense's `dk` or
 `dv` (e.g. 9.7e-2 at H=64 D=128), but so does the torch reference doing the same
 sum, hence the ratio stays below 1.
 
-`fwd_test.py` also cross-checks `latent_attn.fwd(q, kv)` against
-`dense_attn.fwd(q, k, k)` with `k = kv.expand(B, S, H, D)` under the same <= 2x
-criterion (with dense as the baseline) -- the cheapest guard that the packed
-layout did not silently permute anything.
+Two independent cross-checks beyond `golden`:
+
+- `test_fwd_matches_dense_attn_with_expanded_kv`: `latent_attn.fwd(q, kv)` vs
+  `dense_attn.fwd(q, k, k)` with `k = kv.expand(B, S, H, D)`, same <= 2x
+  criterion with dense as the baseline -- the cheapest guard that the packed
+  layout did not silently permute anything.
+- `test_fwd_matches_gpt_oss`: against `golden_ref.gpt_oss_ref`, i.e.
+  transformers' real gpt-oss `eager_attention_forward` (with and without sinks),
+  which shares no code with `golden`'s own `_attend`.
 
 ## Decisions
 
 - **`T_q = block_M // H`, one general rule, no per-H table.** Asserted
-  `block_M % H == 0`; every supported H divides both 128 and 256. The
+  `block_M % H == 0`; every supported H divides the tile at every dim. The
   alternative (fixing `T_q = 1` like `sparse_mla_fwd.py`) would cap `block_M` at
   H and break H < 64.
 - **Packed `[B, S*H, D]` tensor views, not 4-D slices.** `q.view(B, S*H, D)` is
@@ -210,47 +304,60 @@ layout did not silently permute anything.
   so the two GEMMs (`P^T dO` and `dS^T Q`) can target the same fp32 fragment.
 - **fp32 split buffers for `dKV`**, not bf16 atomics -- 16 MB at the headline
   shape and 0.14 ms to reduce, versus non-determinism and lost precision.
+- **`dQ` gets its own query-owning kernel instead of an atomic scatter.** The
+  atomic *instruction* is not the problem: adding the fp32 `atomic_add` back to
+  `bwd_dq`'s single output pass costs +0.19 ms at D=128 (4.11 -> 4.30) and
+  +0.06 ms at D=64 (2.17 -> 2.23), ~5%. The problem was doing it once per KV
+  block -- `ceil(S/block_M) = 32` read-modify-writes of the whole 134 MB `dQ`.
+  Recomputing `S` and `dP` in a third kernel is +40% FLOPs and deletes all of
+  that traffic plus the fp32 `dQ` buffer, its zero-fill and the `postprocess`
+  cast. End to end that is 2.1x at D=128 H=64 (33.6 -> 15.7 ms fwd+bwd) and
+  2.1x at D=64 (14.8 -> 7.2). So `bwd_dq.py` stays and the atomic path is not
+  restored.
+- **No per-(dim, H) backward config table**: measured, it is worth <=1.3% (see
+  Tile configs).
 - **No `ref.py` in this package.** The series-wide `../golden_ref.py`
   (`level="latent"`) replaced the per-package torch reference; only the shared
   criterion `dense_attn.ref.assert_within_2x_torch` is imported.
-- `bwd.py` split into `bwd.py` (driver) + `bwd_kernels.py`, as `dense_attn`'s
-  README asked for.
+- `bwd.py` is split into `bwd.py` (driver), `bwd_kernels.py` (`preprocess`,
+  `bwd_kv`) and `bwd_dq.py`; every file is under 200 lines.
 - Fast-math (`TL_ENABLE_FAST_MATH`) kept, as in `dense_attn`.
 - Fixed sequence length assumed; no varlen support.
 
 ## Known issues
 
-- **D=96 and D=256 are not supported here** (`dense_attn` had them as
-  shape-support entries). They were left out on purpose, not because they fail:
-  the task scoped this package to D=64/128, and the `block_M=256` forward that
-  the sweep picked needs 256 threads, which collides with the `block_M=64 +
-  threads=256` layout-inference bug that D=256 would be forced onto. Adding them
-  back means a separate small sweep with `block_M <= 128`.
-- Both `tickets/0001-tilelang-issues.md` layout-inference limits reproduce
-  **unchanged** in the packed-heads layout, verified directly: fwd `block_M=64 +
-  threads=256` -> `Layout infer conflict between acc_s and acc_s_cast`; bwd
-  `block_M=32` (any threads) and `block_M=64 + threads=256` -> `Layout infer
-  conflict between qkT and qkT_cast`. Folding heads into rows changes nothing
-  about them, so the config tables avoid the same cells.
-- Backward is ~2.2x slower than torch SDPA's fwd+bwd at H=64 (and ~1.7x at
-  H=16), the atomic-`dQ` design; ~32% of the main kernel is the `dQ` atomics
-  (measured, see Bench). It is still faster than `dense_attn` on the same shape.
-- The bwd config's `block_N=64` must be a multiple of H, so H > 64 is
-  unsupported and H must divide 64 (fine for `{4, 8, 16, 32, 64}`). At H=64 that
-  means a 1-token x 64-head query tile, which is why the bwd cannot amortise the
-  causal boundary across tokens the way `dense_attn` does.
-- `seq_len` must be a multiple of `block_M // H` (fwd) and of `block_M=128`
-  (bwd); both asserted.
-- H=16 fwd+bwd is slower than `dense_attn`'s (6.38 vs 4.20 ms at D=128) because
-  `CONFIGS` is keyed on head dim only and was tuned at H=64. A per-(dim, H)
-  backward table would fix it; not done, H=64 is the shape that matters.
+- **D=256 is shape support, not a fast path.** The 99 KB smem cap plus the
+  256-thread layout bug leave exactly one usable tile per backward kernel
+  (`bwd_kv` 64/64/1/128 at 30.4 ms, `bwd_dq` 64/32/2/128 at 8.8 ms, B1 H64
+  S4096), so the D=256 backward is ~2.5x the D=128 one for 2x the work. H=64
+  *does* fit (both backward tiles are 64 packed rows = 1 token x 64 heads), so
+  there is no head-count restriction beyond `H | 64`. The forward is fine
+  (0.90x SDPA).
+- The `tickets/0001-tilelang-issues.md` layout-inference limits reproduce
+  unchanged in the packed-heads layout and in the new `bwd_dq` kernel: with
+  `threads=256`, any tile whose `block_M` is not a multiple of 128 (64 *and*
+  192, both measured) fails with `Layout infer conflict between <acc> and
+  <acc>_cast in T.Parallel loop`; `block_M=32` never compiles in the
+  KV-transposed kernel. The config tables avoid those cells and drop to 128
+  threads whenever a 64-row tile is forced (D=256).
+- `bwd_kv`'s `block_N` and `bwd_dq`'s `block_M` are the packed query-row tiles,
+  so `H` must divide both: `H | 256` at D<=128 (via the `seq_len` table above,
+  the real constraint is `H | 64` for `bwd_kv`), `H | 64` at D=256. `H > 64` is
+  unsupported at every dim.
+- `seq_len` must be a multiple of 256 (D=64/96), 128 (D=128) or 64 (D=256) in
+  the backward, and of `block_M // H` in the forward -- see the table above.
+  Asserted, not padded.
+- D=96 and D=256 forward tiles are chosen from much smaller compiling sets than
+  D=64/128 (five points at D=256), so their headroom is unknown, not zero.
 
 ## Next
 
 - `swa_attn`: restrict the KV loop to the `[t0-127, t0+T_q-1]` band, per-row
-  band mask. Copy this package forward; the packed-row layout and the `T_q` rule
-  carry over unchanged.
-- If the backward becomes a training bottleneck: split-K on `dQ` (an fp32
-  `[splits, B, S*H, D]` buffer like `dKV` already uses) would delete the atomic
-  traffic entirely at the cost of ~16 MB x splits; worth ~30% on the main kernel.
-- A per-(dim, H) backward config table, if H != 64 ever matters.
+  band mask. Copy this package forward; the packed-row layout, the `T_q` rule
+  and the three-kernel backward carry over unchanged.
+- The remaining backward gap at D=128 H=64 (1.03x SDPA) is `bwd_kv`, not `dQ`:
+  7.79 of 12.8 ms of kernel time. Its tile is capped at `block_M=128` by smem,
+  and splits already buy 2x; a persistent-CTA variant or `block_N=128` with a
+  smaller `block_M` is the next thing to try if it matters.
+- D=256 backward would need a `block_M=32` tile (blocked by the layout bug) or a
+  split-D loop to get off 30 ms; out of scope while `D<=256` is shape support.

@@ -1,33 +1,43 @@
-# source: copied from ../dense_attn/fwd.py (tile-ai/tilelang@v0.1.14 examples/flash_attention/example_mha_fwd_bshd.py);
+# source: copied from ../latent_attn/fwd.py (tile-ai/tilelang@v0.1.14 examples/flash_attention/example_mha_fwd_bshd.py);
 # heads-in-rows packing follows examples/dsa_sparse_finetune/sparse_mla_fwd.py
-"""latent_attn: shared-latent MQA FlashAttention-2 forward, bf16 in/out, fp32 accumulate, BSHD.
+"""swa_attn: sliding-window shared-latent MQA FlashAttention-2 forward, bf16 in/out, fp32 accumulate, BSHD.
 
-One change from ``dense_attn``: K and V are the *same* latent tensor with a
-single KV head, ``kv [B, S, 1, D]``, shared by all ``H`` query heads.
+One change from ``latent_attn``: every query token sees only the ``window`` most
+recent raw KV tokens, **itself included** -- ``t - window + 1 <= k <= t``. That is
+``golden(level="window", window=W)`` and transformers'
+``sliding_window_overlay`` (which keeps ``kv_idx > q_idx - W``), verified in
+``golden_ref_test.py`` against the vendored model's ``compress_ratio == 0`` layer.
 
 Two consequences:
 
-- **Heads go into the M (row) dimension.** A block owns ``block_M`` rows that
-  are ``T_q = block_M // H`` consecutive *tokens* x ``H`` heads, in the natural
-  BSHD memory order, so the whole tile is one contiguous ``[block_M, D]`` slice
-  of ``q.view(B, S*H, D)``. The causal mask therefore derives from the row's
-  **token** (``bx * T_q + i // H``), not from the block index. The general rule
-  is ``T_q = block_M // H`` with ``block_M % H == 0`` asserted, which covers
-  ``H in {4, 8, 16, 32, 64}`` for every ``block_M`` in the config table
-  (128/256), and ``seq_len % T_q == 0`` is asserted too.
-- **One smem KV tile serves both GEMMs.** ``S = Q K^T`` and ``O += P K`` read
-  the same ``K_shared``; the V load is gone, which halves KV smem traffic and
-  lets the pipeline run more stages at the same smem budget.
+- **The KV loop is restricted, not just masked.** A block owns tokens
+  ``[t0, t0 + T_q - 1]`` with ``t0 = bx * T_q``, so the only KV tiles it can ever
+  touch are the ones overlapping ``[t0 - window + 1, t0 + T_q - 1]``. The loop
+  runs from ``floor(max(0, t0 - window + 1) / block_N)`` to the causal end, i.e.
+  ``ceil(window / block_N) + ceil(T_q / block_N)`` tiles instead of
+  ``ceil((t0 + T_q) / block_N)``. Work becomes O(S * window), not O(S^2).
+- **The mask gains a lower edge**, still per *row token*: a row at token ``t``
+  keeps column ``k`` iff ``t - window < k <= t``. ``window >= seq_len`` degenerates
+  to plain causal and reproduces ``latent_attn`` to within one bf16 ulp (the two
+  packages pick different tiles, so the softmax accumulates in a different order).
 
-Everything else is ``dense_attn``: online base-2 softmax, fp32 ``lse [B, H, S]``
-out, optional per-head sink (``sinks [H]`` fp32) as one extra denominator-only
-softmax column with ``has_sink`` a static flag.
+``window`` is a compile-time constant (part of the jit key), as are ``heads`` and
+``seq_len``. ``causal=False`` is not supported: a non-causal sliding window is not
+a shape the model has, and the online softmax's loop bounds assume the causal end.
+
+Everything else is ``latent_attn``: K == V shared latent ``kv [B, S, 1, D]`` with
+one KV head serving ``H`` query heads, heads packed into the M dimension
+(``T_q = block_M // H`` tokens x H heads per block), one smem KV tile for both
+GEMMs, online base-2 softmax, fp32 ``lse [B, H, S]``, optional per-head sink as one
+denominator-only softmax column.
+
+The fp8 window cache of the model is a *caller-side* fake-quant round trip in v1
+(ticket 0002): the kernel only ever sees bf16, so there is nothing to do here.
+In-kernel dequant is ticket 0010.
 
 Target GB10 (sm121, SM120 family: ``mma.sync`` tensor cores, 99 KB smem/block).
-Tiles are per head dim (``CONFIGS``), re-tuned from scratch for this layout --
-see ``README.md`` for the sweeps. D in {64, 96, 128, 256}; 64/96/128 are tuned,
-256 is smem-capped shape support (``block_M=128, block_N=32`` is the only tile
-that both fits 99 KB and clears the layout-inference cells).
+Tiles are per head dim (``CONFIGS``), re-swept for the banded loop -- see
+``README.md``. D in {64, 96, 128} are tuned; 256 is shape support only.
 """
 
 import torch
@@ -35,20 +45,28 @@ import tilelang
 import tilelang.language as T
 
 CONFIGS = {  # head dim -> (block_M = T_q * H rows, block_N = KV tokens, num_stages, threads)
-    64: dict(block_M=256, block_N=128, num_stages=2, threads=256),
+    64: dict(block_M=256, block_N=64, num_stages=3, threads=256),
     96: dict(block_M=256, block_N=64, num_stages=3, threads=256),
-    128: dict(block_M=256, block_N=64, num_stages=2, threads=256),
+    128: dict(block_M=256, block_N=32, num_stages=3, threads=256),
     256: dict(block_M=128, block_N=32, num_stages=2, threads=256),  # smem-capped, see README
 }
 
 
 @tilelang.jit(out_idx=[2, 3], pass_configs={tilelang.PassConfigKey.TL_ENABLE_FAST_MATH: True})
-def flashattn(batch, heads, seq_len, dim, is_causal, has_sink=False, block_M=128, block_N=128, num_stages=2, threads=256):
+def flashattn(batch, heads, seq_len, dim, window, is_causal, has_sink=False, block_M=128, block_N=128, num_stages=2, threads=256):
+    assert is_causal, "swa_attn is causal-only (see module docstring)"
     assert block_M % heads == 0, f"block_M={block_M} must be a multiple of heads={heads}"
+    assert window >= 1, f"window must be >= 1, got {window}"
     tq = block_M // heads  # query tokens per block; rows are (token, head) in BSHD order
     scale = (1.0 / dim)**0.5 * 1.44269504  # log2(e), folded into the exp2 softmax
     log2e = 1.44269504  # the sink is an unscaled natural-log logit, so it needs its own conversion
     ln2 = 0.6931471805599453  # exp2-domain lse -> natural log
+    # Running rowmax floor. Unlike plain causal, a banded row can meet a KV tile it sees
+    # *nothing* in (its band starts above the tile), and then both the running max and the
+    # tile max are -inf, so the FA2 rescale computes -inf - (-inf) = NaN. Flooring the running
+    # max at a finite, unreachably small value makes that step exp2(0) = 1 (no rescale) while
+    # every masked logit still gives exp2(-inf - floor*scale) = 0. Any real logit dominates it.
+    neg_floor = -1e30
     q_shape = [batch, seq_len * heads, dim]  # packed rows: q.view(B, S*H, D)
     kv_shape = [batch, seq_len, dim]  # the single shared latent head
     dtype = T.bfloat16
@@ -72,25 +90,27 @@ def flashattn(batch, heads, seq_len, dim, is_causal, has_sink=False, block_M=128
             T.copy(Q[bz, bx * block_M:(bx + 1) * block_M, :], Q_shared)
             T.fill(acc_o, 0)
             T.fill(logsum, 0)
-            T.fill(scores_max, -T.infinity(accum_dtype))
+            T.fill(scores_max, neg_floor)
             if has_sink:
                 sink = T.alloc_fragment([block_M], accum_dtype)  # per row -> per head, row % H
                 for i in T.Parallel(block_M):
                     sink[i] = Sinks[i % heads]
 
-            loop_range = (T.min(T.ceildiv(seq_len, block_N), T.ceildiv((bx + 1) * tq, block_N)) if is_causal else T.ceildiv(seq_len, block_N))
+            # only the KV tiles overlapping [t0 - window + 1, t0 + tq - 1], t0 = bx * tq
+            loop_st = T.floordiv(T.max(bx * tq - window + 1, 0), block_N)
+            loop_ed = T.min(T.ceildiv(seq_len, block_N), T.ceildiv((bx + 1) * tq, block_N))
 
-            for k in T.Pipelined(loop_range, num_stages=num_stages):
+            for k in T.Pipelined(loop_st, loop_ed, num_stages=num_stages):
                 T.copy(KV[bz, k * block_N:(k + 1) * block_N, :], K_shared)
-                if is_causal:  # mask from the row's TOKEN (row // H), not the block index
-                    for i, j in T.Parallel(block_M, block_N):
-                        acc_s[i, j] = T.if_then_else(bx * tq + i // heads >= k * block_N + j, 0, -T.infinity(acc_s.dtype))
-                else:
-                    T.clear(acc_s)
+                # band mask from the row's TOKEN (row // H): t - window < k <= t
+                for i, j in T.Parallel(block_M, block_N):
+                    acc_s[i, j] = T.if_then_else(
+                        T.And(bx * tq + i // heads >= k * block_N + j,
+                              k * block_N + j > bx * tq + i // heads - window), 0, -T.infinity(acc_s.dtype))
                 T.gemm(Q_shared, K_shared, acc_s, transpose_B=True, policy=T.GemmWarpPolicy.FullRow)
 
                 T.copy(scores_max, scores_max_prev)
-                T.fill(scores_max, -T.infinity(accum_dtype))
+                T.fill(scores_max, neg_floor)  # floor, not -inf: see neg_floor above
                 T.reduce_max(acc_s, scores_max, dim=1, clear=False)
                 for i in T.Parallel(block_M):
                     scores_max[i] = T.max(scores_max[i], scores_max_prev[i])
@@ -144,7 +164,7 @@ def flashattn(batch, heads, seq_len, dim, is_causal, has_sink=False, block_M=128
     return main
 
 
-def check_shapes(q: torch.Tensor, kv: torch.Tensor, cfg: dict, what: str = "latent_attn") -> tuple:
+def check_shapes(q: torch.Tensor, kv: torch.Tensor, cfg: dict, what: str = "swa_attn") -> tuple:
     """Validate the MQA call shapes and return ``(batch, seq_len, heads, dim)``."""
     assert q.dtype == torch.bfloat16, f"expected bf16, got {q.dtype}"
     batch, seq_len, heads, dim = q.shape
@@ -155,21 +175,30 @@ def check_shapes(q: torch.Tensor, kv: torch.Tensor, cfg: dict, what: str = "late
     return batch, seq_len, heads, dim
 
 
-def fwd(q: torch.Tensor, kv: torch.Tensor, *, causal: bool = True, sinks: torch.Tensor | None = None):
-    """Shared-latent MQA FA2 forward.
+def fwd(q: torch.Tensor, kv: torch.Tensor, *, window: int, causal: bool = True,
+        sinks: torch.Tensor | None = None):
+    """Sliding-window shared-latent MQA FA2 forward.
 
     ``q`` bf16 [B, S, H, D], ``kv`` bf16 [B, S, 1, D] (K == V, one head for all H)
     -> ``(o bf16 [B, S, H, D], lse fp32 [B, H, S])``.
 
+    ``window``: number of visible raw KV tokens per query, self included
+    (``t - window + 1 <= k <= t``). Compile-time constant, part of the jit key.
+    ``window >= seq_len`` is plain causal.
+
+    ``causal=False`` is rejected: the model only ever has the causal band.
+
     ``sinks``: optional per-head learnable sink ``[H]`` (cast to fp32); one extra
     softmax column that only enlarges the denominator. ``lse`` includes it.
     """
+    assert causal, "swa_attn is causal-only: a non-causal sliding window is not a model shape"
+    assert isinstance(window, int) and window >= 1, f"window must be a positive int, got {window!r}"
     dim = q.shape[-1]
     assert dim in CONFIGS, f"unsupported head dim {dim}"
     cfg = CONFIGS[dim]
     batch, seq_len, heads, dim = check_shapes(q, kv, cfg)
 
-    kernel = flashattn(batch, heads, seq_len, dim, causal, sinks is not None, **cfg)
+    kernel = flashattn(batch, heads, seq_len, dim, min(window, seq_len), causal, sinks is not None, **cfg)
     args = [q.contiguous().view(batch, seq_len * heads, dim), kv.contiguous().view(batch, seq_len, dim)]
     if sinks is not None:
         assert sinks.shape == (heads,), f"sinks must be [H]={heads}, got {tuple(sinks.shape)}"

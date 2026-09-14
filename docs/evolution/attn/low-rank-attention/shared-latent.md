@@ -22,26 +22,54 @@ The reference model simplifies MLA further. The latent is no longer expanded int
 values at all. One latent of width $d$ per token is both the key and the value for every head:
 
 $$
-c_j = \operatorname{RMSNorm}(W_{KV}\, x_j) \in \mathbb{R}^{d}, \qquad
-k_j = v_j = c_j .
+\begin{aligned}
+W_{KV} &\in \mathbb{R}^{d \times D}, \qquad x_j \in \mathbb{R}^{D},\\
+c_j &= \operatorname{RMSNorm}\!\big(W_{KV}\, x_j\big) \in \mathbb{R}^{d},\\
+k_j &= v_j = c_j .
+\end{aligned}
 $$
 
 Read that back in words. One projection, one normalisation, one vector per token. There is no
-per-head key, no per-head value, and nothing to expand. Queries remain per head and low-rank.
-Attention for head $h$ is then
+per-head key, no per-head value, and nothing to expand.
+
+Queries remain per head and low-rank, built exactly as the previous chapter built them — compressed
+to $d_c^q$, then re-expanded to one vector of width $d$ per head:
 
 $$
-o_{h,i} = \sum_j p_{h,ij}\, c_j, \qquad
-p_{h,ij} = \operatorname{softmax}_j\!\left(\frac{q_{h,i} \cdot c_j}{\sqrt{d}}\right).
+\begin{aligned}
+W_{DQ} &\in \mathbb{R}^{d_c^q \times D}, \qquad W_{UQ,h} \in \mathbb{R}^{d \times d_c^q},\\
+q_{h,i} &= W_{UQ,h}\,\operatorname{RMSNorm}\!\big(W_{DQ}\, x_i\big) \in \mathbb{R}^{d}.
+\end{aligned}
+$$
+
+Attention for head $h$ is then a $d$-wide dot product, a softmax over positions, and a weighted sum
+of latents:
+
+$$
+\begin{aligned}
+s_{h,ij} &= \frac{q_{h,i} \cdot c_j}{\sqrt{d}} \in \mathbb{R},\\
+p_{h,ij} &= \operatorname{softmax}_j\!\big(s_{h,ij}\big),\\
+o_{h,i} &= \sum_j p_{h,ij}\; c_j \in \mathbb{R}^{d}.
+\end{aligned}
 $$
 
 Read that back in words. Every head produces a different weighting over the same set of latents and
 returns a different weighted sum of them. The per-head expansion matrices of MLA are gone. Their
-role is taken by the query projection on one side and the output projection on the other.
+role is taken by the query projection on one side and the output projection on the other, which
+concatenates the $H$ head outputs of width $d$ and returns them to the residual stream:
 
-Here $d$ is both the head width and the latent width, and the reference model sets it to 512, with
-$H = 64$ heads. The RMSNorm inside the definition of $c_j$ fixes the scale of the cached object,
-which matters because that object is stored in a low-precision format and reread thousands of times.
+$$
+\begin{aligned}
+o_i &= \big[\,o_{1,i};\, \dots;\, o_{H,i}\,\big] \in \mathbb{R}^{H d},\\
+u_i &= W_O\, o_i \in \mathbb{R}^{D}.
+\end{aligned}
+$$
+
+Here $d = 512$ is both the head width and the latent width, the residual width is $D = 5120$, the
+query compression width is $d_c^q = 1280$, and there are $H = 64$ heads. The RMSNorm inside the
+definition of $c_j$ fixes the scale of the cached object, which matters because that object is
+stored in a low-precision format and reread thousands of times. The next two subsections add the
+rotation and the sink; neither changes a shape.
 
 Nothing is lost on the value side by this change. In MLA the accumulated output of a head was
 $\sum_j p_{h,ij} W_{UV,h} c_j$, and since $W_{UV,h}$ does not depend on $j$ it can be moved outside
@@ -126,8 +154,7 @@ $32768 \cdot 1024 + 8 \cdot 1024 \cdot 5120 = 33.6 + 41.9 = 75.5\,\text{M}$ para
 half the dense count.
 
 In the reference implementation this is one weight read as $G$ independent blocks and applied with
-one batched matmul. The shapes are in
-`src/mzoo/archs/dsv4/configuration_deepseek_v41.py`.
+one batched matmul.
 
 ### Precision and stability
 
@@ -183,9 +210,6 @@ sequence:
 The bottom row is 455× smaller than the 5.0 MB per token that multi-head attention started
 with in chapter 5, and it is the number the rest of the book works from. Two chapters of
 architecture and one of numerics have taken a full 1M-token conversation from 5 TB to 11.25 GB.
-
-In the reference implementation all of this is in `src/mzoo/archs/dsv4/modeling_deepseek_v41.py`;
-the smoke-config sizes are in the shapes table there.
 
 ### Where this leads
 

@@ -147,7 +147,7 @@ $$
 \hline
 \textit{// once per step, never touches the cache} & \\
 c^q_i \leftarrow W_{DQ}\, x_i & \\
-\bar q_h \leftarrow W_{UK,h}^{\top} W_{UQ,h}\; c^q_i & \text{for each head } h \\
+\bar q_h \leftarrow \big[\, W_{UK,h}^{\top} W_{UQ,h}\, c^q_i \,\|\, R(i)\, W_{QR,h}\, c^q_i \,\big] & \text{for each head } h \\
 \hline
 \textit{// the loop: runs } S \textit{ times, reads one latent per position} & \\
 \textbf{for } j = 1, \dots, i-1: & \\

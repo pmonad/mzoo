@@ -14,3 +14,23 @@ bench *args:
 [no-cd]
 bench-latent *args:
     uv run --env-file .env python -m mzoo.layers.attn.latent_attn.bench {{args}}
+
+# swa_attn (sliding window over the shared latent) vs latent_attn full causal vs SDPA with a band mask
+[no-cd]
+bench-swa *args:
+    uv run --env-file .env python -m mzoo.layers.attn.swa_attn.bench {{args}}
+
+# indexer (lightning-indexer bf16 score kernel + top-k) vs a torch einsum + torch.topk baseline
+[no-cd]
+bench-indexer *args:
+    uv run --env-file .env python -m mzoo.layers.attn.indexer.bench {{args}}
+
+# csa_attn (window + dense compressed KV) vs swa_attn (window only) on the same inputs
+[no-cd]
+bench-csa *args:
+    uv run --env-file .env python -m mzoo.layers.attn.csa_attn.bench {{args}}
+
+# qk prologue: fused (torch.compile) RMSNorm+RoPE vs eager norm-then-rope; add `memory` for the autograd footprint
+[no-cd]
+bench-prologue *args:
+    uv run --env-file .env python -m mzoo.layers.attn.norm_rope_bench {{args}}

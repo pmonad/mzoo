@@ -66,3 +66,13 @@ bit-faithful to the two `_fake_quant_*` functions), `ref.py`, `bench.py`, `*_tes
   may force `num_stages=1`.
 - A RULER-style check of the fp8/fp4 round trip is still owed (survey §7 Q3) -- out of scope here,
   but this package is what it would run on.
+
+## Learnings from earlier steps (2026-09-14)
+
+- The dequant-on-load lives inside loops that are now `T.serial` for the main source
+  (tickets/0001 pipeline miscompile), so the main tile has no async prefetch to hide the
+  dequant behind; measure the dequant cost separately from the loop cost.
+- Keep true and padded extents separate in every mask (csa_attn's padded-G leak); pad rows of
+  a quantized cache dequantize to exact zeros and would feed the denominator.
+- Test matrix: non-tile-aligned G and window, feature-off (bf16 input) equal to `csa2_attn`
+  bit-for-bit, smallest and largest H. No tuning sweeps (user decision 2026-09-14).

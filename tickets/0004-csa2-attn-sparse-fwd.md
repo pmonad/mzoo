@@ -1,7 +1,7 @@
 # 0004 csa2_attn: sparse top-k gather forward
 
-- status: todo
-- depends on: 0003 (`csa_attn`)
+- status: in progress (worker started 2026-09-14; tuning sweeps deferred by user decision -- correctness first)
+- depends on: 0003 (`csa_attn`, done and independently verified 2026-09-14)
 - package: `src/mzoo/layers/attn/csa2_attn/` (forward half)
 
 ## Goal

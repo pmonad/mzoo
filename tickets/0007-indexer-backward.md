@@ -62,3 +62,16 @@ and the accuracy / **Known issues** sections of `indexer/README.md`. Extend `jus
   bitmask (`[B, S, 32, T]` bits = 16 MB at S=T=4096).
 - If the model-side detach is ever fixed upstream, this ticket's STE should move or be reconciled --
   flag it in `archs/dsv4/README.md` rather than silently diverging.
+
+## Learnings from earlier steps (2026-09-14)
+
+- The model's own top-k is not reproducible by index set on a fresh-init model (7% exact-zero
+  scores, `torch.topk(sorted=False)` breaks ties arbitrarily): end-to-end checks compare the
+  score values of the chosen sets, not the sets (see `indexer/attn_test.py`).
+- Packed-heads tiles count `T_s * Hi` rows, so smem depends on Hi: validate every config at
+  Hi=4 and Hi=32 (`indexer` D=256 fit at Hi=32 only).
+- relu-before-weight is pinned by a test where half the head weights are negative (26.7 abs
+  difference from weight-then-relu); the backward must gate `dq`/`dk` on the same relu mask.
+- `_fake_quant_fp4_block` detaches the graph in the model; the fp32 reference for the backward
+  is `golden_ref.indexer_scores` (no quant), not the model.
+- No tuning sweeps (user decision 2026-09-14): one config per dim, flagged untuned.
