@@ -1,9 +1,9 @@
-# 0011 QK prologue: RMSNorm + RoPE as one fused pass (torch.compile)
+# 0011 QK prologue: RMSNorm + RoPE as one fused pass (tilelang)
 
-- status: todo (a first attempt was started and cancelled before any file landed; nothing in tree)
+- status: done (2026-09-14; started as torch.compile, landed as a tilelang kernel -- see Results)
 - depends on: nothing kernel-side; consumer is whichever model/bench path feeds `latent_attn`+
-- location: `src/mzoo/layers/attn/norm_rope.py` + `norm_rope_test.py` (standalone torch helper, no
-  kernel code)
+- location: `src/mzoo/layers/attn/norm_rope.py` + `norm_rope_test.py` + `norm_rope_bench.py`
+  (fwd + bwd tilelang kernels, custom autograd.Function, eager reference kept in the same file)
 
 ## Problem
 
@@ -80,3 +80,30 @@ the model's two functions as the reference.
 - Kernel-launch count and recompile guards hold across the shape set.
 - Memory result recorded in the README/parking note; if the backward saves a full activation, a
   follow-up decision (custom autograd.Function saving `rstd`) is written down, not silently done.
+
+## Results (2026-09-14, GB10, `just src/mzoo/layers/attn/ bench-prologue`)
+
+| path | B1 S4096 H64 D128 rd64 | B1 S4096 H64 D64 rd16 |
+|---|---|---|
+| eager norm->rope | 10.1 ms (13 GB/s) | 4.0 ms (17 GB/s) |
+| torch.compile (max-autotune, 3 kernels) | 0.96 ms | 0.56 ms |
+| tilelang fused (1 kernel) | **0.73 ms (184 GB/s)** | **0.32 ms (207 GB/s)** |
+| pure copy ceiling (`y.copy_(x)`) | 0.58 ms (232 GB/s) | -- |
+
+- The compile decision above was measured first and **rejected**: Inductor cannot emit one
+  kernel here -- the rstd row reduction is always its own kernel that re-reads q (249 us)
+  and the stack->cat interleave is a second pointwise writing a rope-sized intermediate,
+  so its floor is 3 launches / ~200 MB traffic. All four alternate formulations tried
+  (slice-assign, complex, per-channel coefficients, full-width expansion) also gave 3+.
+- The tilelang kernel keeps the D-row in shared, reduces rstd in-kernel
+  (`reduce_sum(dim=1)`, 0.1.14's `dim=0` miscompiles -- tickets/0001), stages the normed
+  row, rotates pairs, writes q once: 1 launch (test-asserted), 81% of the copy ceiling.
+  Non-pow2 D (96) needs the fragment-pad workaround from tickets/0001.
+- Backward is a custom autograd.Function with a tilelang bwd kernel (dx elementwise +
+  dw via transposed-fragment reduce + atomics); correct vs eager, untuned.
+- Memory (the ticket's open question): fwd-with-grad retains 68.2 MB fused vs 269.5 MB
+  eager for q [1,4096,64,128] -- the Function saves only `rstd` (one fp32/row, 1.1 MB),
+  no full activation copy, so no follow-up decision needed.
+- Guards as specified, adapted to the kernel path: 1 launch (not <=2), per-shape
+  `_CACHE` proves single compile per shape (the error_on_recompile guard was
+  compile-specific and is gone with the compile path).

@@ -211,3 +211,22 @@ symptom, cause, workaround, status.
 - related, same ticket: fp32 `T.atomic_add` over many blocks is order-nondeterministic
   (~1e-4 abs reorder error at 256x128) -- expected fp32 behaviour, but it breaks
   bit-exact repeat tests on the accumulated tensor.
+
+## elementwise kernels: non-power-of-2 fragment last dim has "no available layout"
+
+- version: tilelang 0.1.14, GB10 (sm121), `src/mzoo/layers/attn/norm_rope.py` (ticket 0011)
+- symptom: any `T.alloc_fragment([block_M, dim], ...)` written from a `T.Parallel(block_M, dim)`
+  loop fails at compile with `Check failed: (has_best) is false: no available layout found`
+  when `dim` is not a power of two (96, 80, 48 all fail; 64/128 fine). Independent of
+  `block_M` (32..256) and `threads` (64..512).
+- workaround (applied): pad only that fragment to `1 << (dim-1).bit_length()` and guard the
+  fill (`if d < dim: ... else: 0.0`); 33% dead lanes at D=96, correctness unaffected.
+
+## `T.reduce_sum(..., dim=0)` silently miscompiles
+
+- version: tilelang 0.1.14, GB10 (sm121), `src/mzoo/layers/attn/norm_rope.py` (ticket 0011)
+- symptom: reducing a `[M, N]` fragment over `dim=0` into an `[N]` fragment returns wrong
+  values (verified standalone: column sums off, no error raised). The last-dim reduce
+  (`dim=1`, the FA2 pattern) is correct, including on a transposed fragment.
+- workaround (applied): store the to-be-reduced data transposed in the fragment
+  (`F[d, i]` writes in the same `T.Parallel` loop) and reduce `dim=1`.
