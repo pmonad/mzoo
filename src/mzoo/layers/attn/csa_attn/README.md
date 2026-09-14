@@ -1,7 +1,7 @@
 # csa_attn
 
 Dense compressed attention: step 4 of the CSA2 series (see `../csa2_attn_design.md`,
-ticket `tickets/0003-csa-attn.md`). Copied from `swa_attn/` with exactly one change --
+ticket `tickets/done/0003-csa-attn.md`). Copied from `swa_attn/` with exactly one change --
 after the window tiles of the raw latent, the **same online-softmax loop** walks the
 visible entries of a second KV source, the compressor's latents `main_kv [B, G, 1, D]`.
 Dense: every group-causally visible entry, no top-k yet (that is 0004/0005).

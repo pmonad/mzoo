@@ -4,8 +4,8 @@ DSV4.1 lightning-indexer, **bf16, forward + backward**: the score kernel of step
 of `../csa2_attn_design.md`, the top-k of step 6b that turns its output into the
 `Indices` tensor `csa2_attn` consumes, and (0007) the relu-gated backward that makes
 it trainable. Tickets:
-[0006](../../../../../tickets/0006-indexer-bf16-score.md),
-[0007](../../../../../tickets/0007-indexer-backward.md). The MXFP4 math path is 0008,
+[0006](../../../../../tickets/done/0006-indexer-bf16-score.md),
+[0007](../../../../../tickets/done/0007-indexer-backward.md). The MXFP4 math path is 0008,
 the hierarchical candidate variant is 0009.
 
 | file | what |

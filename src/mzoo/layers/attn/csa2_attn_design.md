@@ -1,6 +1,6 @@
 # Design: FA2-style attention for SM120 in TileLang, growing into DSV4.1 CSA2
 
-Status: `dense_attn`, `latent_attn`, `swa_attn` complete for training (fwd + lse + sink, bwd, autograd, tests, bench) and independently verified; `csa_attn` (0003) and `indexer` (0006) done and verified (untuned); `csa2_attn` fwd+bwd (0004, 0005) done and verified; `indexer` bwd (0007) done and merged. Attention track complete through CSA2; remaining: 0008-0010, the tuning pass, 0011, 0012. Target GB10 (sm121, SM120 family), tilelang 0.1.14.
+Status: `dense_attn`, `latent_attn`, `swa_attn` complete for training (fwd + lse + sink, bwd, autograd, tests, bench) and independently verified; `csa_attn` (0003) and `indexer` (0006) done and verified (untuned); `csa2_attn` fwd+bwd (0004, 0005) done and verified; `indexer` bwd (0007) done and merged. Attention track complete through CSA2; `norm_rope` (0011) and the model fix (0012) done; remaining: 0008-0010 and the tuning pass. Target GB10 (sm121, SM120 family), tilelang 0.1.14.
 Scope: head dims `{64, 96, 128, 256}` only. `D=512` (the released V4.1-Flash size) is out of scope, so no Split-D.
 Training only for now: prefill-shaped forward plus backward; no decode, no paged cache, no split-KV.
 
@@ -41,17 +41,18 @@ Out of kernel (elementwise, stays in torch): Q/KV RoPE, inverse RoPE on the outp
 |---|---|---|---|
 | -- | `dense_attn` | done | -- |
 | -- | `latent_attn` | done (2026-09-14, verified) | `dense_attn` |
-| [0002](../../../../tickets/0002-swa-attn.md) | `swa_attn` (fwd+bwd) | done (2026-09-14, verified) | `latent_attn` |
-| [0003](../../../../tickets/0003-csa-attn.md) | `csa_attn` (fwd+bwd) | done (2026-09-14, verified; configs untuned) | 0002 |
-| [0004](../../../../tickets/0004-csa2-attn-sparse-fwd.md) | `csa2_attn` (fwd) | done (2026-09-14, verified; configs untuned; bench absolute numbers taken on a shared GPU) | 0003 |
-| [0005](../../../../tickets/0005-csa2-attn-sparse-bwd.md) | `csa2_attn` (bwd) | done (2026-09-14, verified; configs untuned) | 0004 |
-| [0006](../../../../tickets/0006-indexer-bf16-score.md) | `indexer` (bf16 fwd) | done (2026-09-14, verified; configs untuned) | 0004 as consumer only (contract pinned by `golden_ref.topk_indices`) |
-| [0007](../../../../tickets/0007-indexer-backward.md) | `indexer` (bwd) | done (2026-09-14, verified, merged) | 0006 |
+| [0002](../../../../tickets/done/0002-swa-attn.md) | `swa_attn` (fwd+bwd) | done (2026-09-14, verified) | `latent_attn` |
+| [0003](../../../../tickets/done/0003-csa-attn.md) | `csa_attn` (fwd+bwd) | done (2026-09-14, verified; configs untuned) | 0002 |
+| [0004](../../../../tickets/done/0004-csa2-attn-sparse-fwd.md) | `csa2_attn` (fwd) | done (2026-09-14, verified; configs untuned; bench absolute numbers taken on a shared GPU) | 0003 |
+| [0005](../../../../tickets/done/0005-csa2-attn-sparse-bwd.md) | `csa2_attn` (bwd) | done (2026-09-14, verified; configs untuned) | 0004 |
+| [0006](../../../../tickets/done/0006-indexer-bf16-score.md) | `indexer` (bf16 fwd) | done (2026-09-14, verified; configs untuned) | 0004 as consumer only (contract pinned by `golden_ref.topk_indices`) |
+| [0007](../../../../tickets/done/0007-indexer-backward.md) | `indexer` (bwd) | done (2026-09-14, verified, merged) | 0006 |
 | [0008](../../../../tickets/0008-indexer-mxfp4-score.md) | `indexer_fp4` | todo | 0006, 0007 |
 | [0009](../../../../tickets/0009-indexer-hierarchical.md) | `indexer_hier` | todo | 0006 |
 | [0010](../../../../tickets/0010-csa2-fp-cache.md) | `csa2_fp_attn` | todo | 0005 |
-| [0011](../../../../tickets/0011-qk-prologue-norm-rope.md) | `norm_rope` (fused RMSNorm+RoPE TileLang kernel, fwd+bwd) | done (2026-09-14, reviewed; untuned) | -- |
-| [0012](../../../../tickets/0012-dsv4-shared-dict-cross-group.md) | dsv4 model: `shared` dict cross-group accumulation (suspected) | todo, unverified | -- |
+| [0011](../../../../tickets/done/0011-qk-prologue-norm-rope.md) | `norm_rope` (fused RMSNorm+RoPE TileLang kernel, fwd+bwd) | done (2026-09-14, reviewed; untuned) | -- |
+| [0012](../../../../tickets/done/0012-dsv4-shared-dict-cross-group.md) | dsv4 model: `shared` dict cross-group accumulation | done (2026-09-14, confirmed and fixed; backport of the upstream PR head) | -- |
+| [0013](../../../../tickets/0013-dsv4-resync-upstream-pr.md) | dsv4: re-sync vendored model with PR #48721 after merge | todo, blocked on upstream | -- |
 
 Why this split: one ticket per package, except where a backward is a different kernel shape from its forward (0005's scatter-add dKV, 0007's relu-gated three-input reduce) -- those get their own; every other backward is folded into its package's ticket, so step 7 files no ticket of its own. The indexer's MXFP4 math path (0008) and hierarchical candidate list (0009) are separate packages, not variants, per the copy-forward rule. In-kernel fp8/fp4 dequant (steps 3v2 + 4v2) is one ticket (0010): one change, two sources, one shared risk.
 

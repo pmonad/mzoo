@@ -1,7 +1,7 @@
 # swa_attn
 
 Sliding-window shared-latent MQA FlashAttention-2: step 3 of the CSA2 series
-(see `../csa2_attn_design.md`, ticket `tickets/0002-swa-attn.md`). Copied from
+(see `../csa2_attn_design.md`, ticket `tickets/done/0002-swa-attn.md`). Copied from
 `latent_attn/` with exactly one change -- each query token sees only the
 `window` most recent raw KV tokens, **itself included** (`t - window + 1 <= k <= t`).
 Everything else is unchanged: K == V is one latent with a single KV head serving

@@ -1,7 +1,7 @@
 # csa2_attn
 
 Sparse (top-k) compressed attention: step 5 of the CSA2 series (see `../csa2_attn_design.md`,
-ticket `tickets/0004-csa2-attn-sparse-fwd.md`). Copied from `csa_attn/` with exactly one
+ticket `tickets/done/0004-csa2-attn-sparse-fwd.md`). Copied from `csa_attn/` with exactly one
 change -- the dense main-KV loop becomes a **gather** over per-token top-k indices:
 
 ```
