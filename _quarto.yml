@@ -1,0 +1,119 @@
+project:
+  type: website
+  output-dir: site
+  render:
+    - docs/**/*.md
+
+website:
+  title: mzoo
+  site-url: https://pmonad.github.io/mzoo/
+  navbar:
+    background: light
+    right:
+      - icon: github
+        href: https://github.com/pmonad/mzoo
+  sidebar:
+    contents:
+      - section: Evolution
+        contents:
+          - docs/evolution/index.md
+          - section: "1 GPT-2"
+            href: docs/evolution/01-gpt2/index.md
+          - section: "2 Normalisation"
+            href: docs/evolution/02-normalisation/index.md
+          - section: "3 Positions"
+            href: docs/evolution/03-positions/index.md
+          - section: "4 Feed-forward"
+            href: docs/evolution/04-feed-forward/index.md
+          - section: "6 Mixture of experts"
+            contents:
+              - docs/evolution/06-moe/index.md
+              - section: Routing
+                href: docs/evolution/06-moe/routing.md
+              - section: Fine-grained and shared experts
+                href: docs/evolution/06-moe/experts.md
+              - section: Load balancing
+                href: docs/evolution/06-moe/balancing.md
+          - section: Attention
+            contents:
+              - section: "5 The KV cache"
+                href: docs/evolution/05-kv-cache/index.md
+              - section: "7 Low-rank attention"
+                contents:
+                  - docs/evolution/07-low-rank-attention/index.md
+                  - section: MLA
+                    href: docs/evolution/07-low-rank-attention/mla.md
+                  - section: Single shared latent
+                    href: docs/evolution/07-low-rank-attention/shared-latent.md
+              - section: "8 Local attention"
+                href: docs/evolution/08-local-attention/index.md
+              - section: "9 Compressed attention"
+                contents:
+                  - docs/evolution/09-compressed-attention/index.md
+                  - section: Compressor
+                    href: docs/evolution/09-compressed-attention/compressor.md
+                  - section: Sharing across layers
+                    href: docs/evolution/09-compressed-attention/sharing.md
+              - section: "10 Sparse selection"
+                contents:
+                  - docs/evolution/10-sparse-selection/index.md
+                  - section: Indexer
+                    href: docs/evolution/10-sparse-selection/indexer.md
+                  - section: Hierarchical selection
+                    href: docs/evolution/10-sparse-selection/hierarchical.md
+                  - section: Training the indexer
+                    href: docs/evolution/10-sparse-selection/training.md
+              - section: "16 Attention kernels"
+                contents:
+                  - docs/evolution/16-attention-kernels/index.md
+                  - section: The FA2 template on SM120
+                    href: docs/evolution/16-attention-kernels/fa2.md
+                  - section: One kernel for CSA2
+                    href: docs/evolution/16-attention-kernels/csa2.md
+              - section: "17 Low-precision attention"
+                contents:
+                  - docs/evolution/17-low-precision-attention/index.md
+                  - section: The variants
+                    href: docs/evolution/17-low-precision-attention/variants.md
+          - section: "11 Residual stream"
+            contents:
+              - docs/evolution/11-residual/index.md
+              - section: Hyper-connections
+                href: docs/evolution/11-residual/hyper-connections.md
+              - section: mHC
+                href: docs/evolution/11-residual/mhc.md
+              - section: Single-pass mHC
+                href: docs/evolution/11-residual/single-pass.md
+          - section: "12 Numerics"
+            contents:
+              - docs/evolution/12-numerics/index.md
+              - section: bf16 and FP8
+                href: docs/evolution/12-numerics/fp8.md
+              - section: Low-precision matmuls
+                href: docs/evolution/12-numerics/matmuls.md
+              - section: FP4
+                href: docs/evolution/12-numerics/fp4.md
+              - section: Gradients through quantisation
+                href: docs/evolution/12-numerics/ste.md
+          - section: "13 Engram"
+            href: docs/evolution/13-engram/index.md
+          - section: "14 Beyond the block"
+            href: docs/evolution/14-beyond-the-block/index.md
+          - section: "15 Assembly"
+            href: docs/evolution/15-assembly/index.md
+
+format:
+  html:
+    theme:
+      light: cosmo
+      dark: darkly
+    toc: true
+    toc-location: right
+    number-sections: false
+    html-math-method: katex
+
+bibliography: docs/references.bib
+link-citations: true
+
+exclude:
+  - README.md

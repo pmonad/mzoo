@@ -10,3 +10,5 @@ site/
 *.png
 *.pdf
 src/mzoo/archs/dsv4/paper/
+
+/.quarto/

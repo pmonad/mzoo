@@ -3,17 +3,21 @@
 # bind-mounted shared uv cache (see ~/.cache/uv -> /srv/cache/uv); keeps builds inside the sandbox
 export UV_CACHE_DIR := "/tmp/uv-cache"
 
-[no-cd]
-build:
-    uv run --with mkdocs --with pymdown-extensions --with mkdocs-bibtex --with pypandoc-binary mkdocs build --strict --site-dir site
+# quarto (installed to /tmp/quarto-1.7.33, arm64 tarball; sandbox blocks ~/.local)
+export QUARTO := "/tmp/quarto-1.7.33/bin/quarto"
+export XDG_CACHE_HOME := "/tmp/xdg-cache"
 
 [no-cd]
-serve *args:
-    uv run --with mkdocs --with pymdown-extensions --with mkdocs-bibtex --with pypandoc-binary mkdocs serve {{args}}
+render:
+    {{QUARTO}} render
+
+[no-cd]
+preview:
+    {{QUARTO}} preview
 
 [no-cd]
 publish:
-    uv run --with mkdocs --with pymdown-extensions --with mkdocs-bibtex --with pypandoc-binary mkdocs gh-deploy --force
+    {{QUARTO}} publish gh-pages
 
 # pdf of one chapter: just docs/ pdf evolution/03-positions/index.md [out.pdf]
 # runs pandoc+latex inside docker; image is built once from docs/latex/Dockerfile:
