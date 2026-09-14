@@ -28,31 +28,37 @@ tokens. Group $g$ covers tokens $mg, \dots, mg + m - 1$. Each token is first pro
 latent and a gate logit. The group is then pooled by a per-dimension softmax over the gate:
 
 $$
-\tilde k_t = W_{KV}\, x_t, \qquad g_t = W_{\text{gate}}\, x_t, \qquad
-\alpha_t = \frac{e^{g_t}}{\sum_{t' \in g} e^{g_{t'}}} \ \text{(per dimension)}, \qquad
-c_g = \operatorname{RMSNorm}\Big(\sum_{t \in g} \alpha_t \odot \tilde k_t\Big).
+\tilde c_t = W_{KV}\, x_t, \qquad \gamma_t = W_{\text{gate}}\, x_t, \qquad
+\alpha_t = \frac{e^{\gamma_t}}{\sum_{t' \in g} e^{\gamma_{t'}}} \ \text{(per dimension)}, \qquad
+c_g = \operatorname{RMSNorm}\Big(\sum_{t \in g} \alpha_t \odot \tilde c_t\Big).
 $$
 
-Read the third term first. The gate logits $g_t$ have the same width as the latent, and the softmax
+Read the third term first. The gate logits $\gamma_t$ have the same width as the latent, and the softmax
 runs over the $m$ tokens of the group separately for each dimension, so $\alpha_t$ is a vector of
 weights that sum to one across the group in every dimension. The pooled latent is then the
-elementwise product of those weights with the candidates, summed over the group.
+elementwise product of those weights with the candidates, summed over the group. At the start of a
+sequence the first group may hold fewer than $m$ tokens; the softmax runs over whatever is there,
+and the same formulas apply unchanged.
 
-The per-dimension form is the point of the construction. A softmax over scalar gates would choose one
-token per group and behave like eviction. A fixed uniform weight would average and behave like mean
-pooling. With one weight per dimension the layer can take dimension 17 almost entirely from the third
-token of the group and dimension 240 almost entirely from the first, so a latent can keep a
-distinctive dimension from one token and a different dimension from another instead of averaging
-them. Where the group is uniform the gate can stay flat and recover the average. The behaviour is
-learned per dimension rather than fixed by the design.
+The per-dimension form is the point of the construction. A softmax over one scalar gate per token
+would give every dimension the same weight vector, and that vector would be concentrated on a
+single token, so the layer would keep one token per group and behave like eviction. A fixed
+uniform weight would average and behave like mean pooling. With one weight per dimension the layer
+can take dimension 17 almost entirely from the third token of the group and dimension 240 almost
+entirely from the first, so a latent can keep a distinctive dimension from one token and a
+different dimension from another instead of averaging them. Where the group is uniform the gate
+can stay flat and recover the average. The behaviour is learned per dimension rather than fixed by
+the design.
 
 The parameters this adds are two projections of width $D \times d_c$ per compressing layer, so
-$2 \cdot 8192 \cdot 512 = 8.4$ M parameters on the reference model, against 805 M for a block. The
+$2 \cdot 5120 \cdot 512 = 5.2$ M parameters on the reference model, against 805 M for a block. The
 arithmetic is one extra projection per token. Neither is material.
 
 ### Why the normalisation is there
 
-The pooled sum is a convex combination in every dimension, but its overall scale still varies. When
+The pooled sum is a convex combination in every dimension — the weights are non-negative and sum
+to one, so the sum is a weighted average that stays inside the range the candidates already span —
+but its overall scale still varies. When
 the candidates of a group agree, the sum has the magnitude of one candidate. When they disagree,
 terms cancel and the magnitude falls. Groups near a sequence boundary may also pool fewer than $m$
 tokens. Attention logits are dot products, so an entry with a larger norm receives a larger logit
@@ -105,9 +111,10 @@ everything before that. Both enter one softmax, so a query weighs a precise rece
 coarse distant group in the same distribution, and the learned sink of chapter 8 sits in the same
 denominator.
 
-The global part of the cache is now $S / m$ entries instead of $S$. V4.1's 40 layers run the first
-two on the window alone, the 18 encoder CSA2 layers at $m = 2$ and the 20 decoder CSA2 layers at
-$m = 1$, so the finer view is available to the decoder, whose queries must select from the table
+The global part of the cache is now $S / m$ entries instead of $S$. V4.1's 40 layers run the
+encoder's first two layers on the window alone, the 18 encoder CSA2 layers at $m = 2$ and the 20
+decoder CSA2 layers at $m = 1$, so the finer view is available to the decoder, whose queries must
+select from the table
 (see the next chapter). A group becomes visible only once its last token has been seen, which keeps
 the model causal.
 The tokens of the group still in progress are not missing from the key set, because they are inside

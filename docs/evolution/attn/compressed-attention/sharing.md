@@ -27,11 +27,11 @@ runs the compressor on its own input and publishes the latents. Later layers of 
 compress. They attend over the source's latents together with their own sliding window:
 
 $$
-\text{keys}^{(\ell)} = W_\ell \ \oplus\ \hat C_{\text{src}(\ell)}, \qquad
+\text{keys}^{(\ell)} = \mathcal{W}_\ell \ \oplus\ \hat C_{\text{src}(\ell)}, \qquad
 \hat C_{\text{src}} = \operatorname{compress}_m\big(h_{\text{src}}\big).
 $$
 
-$W_\ell$ is layer $\ell$'s own window and $\hat C_{\text{src}(\ell)}$ is the table published by the
+$\mathcal{W}_\ell$ is layer $\ell$'s own window and $\hat C_{\text{src}(\ell)}$ is the table published by the
 source of its group. A reuse layer therefore performs no compression, stores no global entries and
 allocates no global cache. It contributes queries.
 
@@ -51,7 +51,7 @@ neither and reads exactly what the layer above it read, with different queries.
 
 ### What is and is not shared
 
-The sliding window is never shared. Every layer computes its own $W_\ell$ from its own input. What is
+The sliding window is never shared. Every layer computes its own $\mathcal{W}_\ell$ from its own input. What is
 shared is the compressed table and, in Reuse layers, the selection mask over it. A reuse layer still
 has its own queries and output projection, so it reads the shared table differently from the source.
 
@@ -67,26 +67,30 @@ source is started when the representation has moved on.
 
 ### The ledger
 
-Take the paper's own configuration. One FP4 latent is $512 \cdot 0.5625 = 288$ bytes. The encoder's
-three Full layers store one latent per $m = 2$ tokens, contributing $3 \times 288/2 = 432$ bytes per
-token, and the decoder's five sources store one per token, contributing $5 \times 288 = 1440$ bytes.
-The global cache is therefore about 1.9 KB per token:
+Take the reference model's own configuration. One FP4 latent is $512 \cdot 0.5625 = 288$ bytes.
+The encoder's three Full layers store one latent per $m = 2$ tokens, contributing
+$3 \times 288/2 = 432$ bytes per token, and the decoder's five sources store one per token,
+contributing $5 \times 288 = 1440$ bytes. The global cache is therefore about 1.8 KB per token:
 
 $$
-\Big(\frac{3}{2} + 5\Big) \times 288\ \text{B} \approx 1.9\ \text{KB per token},
+\Big(\frac{3}{2} + 5\Big) \times 288\ \text{B} \approx 1.8\ \text{KB per token},
 $$
 
-which is 245 MB at 131072 tokens, plus the fixed 2.6 MB of windows ($40 \times 128 \times 512$ in
-FP8). Against the same 40 layers without sharing or compression that is 1.5 GB in FP4, 5.2 GB in
-bf16, and 172 GB for a bf16 multi-head cache of the same depth. A server that could hold one
+which is 117 MB at the native context of 65536 tokens and 1.8 GB at the YaRN-extended 1,048,576,
+plus the fixed 2.5 MB of windows ($40 \times 128 \times 512$ in FP8). Against the same 40 layers
+without sharing or compression that is 720 MB in FP4 at 65536 and 11.25 GB at 1M; in bf16 it is
+40 KB per token; and a bf16 multi-head cache of the same shape (64 heads of width 512, keys and
+values per layer) holds 5.0 MB per token, which is 5 TB at 1M. A server that could hold one
 sequence of the multi-head model can now hold hundreds.
 
 Sharing acts on storage, not on reads. Every CSA2 layer in a group still reads the whole shared
-table on every decode step, so the bytes read per step fall only by the compression factor $m$. At
-131072 tokens the encoder's table is 65536 entries and the decoder's is 131072, so before selection
-the 18 encoder layers move $18 \times 18.9$ MB and the 20 decoder layers $20 \times 37.7$ MB, about
-1.1 GB per step. That is far above what the windows cost, and storage is no longer the limit.
-Bandwidth is.
+table on every decode step, so the bytes read per step fall only by the compression factor $m$.
+The method is entries × bytes × reading layers, per table. At 1,048,576 tokens the
+encoder's table is $1048576/2 = 524288$ entries of 288 B, or 144 MB, read by 18 encoder layers:
+2.5 GB. The decoder's table is 1048576 entries of 288 B, or 288 MB, read by 20 decoder layers:
+5.6 GB. The total is about 8.2 GB moved per decode step before selection. At the native 65536 the
+same computation gives 9 MB by 18 and 18 MB by 20, about 522 MB — 0.5 GB — per step. Either
+way that is far above what the windows cost, and storage is no longer the limit. Bandwidth is.
 
 ### In owlet1
 
@@ -98,5 +102,5 @@ layer 4 sees layer 2's table as well as its own, which the paper does not descri
 ### Where this leads
 
 The global table is now small enough to store and still large enough that reading all of it dominates
-a decode step. Chapter 10 gives each query a way to name the few entries it needs, so that the read
-becomes a constant instead of $S / m$.
+a decode step — 8.2 GB of reads per step at 1M context. Chapter 10 gives each query a way to name
+the few entries it needs, so that the read becomes a constant instead of $S / m$.

@@ -40,6 +40,9 @@ binding — each chapter should make its own call based on what it needs to say.
    deserve an explicit definition sentence the first time.
 3. Inline math for single symbols, display math for derivations. Resist display math for
    things a sentence can carry.
+4. A number with a unit inside math carries the unit inside it, as `\text{}`:
+   `$= 16.8\,\text{M}$`. Never close the math before the unit (`$= 16.8$M` is a defect),
+   and keep `\,` between number and unit.
 
 ## Prose texture
 
@@ -67,3 +70,76 @@ binding — each chapter should make its own call based on what it needs to say.
 3. Prefer numbered lists over bullets throughout chapters, not only in Roadmap and
    Takeaways: any list a reader or prompt might want to point into (survey patterns,
    defect lists, implementation steps) becomes addressable by number.
+
+## Units and numbers
+
+1. Byte and size figures use binary suffixes throughout the book: K = 2^10, M = 2^20,
+   G = 2^30, T = 2^40. This is the house convention (colloquial memory sizing); it is
+   not the IEC/k8s one — no `i` forms, `KiB` is not used. When converting, recompute
+   from the byte count: 5.24 decimal-MB is 5.0 MB, not a relabel.
+2. FLOPs and parameter counts keep decimal suffixes (343 GFLOPs, 552B parameters), as do
+   hardware throughputs by spec convention (990 TFLOPS, 3.35 TB/s).
+3. Never spell out a quantity: "million", "billion", "thousand" become M, B, K.
+   Contexts may be written 64K and 1M.
+4. A ratio is written with ×: "9.3× fewer", "384× in all". "Times" and "-fold" are
+   reserved for counts of occurrences ("runs $S$ times", "used 64 times",
+   "reread thousands of times").
+5. Every column of a table uses one unit system.
+
+## The reference model
+
+1. Chapters 1 to 6 anchor on the dense 65B model (D = 8192, 80 layers). The attention
+   part (5 to 10, 16 to 17) anchors on DSV4.1-Flash: 40 layers, 64 query heads of width
+   512, one shared KV latent, contexts of 64K native and 1M via YaRN. State the anchor
+   at the chapter's first ledger.
+2. Each cross-chapter figure has one owning chapter (chapter 9 owns the pre-selection
+   read: 522 MB at 64K, 8.2 G at 1M). Other chapters cite it as "the ledger of
+   chapter N" instead of recomputing a variant.
+3. Re-deriving a claim on a new anchor can flip it. "Attention is a tenth of the block's
+   arithmetic" held on the dense model and fails on the MoE one; re-check imported
+   claims before reusing them.
+
+## Notation
+
+1. Positions: $i$ = query, $j$ = key or entry; $t$ only for the decode token in kernel
+   chapters. Head $h$. Candidate blocks $b$. The layer index stays in words or as a
+   superscript $(\ell)$, never a bare $\ell$.
+2. The sink is $\sigma_h$; scores $s_{h,ij}$; the online-softmax running statistics
+   $m^{(j)}$ and $\ell$, each defined in words at first use; the selection set
+   $\mathcal{S}_i$. Window size $W$ against a layer's window set $\mathcal{W}_\ell$;
+   gate logits $\gamma_t$; the pre-pooling candidate $\tilde{c}_t$.
+
+## Algorithms
+
+1. Step-narrated procedures — decode walkthroughs, update rules, loops — go as
+   pseudocode: `aligned` display math, `←` assignments, `//` comments between phases.
+   Prose carries why (exactness, cost), never what happens in what order.
+
+## Book and site
+
+1. `docs/evolution/` is the single source of structure for both the website and
+   `docs/book.qmd`. A directory = a part or a chapter with subsections; a bare `.md`
+   file = a standalone chapter or subsection. Don't hand-list pages in `_quarto.yml`'s
+   sidebar — it stays `contents: docs/evolution/**` (auto-discovered from the folder
+   tree). A hand-written list silently drifts from the folder tree and from
+   `book.qmd`'s include order; it already happened once.
+2. Ordering is never encoded in filenames (no `01-`, `02-` prefixes) — use `order:` in
+   each page's YAML frontmatter instead, alongside `title:`. This is standard Quarto
+   behaviour ("alphabetical by filename unless a numeric `order` field is set"), and it
+   means adding or reordering a chapter never requires renaming its neighbours.
+   Directory sections take their title/order from that directory's own `index.md`.
+3. Adding a new part (e.g. a future FFN or embedding part, alongside the existing
+   `attn/`): make a new folder under `docs/evolution/`, give it an `index.md` with
+   `title:` and `order:`, and put its chapters inside. No `_quarto.yml` edit needed —
+   the sidebar picks it up automatically. Do add its chapters to `docs/book.qmd`'s
+   `{{< include ... >}}` list by hand, in the order they should appear in the PDF (that
+   list is independent of the sidebar and of directory layout).
+4. Every chapter/subsection `.md` file gets `{{< include >}}`-spliced into
+   `docs/book.qmd` as raw text, so its YAML frontmatter becomes an extra pandoc
+   metadata block merged into the whole book. `title:`/`order:` are safe (inert for
+   LaTeX), but never add a PDF-affecting key here (`classoption`, `documentclass`,
+   `header-includes`, ...) — it silently changes the whole book, not just that page.
+   `docs/justfile`'s `pdf` recipe defends the book's own title with
+   `-M title:"mzoo — Evolution"` (CLI metadata always wins over any in-document block).
+5. Quarto runs only through docker (`just docs/ render`, `preview`, `pdf`); rendered
+   output stays owned by the invoking user.

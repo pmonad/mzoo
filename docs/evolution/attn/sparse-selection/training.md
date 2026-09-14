@@ -11,12 +11,12 @@ one part of the design that ordinary backpropagation cannot supply.
 
 ### Why a hard top-k has no gradient
 
-The mask $M$ is $0$ or $-\infty$. It has no gradient with respect to the scores $I_{s,j}$. The main
+The mask $M$ is $0$ or $-\infty$. It has no gradient with respect to the scores $I_{i,j}$. The main
 attention loss therefore carries no information about which entries the indexer should have chosen.
 Without a separate objective the indexer parameters never move and selection stays random.
 
 The failure is worth stating precisely, because it is not the usual difficulty of a small or noisy
-gradient. A small change in $I_{s,j}$ leaves the selected set unchanged, so the derivative of the loss
+gradient. A small change in $I_{i,j}$ leaves the selected set unchanged, so the derivative of the loss
 with respect to every indexer parameter is exactly zero almost everywhere, and at the points where
 the set does change the loss jumps. Nor can the loss report on entries that were not selected, since
 those entries were never read and the model has no evidence about what they would have contributed.
@@ -30,28 +30,35 @@ constant on either side of the threshold.
 The general remedies for discrete choices are known and none of them is free. A straight-through
 estimator, in the sense of Bengio et al. 2013, "Estimating or Propagating Gradients Through
 Stochastic Neurons for Conditional Computation", passes the gradient of a continuous surrogate in
-place of the true one, which is what chapter 12 does for quantisation. A continuous relaxation such
-as Jang et al. 2017, "Categorical Reparameterization with Gumbel-Softmax", or Maddison et al. 2017,
-"The Concrete Distribution: A Continuous Relaxation of Discrete Random Variables", replaces the hard
-choice with a soft one during training and anneals it, which for a top-$k$ over 65536 entries means
+place of the true one. Operationally: the forward pass still takes the hard discrete choice, but the
+backward pass pretends the choice was the smooth surrogate and differentiates through that. This is
+what chapter 12 does for quantisation. A continuous relaxation such as Jang et al. 2017, "Categorical
+Reparameterization with Gumbel-Softmax", or Maddison et al. 2017, "The Concrete Distribution: A
+Continuous Relaxation of Discrete Random Variables", replaces the hard choice with a soft one during
+training and anneals it, which for a top-$k$ over the 524288 entries of the encoder table at 1M means
 computing the dense attention the design exists to avoid. The third option is to give the selector
 its own supervised objective, and that is the route the DeepSeek models take.
 
 ### Distilling the indexer from dense attention
 
 DeepSeek-V3.2 started from a trained dense model and trained the indexer to imitate the dense
-attention pattern. With $p_{s,j}$ the dense attention probability summed over heads and
-$\hat I_{s,j} = \operatorname{softmax}_j I_{s,j}$,
+attention pattern. With $p_{i,j}$ the dense attention probability summed over heads and
+$\hat I_{i,j} = \operatorname{softmax}_j I_{i,j}$,
 
 $$
-\mathcal{L}_{I} = \sum_s \operatorname{KL}\big(p_{s,\cdot} \,\|\, \hat I_{s,\cdot}\big),
+\mathcal{L}_{I} = \sum_i \operatorname{KL}\big(p_{i,\cdot} \,\|\, \hat I_{i,\cdot}\big),
 $$
 
 first with dense attention still active, the warm-up phase, then with the sparse mask in place while
 the KL term continues to supervise the indexer. The indexer thus has its own objective and does not
 depend on gradient through the mask.
 
-The target costs nothing extra during the warm-up phase, because the dense model computes $p_{s,j}$
+KL divergence measures how one probability distribution diverges from a second that approximates
+it. The intuition for this loss: it penalises the indexer for placing probability where the dense
+teacher does not. Every bit of mass $\hat I$ puts on an entry the teacher ignores is charged against
+it, so matching the teacher's ranking is the cheapest way to pay the bill.
+
+The target costs nothing extra during the warm-up phase, because the dense model computes $p_{i,j}$
 anyway. The objective asks the indexer to reproduce the ranking that full attention would have
 produced, which is exactly the ranking the top-$k$ needs, and it supplies a signal for every entry
 including the ones a sparse model would not have read. Summing over heads before the KL is what makes
@@ -72,8 +79,9 @@ the objective that produces those gradients. Whether a KL target, a differentiab
 top-$k$, or something else is used is not documented. Training from scratch removes the dense teacher
 that V3.2 relied on, so some other source of signal must exist, and the report does not identify it.
 In owlet1 the indexer currently receives no gradient at all, both because of the hard mask and
-because the FP4 fake-quantisation of its queries and keys detaches them from the graph, as described
-in chapter 12. This is the largest open issue in the port.
+because the FP4 fake-quantisation of its queries and keys detaches them from the graph — no gradient
+flows from the loss back into the parameters that produced them, so those weights never update — as
+described in chapter 12. This is the largest open issue in the port.
 
 ### What the 2026 models do
 
@@ -94,7 +102,7 @@ SwiGLU has formed here.
 
 ### Where this leads
 
-Attention is now as cheap as this book will make it. Chapters 5 to 10 reduced the cache from 2.6 MB
-per token to a fraction of a kilobyte and the read per query from $S$ to a constant. The remaining
-chapters leave the sublayers and change what surrounds them. Chapter 11 changes the residual
-connection that carries their outputs.
+Attention is now as cheap as this book will make it. Chapters 5 to 10 reduced the cache from the
+5 M per token of the dense baseline of chapter 5 to about 11 K, and the read per query from $S$ to a
+constant. The remaining chapters leave the sublayers and change what surrounds them. Chapter 11
+changes the residual connection that carries their outputs.

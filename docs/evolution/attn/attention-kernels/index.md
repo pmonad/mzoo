@@ -13,16 +13,19 @@ difference is made entirely of memory decisions. This chapter covers the kernel:
 every design inherits, and the one kernel that CSA2's three attention sources collapse into. The
 next chapter asks which of the operands may leave bf16, and answers it as a family of variants.
 
-The chapter assumes the reader knows CUDA: thread blocks, warp-level `mma` instructions, shared
-memory and registers. The reference GPU is the one this repository develops on, GB10 (compute
+The chapter does not assume prior CUDA: section 1 opens with a four-paragraph primer stating the
+facts the rest needs — SMs, thread blocks and warps, the shared-memory/register/DRAM hierarchy,
+the `mma` instruction and tensor cores, and pipeline stages. The reference GPU is the one this
+repository develops on, GB10 (compute
 capability 12.1, the SM120 family), because its constraints are sharp enough to force the design
 and are worth stating once. Where a claim about the model side carries a number, the reference
-model of chapter 1 supplies it; where a claim about the chip does, this table does:
+model of chapter 1 supplies it — native context 65536, extended target 1,048,576, 64 heads on a
+shared latent of width 512; where a claim about the chip does, this table does:
 
 | property | value | consequence |
 | --- | --- | --- |
 | tensor cores | warp-level `mma.sync` only (no wgmma/tcgen05, no tensor memory, no TMA multicast) | the FlashAttention-2 template, not the Hopper or SM100 ones |
-| shared memory | 99 KB per block | small tiles; at most 2–3 pipeline stages |
+| shared memory | 99 K per block | small tiles; at most 2–3 pipeline stages |
 | registers | 64 K per SM, 255 per thread | the output accumulator sets the tile shape |
 | FP4 arithmetic | ≈ FP8 throughput in practice (measured within ~1.2×) | FP4 is a *storage* format here, not a compute format |
 | DRAM bandwidth | 273 GB/s | decode and cache reads are bandwidth-bound |
