@@ -1,5 +1,9 @@
 # tilelang issues
 
+Running log of TileLang issues hit on this machine (GB10, sm121). Every new
+tilelang quirk hit by any kernel work gets appended here with version,
+symptom, cause, workaround, status.
+
 ## sm121 (GB10) blocked from SM120 NVFP4 block-scaled MMA
 
 - version: tilelang 0.1.14 (also unfixed on `main`; header last touched in 8f34abf, #2364)
@@ -42,3 +46,20 @@
 - workaround: per-dim config table (`CONFIGS`), as in the fwd.
 - also seen: `block_N=16` + `threads=256` at `D=96` -> `No valid warp partition for T.gemm: M=16, N=96
   cannot be evenly covered` (8 warps cannot tile a 16x96 output); not a bug, just a constraint.
+
+## Both layout-inference limits above reproduce verbatim in the packed-heads (MQA) layout
+
+- version: tilelang 0.1.14, GB10 (sm121), `src/mzoo/layers/attn/latent_attn/{fwd.py,bwd_kernels.py}`
+- context: `latent_attn` folds the H query heads into the tile's M dimension (a block is
+  `T_q = block_M // H` tokens x H heads) and reuses one smem KV tile for both GEMMs.
+  Checked whether the two entries above are sensitive to that layout. They are not:
+  - fwd `block_M=64` + `threads=256` (block_N 64 and 128) ->
+    `Layout infer conflict between acc_s and acc_s_cast in T.Parallel loop`. `threads=128` is fine.
+  - bwd `block_M=32` (threads 128 *and* 256) and `block_M=64` + `threads=256` ->
+    `Layout infer conflict between qkT and qkT_cast in T.Parallel loop`. `block_M=64` + `threads=128` is fine.
+- so it is purely `block_M` x `threads` x (fp32 accumulator + its bf16 cast in one `T.Parallel`),
+  independent of what the rows mean. Same workaround: per-dim config table avoiding those cells.
+- new datapoint, not a bug: `block_M=256` forward is ~3% faster than `block_M=128` at 256 threads,
+  but 10-30x *slower* at 128 threads (1.53 -> 21.8 ms, D=64 block_N=128 B1 H64 S4096) -- 8 warps are
+  needed to tile a 256-row M. All 36 failures in the `latent_attn` bwd sweep were smem-budget
+  (`Failed to set the allowed dynamic shared memory size to N`), none were layout inference.

@@ -33,7 +33,7 @@ trusting a real run.
 
 ## Constraints (by design, leave alone)
 
-- **Eager attention only** — `_supports_flash_attn` / `_supports_sdpa` / `_supports_flex_attn` are all False. flash-attn caps `head_dim` at 256 while V4.1 uses 512; SDPA has no per-head sink term; the compressed-attention branch concatenates onto the KV axis inside the block, after the model-level mask is built.
+- **Eager attention only** — `_supports_flash_attn` / `_supports_sdpa` / `_supports_flex_attn` are all False. flash-attn caps `head_dim` at 256 while V4.1 uses 512; SDPA has no per-head sink term; the compressed-attention branch concatenates onto the KV axis inside the block, after the model-level mask is built. The TileLang replacement kernels are being built in `src/mzoo/layers/attn/` (see `csa2_attn_design.md`).
 - `rms_norm_eps` defaults to 1e-20 — not a typo, but its provenance is the HF port, not the tech report (the paper states no RMSNorm epsilon; its two `1e-20` values are the AdamW and Sinkhorn optimizer epsilons).
 - This is **V4.1**, not V2/V3 MLA naming: no `kv_lora_rank`, `qk_nope_head_dim`, `v_head_dim`, `first_k_dense_replace`, `moe_layer_freq`, `n_group`, `topk_group`. Every backbone layer is MoE — no dense/MoE layer schedule. Attention shape comes from `head_dim` + `q_lora_rank` + `qk_rope_head_dim`.
 - `__post_init__` auto-derives and cross-validates `compress_ratios`, `kv_source_layer_ids`, `index_source_layer_ids`, `candidate_source_layer_id`, `layer_types` from the layer count, with a web of invariants between them. Leave them `None` — hand-picking means replicating all the invariants yourself.
