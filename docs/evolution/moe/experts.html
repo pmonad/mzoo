@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>index – mzoo</title>
+<title>Fine-grained and shared experts – mzoo</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -23,27 +23,27 @@ ul.task-list li input[type="checkbox"] {
 </style>
 
 
-<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="../site_libs/quarto-nav/headroom.min.js"></script>
-<script src="../site_libs/clipboard/clipboard.min.js"></script>
-<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="../site_libs/quarto-search/fuse.min.js"></script>
-<script src="../site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="../">
-<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
-<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="../site_libs/quarto-html/popper.min.js"></script>
-<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="../site_libs/quarto-html/anchor.min.js"></script>
-<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ea385d0e468b0dd5ea5bf0780b1290d9.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-bc185b5c5bdbcb35c2eb49d8a876ef70.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ea385d0e468b0dd5ea5bf0780b1290d9.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
-<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-fa320aee69b3ba8d25f984a718ce839a.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../site_libs/bootstrap/bootstrap-dark-bdcacf09e97898037313a1503a5bc8da.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../site_libs/bootstrap/bootstrap-fa320aee69b3ba8d25f984a718ce839a.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../../">
+<script src="../../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-ea385d0e468b0dd5ea5bf0780b1290d9.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-dark-bc185b5c5bdbcb35c2eb49d8a876ef70.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-ea385d0e468b0dd5ea5bf0780b1290d9.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../../site_libs/bootstrap/bootstrap-fa320aee69b3ba8d25f984a718ce839a.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../../site_libs/bootstrap/bootstrap-dark-bdcacf09e97898037313a1503a5bc8da.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../../site_libs/bootstrap/bootstrap-fa320aee69b3ba8d25f984a718ce839a.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -72,6 +72,49 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 
+  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
@@ -244,7 +287,7 @@ ul.task-list li input[type="checkbox"] {
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a class="navbar-brand" href="../index.html">
+    <a class="navbar-brand" href="../../../index.html">
     <span class="navbar-title">mzoo</span>
     </a>
   </div>
@@ -271,7 +314,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../docs/evolution/index.html">Evolution</a></li><li class="breadcrumb-item"><a href="../../../docs/evolution/moe/index.html">6 Mixture of experts</a></li><li class="breadcrumb-item"><a href="../../../docs/evolution/moe/experts.html">Fine-grained and shared experts</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -285,7 +328,7 @@ ul.task-list li input[type="checkbox"] {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a href="../docs/evolution/index.html" class="sidebar-item-text sidebar-link">
+            <a href="../../../docs/evolution/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Evolution</span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
@@ -294,52 +337,52 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/gpt2.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/gpt2.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">1 GPT-2</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/normalisation.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/normalisation.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">2 Normalisation</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/positions.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/positions.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">3 Positions</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/feed-forward.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/feed-forward.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">4 Feed-forward</span></a>
   </div>
 </li>
           <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a href="../docs/evolution/moe/index.html" class="sidebar-item-text sidebar-link">
+            <a href="../../../docs/evolution/moe/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">6 Mixture of experts</span></a>
-          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
-      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth2 ">  
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth2 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/moe/routing.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/moe/routing.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Routing</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/moe/experts.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/moe/experts.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">Fine-grained and shared experts</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/moe/balancing.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/moe/balancing.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Load balancing</span></a>
   </div>
 </li>
@@ -347,7 +390,7 @@ ul.task-list li input[type="checkbox"] {
   </li>
           <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a href="../docs/evolution/attn/index.html" class="sidebar-item-text sidebar-link">
+            <a href="../../../docs/evolution/attn/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Attention</span></a>
           <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
@@ -356,13 +399,13 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth2 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/attn/kv-cache.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/attn/kv-cache.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">5 The KV cache</span></a>
   </div>
 </li>
           <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a href="../docs/evolution/attn/low-rank-attention/index.html" class="sidebar-item-text sidebar-link">
+            <a href="../../../docs/evolution/attn/low-rank-attention/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">7 Low-rank attention</span></a>
           <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
@@ -371,13 +414,13 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth3 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/attn/low-rank-attention/mla.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/attn/low-rank-attention/mla.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">MLA</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/attn/low-rank-attention/shared-latent.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/attn/low-rank-attention/shared-latent.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Single shared latent</span></a>
   </div>
 </li>
@@ -385,13 +428,13 @@ ul.task-list li input[type="checkbox"] {
   </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/attn/local-attention.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/attn/local-attention.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">8 Local attention</span></a>
   </div>
 </li>
           <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a href="../docs/evolution/attn/compressed-attention/index.html" class="sidebar-item-text sidebar-link">
+            <a href="../../../docs/evolution/attn/compressed-attention/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">9 Compressed attention</span></a>
           <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
@@ -400,13 +443,13 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth3 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/attn/compressed-attention/compressor.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/attn/compressed-attention/compressor.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Compressor</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/attn/compressed-attention/sharing.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/attn/compressed-attention/sharing.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Sharing across layers</span></a>
   </div>
 </li>
@@ -414,7 +457,7 @@ ul.task-list li input[type="checkbox"] {
   </li>
           <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a href="../docs/evolution/attn/sparse-selection/index.html" class="sidebar-item-text sidebar-link">
+            <a href="../../../docs/evolution/attn/sparse-selection/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">10 Sparse selection</span></a>
           <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
@@ -423,19 +466,19 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth3 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/attn/sparse-selection/indexer.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/attn/sparse-selection/indexer.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Indexer</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/attn/sparse-selection/hierarchical.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/attn/sparse-selection/hierarchical.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Hierarchical selection</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/attn/sparse-selection/training.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/attn/sparse-selection/training.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Training the indexer</span></a>
   </div>
 </li>
@@ -443,7 +486,7 @@ ul.task-list li input[type="checkbox"] {
   </li>
           <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a href="../docs/evolution/attn/attention-kernels/index.html" class="sidebar-item-text sidebar-link">
+            <a href="../../../docs/evolution/attn/attention-kernels/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">16 Attention kernels</span></a>
           <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
@@ -452,13 +495,13 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth3 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/attn/attention-kernels/fa2.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/attn/attention-kernels/fa2.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">The FA2 template on SM120</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/attn/attention-kernels/csa2.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/attn/attention-kernels/csa2.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">One kernel for CSA2</span></a>
   </div>
 </li>
@@ -466,7 +509,7 @@ ul.task-list li input[type="checkbox"] {
   </li>
           <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a href="../docs/evolution/attn/low-precision-attention/index.html" class="sidebar-item-text sidebar-link">
+            <a href="../../../docs/evolution/attn/low-precision-attention/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">17 Low-precision attention</span></a>
           <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
@@ -475,7 +518,7 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth3 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/attn/low-precision-attention/variants.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/attn/low-precision-attention/variants.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">The variants</span></a>
   </div>
 </li>
@@ -483,7 +526,7 @@ ul.task-list li input[type="checkbox"] {
   </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/attn/attention-kernels-impl.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/attn/attention-kernels-impl.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Attention kernels: implementation notes</span></a>
   </div>
 </li>
@@ -491,7 +534,7 @@ ul.task-list li input[type="checkbox"] {
   </li>
           <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a href="../docs/evolution/residual/index.html" class="sidebar-item-text sidebar-link">
+            <a href="../../../docs/evolution/residual/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">11 Residual stream</span></a>
           <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
@@ -500,19 +543,19 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth2 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/residual/hyper-connections.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/residual/hyper-connections.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Hyper-connections</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/residual/mhc.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/residual/mhc.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">mHC</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/residual/single-pass.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/residual/single-pass.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Single-pass mHC</span></a>
   </div>
 </li>
@@ -520,7 +563,7 @@ ul.task-list li input[type="checkbox"] {
   </li>
           <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a href="../docs/evolution/numerics/index.html" class="sidebar-item-text sidebar-link">
+            <a href="../../../docs/evolution/numerics/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">12 Numerics</span></a>
           <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
@@ -529,25 +572,25 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-10" class="collapse list-unstyled sidebar-section depth2 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/numerics/fp8.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/numerics/fp8.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">bf16 and FP8</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/numerics/matmuls.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/numerics/matmuls.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Low-precision matmuls</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/numerics/fp4.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/numerics/fp4.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">FP4</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/numerics/ste.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/numerics/ste.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Gradients through quantisation</span></a>
   </div>
 </li>
@@ -555,19 +598,19 @@ ul.task-list li input[type="checkbox"] {
   </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/engram.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/engram.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">13 Engram</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/beyond-the-block.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/beyond-the-block.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">14 Beyond the block</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/assembly.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/assembly.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">15 Assembly</span></a>
   </div>
 </li>
@@ -583,23 +626,78 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#mzoo" id="toc-mzoo" class="nav-link active" data-scroll-target="#mzoo">mzoo</a></li>
+  <li><a href="#fine-grained-and-shared-experts" id="toc-fine-grained-and-shared-experts" class="nav-link active" data-scroll-target="#fine-grained-and-shared-experts">Fine-grained and shared experts</a>
+  <ul class="collapse">
+  <li><a href="#fine-grained-experts" id="toc-fine-grained-experts" class="nav-link" data-scroll-target="#fine-grained-experts">Fine-grained experts</a></li>
+  <li><a href="#shared-experts" id="toc-shared-experts" class="nav-link" data-scroll-target="#shared-experts">Shared experts</a></li>
+  <li><a href="#which-layers-are-mixtures" id="toc-which-layers-are-mixtures" class="nav-link" data-scroll-target="#which-layers-are-mixtures">Which layers are mixtures</a></li>
+  <li><a href="#what-experts-specialise-on" id="toc-what-experts-specialise-on" class="nav-link" data-scroll-target="#what-experts-specialise-on">What experts specialise on</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
 <!-- main -->
-<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../docs/evolution/index.html">Evolution</a></li><li class="breadcrumb-item"><a href="../../../docs/evolution/moe/index.html">6 Mixture of experts</a></li><li class="breadcrumb-item"><a href="../../../docs/evolution/moe/experts.html">Fine-grained and shared experts</a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title">Fine-grained and shared experts</h1>
+</div>
 
 
 
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
 
 
-<meta http-equiv="refresh" content="0; url=evolution/index.html">
-<section id="mzoo" class="level1">
-<h1>mzoo</h1>
-<p><a href="../docs/evolution/index.html">Continue to Evolution →</a></p>
+</header>
 
 
+<section id="fine-grained-and-shared-experts" class="level2">
+<h2 class="anchored" data-anchor-id="fine-grained-and-shared-experts">Fine-grained and shared experts</h2>
+<p>Routing fixed how a token picks its experts. It said nothing about how many there are, how wide each one is, or whether some should run for every token. Those choices are separate from the router and they are almost free to make, because the two quantities that matter for cost are already fixed by something else. Total parameters are the number of experts times the width of one, and active parameters are the number chosen times the width of one. Any pair of values with the same two products costs the same. The shape of the expert set is therefore a design choice made at constant budget, and the current answer is very different from the first one.</p>
+<p>Mixtral-style MoE uses a few large experts: <span class="math inline">E = 8</span>, <span class="math inline">K = 2</span>, and each expert is a full-width FFN. DeepSeekMoE in 2024 made two changes that every DeepSeek model since has kept.</p>
+<section id="fine-grained-experts" class="level3">
+<h3 class="anchored" data-anchor-id="fine-grained-experts">Fine-grained experts</h3>
+<p>Split each expert into <span class="math inline">m</span> smaller ones and pick <span class="math inline">mK</span> of them. Parameter count and compute per token are unchanged. The number of possible expert combinations rises from <span class="math inline">\binom{E}{K}</span> to <span class="math inline">\binom{mE}{mK}</span>:</p>
+<p><span class="math display">
+E = 8,\ K = 2:\ \ \binom{8}{2} = 28 \qquad\text{against}\qquad
+E = 64,\ K = 16:\ \ \binom{64}{16} \approx 4.9 \times 10^{14}.
+</span></p>
+<p>The two sides of that comparison hold the same parameters and do the same arithmetic. Splitting each of the 8 experts into 8 pieces of one eighth the hidden width gives 64 experts, and taking 16 of them uses the same total hidden width as taking 2 of the originals. Only the number of distinct functions the layer can produce has changed, and it has changed by thirteen orders of magnitude.</p>
+<p>Each token composes its FFN from many small pieces instead of choosing between a few large ones. DeepSeek-V3 uses 256 experts of width <span class="math inline">2048</span> with <span class="math inline">K = 8</span>, against a hidden size of <span class="math inline">7168</span>. On the reference model that layout gives <span class="math inline">\binom{256}{8} \approx 4.1 \times 10^{14}</span> combinations, and each expert is a little over a quarter of the residual width, so a token assembles a hidden layer of width <span class="math inline">8 \cdot 2048 = 16384</span> from 256 available blocks.</p>
+<p>The reason this matters is the memory reading of chapter 4. The feed-forward layer is a store of key-value memories, and <span class="math inline">K</span> out of <span class="math inline">E</span> is the granularity at which the model can retrieve from that store. With <span class="math inline">E = 8</span> and <span class="math inline">K = 2</span> a token that needs two unrelated pieces of knowledge must find them in two full-width experts, and each of those experts must therefore hold everything that any token selecting it might need. The expert is forced to be a general-purpose FFN. With 256 narrow experts the same token selects eight specific regions of the store and pays for eight, and the content that sits between two topics no longer has to be replicated in the two experts that cover them.</p>
+<p>The cost of fine-graining is on the systems side, and it grows steadily as <span class="math inline">E</span> rises. The router matrix is <span class="math inline">E \times D</span>, so it grows linearly with the expert count, though from a base so small that it does not matter until <span class="math inline">E</span> is very large. The all-to-all dispatch of the chapter introduction sends <span class="math inline">K</span> messages per token rather than <span class="math inline">K/m</span>, so its message count grows in proportion to <span class="math inline">mK</span> even though its total volume does not. And the matmuls get thinner. If a device holds a batch of <span class="math inline">N</span> tokens, the average number of rows given to one expert is <span class="math inline">N K / E</span>. With <span class="math inline">N = 8192</span>, <span class="math inline">E = 256</span> and <span class="math inline">K = 8</span> that is 256 rows, which multiplied against an <span class="math inline">8192 \times 2048</span> matrix is still a matmul large enough to use an accelerator well. Shrink the experts by another factor of eight and the average group falls to 32 rows, which is not. The granularity of an expert is bounded below by the shape at which a matmul stops being efficient, and that bound depends on the batch size a server runs, not on the model.</p>
+</section>
+<section id="shared-experts" class="level3">
+<h3 class="anchored" data-anchor-id="shared-experts">Shared experts</h3>
+<p>Some knowledge is needed by every token. If it lives in routed experts it is duplicated across them. DeepSeekMoE sets aside <span class="math inline">E_s</span> experts that every token passes through, outside the router:</p>
+<p><span class="math display">
+\operatorname{MoE}(x) = \sum_{i \in \mathcal{I}(x)} w_i\, \operatorname{FFN}_i(x) + \sum_{s=1}^{E_s} \operatorname{FFN}_s(x).
+</span></p>
+<p>The routed experts then hold only specialised knowledge. V3 and V4.1 use one shared expert.</p>
+<p>The duplication argument is worth making concrete. Suppose a feature is needed by most tokens, whatever their subject. Under pure routing it must be present in enough of the 256 experts that a token is likely to reach one, so it occupies a slice of many experts, and every copy is trained on a fraction of the data that needs it. Moving it to one expert that every token visits stores it once and trains it on everything. Parameters that would have gone into copies are released for content that genuinely differs between tokens.</p>
+<p>The shared expert also changes the character of the layer during training. The routed branch is a discontinuous function of <span class="math inline">x</span>, because a small change in the token state can swap one expert for another and change the output by the difference between two independently trained functions. The shared branch is continuous and is updated by every token in every batch, so the layer always has one smooth, fully trained path from input to output. That path is present from the first step, before the router has learned anything, which removes the cold-start problem in which a randomly initialised router sends tokens to randomly initialised experts.</p>
+<p>What it costs is a fixed slice of the compute budget. On the reference layer one shared expert of width 2048 is one of the nine experts a token runs, so it takes 11 percent of the layer’s arithmetic and cannot be avoided for any token, including tokens for which its content is irrelevant. The scaling factor <span class="math inline">\gamma = 1.5</span> from <a href="../../../docs/evolution/moe/routing.html">Routing</a> is the counterweight, setting the routed branch to contribute half again as much as the shared one at equal expert magnitudes.</p>
+</section>
+<section id="which-layers-are-mixtures" class="level3">
+<h3 class="anchored" data-anchor-id="which-layers-are-mixtures">Which layers are mixtures</h3>
+<p>One more choice in the layout is how many blocks use a mixture at all. The early blocks of a model operate on token states that are still close to the embedding, and DeepSeek-V3 keeps its first three blocks dense for that reason, switching to routed layers for the remainder. V4.1 removes the exception and makes every backbone block a mixture, which is why the configuration in this repository has no dense-layer schedule at all. See <code>src/mzoo/archs/owlet1/moe.md</code> for the fields that are absent.</p>
+</section>
+<section id="what-experts-specialise-on" class="level3">
+<h3 class="anchored" data-anchor-id="what-experts-specialise-on">What experts specialise on</h3>
+<p>Routing analysis in Mixtral found that experts specialise by syntax and token position more than by topic, with consecutive tokens often routed to the same expert. This is reported in Jiang et al. 2024, “Mixtral of Experts”. Fine-grained experts and a shared expert follow from that observation. If specialisation is at the level of token types rather than domains, many small experts compose better than a few large ones, and features that every token needs belong in an expert that every token visits. Dai et al.&nbsp;2024, “DeepSeekMoE: Towards Ultimate Expert Specialization in Mixture-of-Experts Language Models”, gives this as the design rationale. In the terms of chapter 4, more experts means more storage for features without more compute per token.</p>
+<p>The finding also sets expectations for what a routed model can be expected to do. An expert is not a domain module and cannot be extracted as one, because the tokens that reach it are selected by surface properties as much as by content, and because the shared expert and the attention layers carry whatever the routed branch does not. The same conclusion follows from the superposition argument of chapter 4: a model represents more features than it has dimensions, so no unit of the architecture, hidden dimension or whole expert, corresponds to one interpretable thing.</p>
+<p>Granularity and sharing settle the shape of the expert set. Neither of them addresses whether the router will use that set evenly, and by default it will not, which is the subject of <a href="../../../docs/evolution/moe/balancing.html">Load balancing</a>.</p>
+
+
+</section>
 </section>
 
 </main> <!-- /main -->

@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>index – mzoo</title>
+<title>8 Local attention – mzoo</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -23,27 +23,27 @@ ul.task-list li input[type="checkbox"] {
 </style>
 
 
-<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="../site_libs/quarto-nav/headroom.min.js"></script>
-<script src="../site_libs/clipboard/clipboard.min.js"></script>
-<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="../site_libs/quarto-search/fuse.min.js"></script>
-<script src="../site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="../">
-<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
-<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="../site_libs/quarto-html/popper.min.js"></script>
-<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="../site_libs/quarto-html/anchor.min.js"></script>
-<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ea385d0e468b0dd5ea5bf0780b1290d9.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-bc185b5c5bdbcb35c2eb49d8a876ef70.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ea385d0e468b0dd5ea5bf0780b1290d9.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
-<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-fa320aee69b3ba8d25f984a718ce839a.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../site_libs/bootstrap/bootstrap-dark-bdcacf09e97898037313a1503a5bc8da.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../site_libs/bootstrap/bootstrap-fa320aee69b3ba8d25f984a718ce839a.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../../">
+<script src="../../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-ea385d0e468b0dd5ea5bf0780b1290d9.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-dark-bc185b5c5bdbcb35c2eb49d8a876ef70.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-ea385d0e468b0dd5ea5bf0780b1290d9.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../../site_libs/bootstrap/bootstrap-fa320aee69b3ba8d25f984a718ce839a.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../../site_libs/bootstrap/bootstrap-dark-bdcacf09e97898037313a1503a5bc8da.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../../site_libs/bootstrap/bootstrap-fa320aee69b3ba8d25f984a718ce839a.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -72,6 +72,49 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 
+  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
@@ -244,7 +287,7 @@ ul.task-list li input[type="checkbox"] {
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a class="navbar-brand" href="../index.html">
+    <a class="navbar-brand" href="../../../index.html">
     <span class="navbar-title">mzoo</span>
     </a>
   </div>
@@ -271,7 +314,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../docs/evolution/index.html">Evolution</a></li><li class="breadcrumb-item"><a href="../../../docs/evolution/attn/index.html">Attention</a></li><li class="breadcrumb-item"><a href="../../../docs/evolution/attn/local-attention.html">8 Local attention</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -285,7 +328,7 @@ ul.task-list li input[type="checkbox"] {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a href="../docs/evolution/index.html" class="sidebar-item-text sidebar-link">
+            <a href="../../../docs/evolution/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Evolution</span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
@@ -294,31 +337,31 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/gpt2.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/gpt2.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">1 GPT-2</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/normalisation.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/normalisation.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">2 Normalisation</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/positions.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/positions.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">3 Positions</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/feed-forward.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/feed-forward.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">4 Feed-forward</span></a>
   </div>
 </li>
           <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a href="../docs/evolution/moe/index.html" class="sidebar-item-text sidebar-link">
+            <a href="../../../docs/evolution/moe/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">6 Mixture of experts</span></a>
           <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
@@ -327,19 +370,19 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth2 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/moe/routing.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/moe/routing.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Routing</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/moe/experts.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/moe/experts.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Fine-grained and shared experts</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/moe/balancing.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/moe/balancing.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Load balancing</span></a>
   </div>
 </li>
@@ -347,22 +390,22 @@ ul.task-list li input[type="checkbox"] {
   </li>
           <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a href="../docs/evolution/attn/index.html" class="sidebar-item-text sidebar-link">
+            <a href="../../../docs/evolution/attn/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Attention</span></a>
-          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
-      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth2 ">  
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth2 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/attn/kv-cache.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/attn/kv-cache.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">5 The KV cache</span></a>
   </div>
 </li>
           <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a href="../docs/evolution/attn/low-rank-attention/index.html" class="sidebar-item-text sidebar-link">
+            <a href="../../../docs/evolution/attn/low-rank-attention/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">7 Low-rank attention</span></a>
           <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
@@ -371,13 +414,13 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth3 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/attn/low-rank-attention/mla.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/attn/low-rank-attention/mla.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">MLA</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/attn/low-rank-attention/shared-latent.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/attn/low-rank-attention/shared-latent.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Single shared latent</span></a>
   </div>
 </li>
@@ -385,13 +428,13 @@ ul.task-list li input[type="checkbox"] {
   </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/attn/local-attention.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/attn/local-attention.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">8 Local attention</span></a>
   </div>
 </li>
           <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a href="../docs/evolution/attn/compressed-attention/index.html" class="sidebar-item-text sidebar-link">
+            <a href="../../../docs/evolution/attn/compressed-attention/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">9 Compressed attention</span></a>
           <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
@@ -400,13 +443,13 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth3 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/attn/compressed-attention/compressor.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/attn/compressed-attention/compressor.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Compressor</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/attn/compressed-attention/sharing.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/attn/compressed-attention/sharing.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Sharing across layers</span></a>
   </div>
 </li>
@@ -414,7 +457,7 @@ ul.task-list li input[type="checkbox"] {
   </li>
           <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a href="../docs/evolution/attn/sparse-selection/index.html" class="sidebar-item-text sidebar-link">
+            <a href="../../../docs/evolution/attn/sparse-selection/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">10 Sparse selection</span></a>
           <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
@@ -423,19 +466,19 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth3 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/attn/sparse-selection/indexer.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/attn/sparse-selection/indexer.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Indexer</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/attn/sparse-selection/hierarchical.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/attn/sparse-selection/hierarchical.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Hierarchical selection</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/attn/sparse-selection/training.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/attn/sparse-selection/training.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Training the indexer</span></a>
   </div>
 </li>
@@ -443,7 +486,7 @@ ul.task-list li input[type="checkbox"] {
   </li>
           <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a href="../docs/evolution/attn/attention-kernels/index.html" class="sidebar-item-text sidebar-link">
+            <a href="../../../docs/evolution/attn/attention-kernels/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">16 Attention kernels</span></a>
           <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
@@ -452,13 +495,13 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth3 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/attn/attention-kernels/fa2.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/attn/attention-kernels/fa2.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">The FA2 template on SM120</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/attn/attention-kernels/csa2.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/attn/attention-kernels/csa2.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">One kernel for CSA2</span></a>
   </div>
 </li>
@@ -466,7 +509,7 @@ ul.task-list li input[type="checkbox"] {
   </li>
           <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a href="../docs/evolution/attn/low-precision-attention/index.html" class="sidebar-item-text sidebar-link">
+            <a href="../../../docs/evolution/attn/low-precision-attention/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">17 Low-precision attention</span></a>
           <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
@@ -475,7 +518,7 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth3 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/attn/low-precision-attention/variants.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/attn/low-precision-attention/variants.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">The variants</span></a>
   </div>
 </li>
@@ -483,7 +526,7 @@ ul.task-list li input[type="checkbox"] {
   </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/attn/attention-kernels-impl.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/attn/attention-kernels-impl.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Attention kernels: implementation notes</span></a>
   </div>
 </li>
@@ -491,7 +534,7 @@ ul.task-list li input[type="checkbox"] {
   </li>
           <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a href="../docs/evolution/residual/index.html" class="sidebar-item-text sidebar-link">
+            <a href="../../../docs/evolution/residual/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">11 Residual stream</span></a>
           <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
@@ -500,19 +543,19 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth2 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/residual/hyper-connections.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/residual/hyper-connections.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Hyper-connections</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/residual/mhc.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/residual/mhc.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">mHC</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/residual/single-pass.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/residual/single-pass.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Single-pass mHC</span></a>
   </div>
 </li>
@@ -520,7 +563,7 @@ ul.task-list li input[type="checkbox"] {
   </li>
           <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a href="../docs/evolution/numerics/index.html" class="sidebar-item-text sidebar-link">
+            <a href="../../../docs/evolution/numerics/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">12 Numerics</span></a>
           <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
@@ -529,25 +572,25 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-10" class="collapse list-unstyled sidebar-section depth2 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/numerics/fp8.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/numerics/fp8.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">bf16 and FP8</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/numerics/matmuls.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/numerics/matmuls.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Low-precision matmuls</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/numerics/fp4.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/numerics/fp4.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">FP4</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/numerics/ste.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/numerics/ste.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Gradients through quantisation</span></a>
   </div>
 </li>
@@ -555,19 +598,19 @@ ul.task-list li input[type="checkbox"] {
   </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/engram.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/engram.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">13 Engram</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/beyond-the-block.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/beyond-the-block.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">14 Beyond the block</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/assembly.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/assembly.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">15 Assembly</span></a>
   </div>
 </li>
@@ -583,23 +626,123 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#mzoo" id="toc-mzoo" class="nav-link active" data-scroll-target="#mzoo">mzoo</a></li>
+  <li><a href="#local-attention-and-sinks" id="toc-local-attention-and-sinks" class="nav-link active" data-scroll-target="#local-attention-and-sinks">8. Local attention and sinks</a>
+  <ul class="collapse">
+  <li><a href="#storing-less-and-reading-less" id="toc-storing-less-and-reading-less" class="nav-link" data-scroll-target="#storing-less-and-reading-less">Storing less and reading less</a></li>
+  <li><a href="#what-attention-costs-at-65536-tokens" id="toc-what-attention-costs-at-65536-tokens" class="nav-link" data-scroll-target="#what-attention-costs-at-65536-tokens">What attention costs at 65536 tokens</a></li>
+  <li><a href="#what-flashattention-did-and-did-not-change" id="toc-what-flashattention-did-and-did-not-change" class="nav-link" data-scroll-target="#what-flashattention-did-and-did-not-change">What FlashAttention did and did not change</a></li>
+  <li><a href="#fixed-sparse-patterns" id="toc-fixed-sparse-patterns" class="nav-link" data-scroll-target="#fixed-sparse-patterns">Fixed sparse patterns</a></li>
+  <li><a href="#attending-to-a-window-of-the-recent-past" id="toc-attending-to-a-window-of-the-recent-past" class="nav-link" data-scroll-target="#attending-to-a-window-of-the-recent-past">Attending to a window of the recent past</a></li>
+  <li><a href="#attention-sinks" id="toc-attention-sinks" class="nav-link" data-scroll-target="#attention-sinks">Attention sinks</a></li>
+  <li><a href="#precision-and-stability" id="toc-precision-and-stability" class="nav-link" data-scroll-target="#precision-and-stability">Precision and stability</a></li>
+  <li><a href="#hybrid-schedules" id="toc-hybrid-schedules" class="nav-link" data-scroll-target="#hybrid-schedules">Hybrid schedules</a></li>
+  <li><a href="#what-the-2026-models-do" id="toc-what-the-2026-models-do" class="nav-link" data-scroll-target="#what-the-2026-models-do">What the 2026 models do</a></li>
+  <li><a href="#where-this-leads" id="toc-where-this-leads" class="nav-link" data-scroll-target="#where-this-leads">Where this leads</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
 <!-- main -->
-<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../docs/evolution/index.html">Evolution</a></li><li class="breadcrumb-item"><a href="../../../docs/evolution/attn/index.html">Attention</a></li><li class="breadcrumb-item"><a href="../../../docs/evolution/attn/local-attention.html">8 Local attention</a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title">8 Local attention</h1>
+</div>
 
 
 
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
 
 
-<meta http-equiv="refresh" content="0; url=evolution/index.html">
-<section id="mzoo" class="level1">
-<h1>mzoo</h1>
-<p><a href="../docs/evolution/index.html">Continue to Evolution →</a></p>
+</header>
 
 
+<section id="local-attention-and-sinks" class="level1">
+<h1>8. Local attention and sinks</h1>
+<p>Chapters 5 and 7 reduced what one token stores. Grouped-query attention removed most of the key and value heads, and the latent of chapter 7 replaced the surviving per-head vectors with a single shared latent of width 512 per token per layer. Both changes attack the bytes the cache holds. Neither changes how many entries of that cache a query touches, and neither changes how much arithmetic attention performs. A query still compares itself against every position before it, so both quantities grow with the length of the conversation. This chapter is the first to reduce the number of positions a layer looks at, and chapters 9 and 10 continue that reduction.</p>
+<section id="storing-less-and-reading-less" class="level2">
+<h2 class="anchored" data-anchor-id="storing-less-and-reading-less">Storing less and reading less</h2>
+<p>It helps to separate two quantities that chapter 5 treated together.</p>
+<p>The first is the bytes stored per token. This sets how many sequences fit in memory beside the weights, and it is what chapters 5 and 7 reduced, from 5.0 MB per token for multi-head attention to 40 KB for the single shared latent.</p>
+<p>The second is the bytes read per query and the operations performed per query. This sets the time of a decode step and the arithmetic of a prefill. Reducing storage reduces reads in proportion when every query reads everything, which is the case so far, because the two are then the same table seen twice. They come apart as soon as a query is allowed to skip part of the table. A windowed layer stores less and reads less. The sparse selection of chapter 10 stores everything and reads a fixed subset. Chapter 9 does both at once. Keeping the two quantities distinct makes the ledger of the next three chapters readable.</p>
+</section>
+<section id="what-attention-costs-at-65536-tokens" class="level2">
+<h2 class="anchored" data-anchor-id="what-attention-costs-at-65536-tokens">What attention costs at 65536 tokens</h2>
+<p>Attention does two products per key. The query is compared against the key, and the value is added into the output weighted by the resulting probability. Each is about <span class="math inline">2d</span> operations in one head, so one token attending over <span class="math inline">S</span> keys with <span class="math inline">H</span> heads costs about</p>
+<p><span class="math display">
+4 \cdot S \cdot H \cdot d
+</span></p>
+<p>operations in one layer. The reference model has <span class="math inline">H = 64</span> query heads of width <span class="math inline">d = 512</span>, so the total head width <span class="math inline">H \cdot d = 32768</span> and one layer costs <span class="math inline">4 \cdot S \cdot 32768</span> operations. Across the <span class="math inline">L = 40</span> layers that is <span class="math inline">5.24\text{M} \cdot S</span> FLOPs per token. At the native context of <span class="math inline">S = 65536</span> that is 343 GFLOPs per token.</p>
+<p>The weights cost about two operations per parameter, and 8B parameters are active per token, so the weights cost about 16 GFLOPs per token. Attention is now more than 20× the arithmetic of every weight matrix in the model combined. The relation has inverted: at the old dense reference attention was a tenth of the block’s arithmetic, and the earlier chapters could count parameters and treat that as the cost of the model. On V4.1-Flash the attention is the model, and the weights ride along.</p>
+<p>The memory side moves with it. With the shared latent of chapter 7 at 40 KB per token, one decode step at 64K tokens reads 2.5 GB of cache, 1.25 GB if that cache is held in FP8, and 720 MB in the FP4 format of chapter 12. At the extended long-context target of <span class="math inline">S = 1{,}048{,}576</span> — YaRN scaled by sixteen — the same step reads 40 GB, 20 GB, or 11.25 GB. The per-token figure simply multiplies out.</p>
+<p>The two phases of chapter 5 feel this differently. In prefill every position attends over every earlier position, so the attention cost of a prompt of length <span class="math inline">S</span> is about <span class="math inline">2 S^2 H d</span> operations per layer, which over 40 layers at <span class="math inline">S = 65536</span> is about 11.3 PFLOPs against about 1.0 PFLOPs for the weights. Prefill is limited by arithmetic, and attention is now the larger half of it by an order of magnitude; at <span class="math inline">S = 1{,}048{,}576</span> prefill attention reaches about 2,900 PFLOPs. In decode each step attends over the whole cache once, so the cost per step is linear in <span class="math inline">S</span> and dominated by the time to stream that cache through the accelerator. A change that removes keys helps prefill quadratically and decode linearly.</p>
+<p>Compressing what a token stores lowers the constant in front of <span class="math inline">S</span>. It does not remove the <span class="math inline">S</span>.</p>
+</section>
+<section id="what-flashattention-did-and-did-not-change" class="level2">
+<h2 class="anchored" data-anchor-id="what-flashattention-did-and-did-not-change">What FlashAttention did and did not change</h2>
+<p>One well-known result should be placed here so that it is not mistaken for a solution to the problem of this chapter. Dao et al.&nbsp;2022, “FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness”, observed that a standard attention implementation writes the full <span class="math inline">S \times S</span> score matrix to memory and reads it back twice, once for the softmax and once for the weighted sum. The softmax is the function that turns raw scores into probabilities: each score is exponentiated and divided by the sum of all the exponentiated scores. That sum is the softmax denominator, and every output probability depends on it, which is why the whole row seems to be needed at once. Their kernel tiles the computation, keeps each tile of scores in on-chip memory and accumulates the denominator with running normalisers, so the score matrix is never written out. Memory use falls from <span class="math inline">O(S^2)</span> to <span class="math inline">O(S)</span> and prefill becomes several × faster. Dao 2023, “FlashAttention-2: Faster Attention with Better Parallelism and Work Partitioning”, improved the work partitioning further. Chapter 16 opens with the mechanism — the online softmax and the tile schedule that make the removal exact — and gives the measured speedup.</p>
+<p>Big-O notation, used throughout this book, records how a cost grows with size. <span class="math inline">O(S)</span> means the cost grows in proportion to the context length <span class="math inline">S</span>: double the context, double the cost. <span class="math inline">O(S^2)</span> means it grows as the square: double the context, quadruple the cost. <span class="math inline">O(W)</span>, for a window of fixed width <span class="math inline">W</span>, means the cost does not grow with the context at all — it is constant once <span class="math inline">W</span> is chosen.</p>
+<p>FlashAttention is exact. It computes the same output as the naive implementation, and it performs the same <span class="math inline">4 S H d</span> operations per token per layer. What it removes is traffic to and from memory for intermediate scores, which is a prefill cost. It leaves the arithmetic of prefill unchanged and it leaves the decode-time cache untouched, because the cache is a real store of keys and values, not an intermediate. Every design in this chapter and the two that follow reduces the number of keys and is therefore complementary to FlashAttention, and current sparse kernels are built on top of it.</p>
+</section>
+<section id="fixed-sparse-patterns" class="level2">
+<h2 class="anchored" data-anchor-id="fixed-sparse-patterns">Fixed sparse patterns</h2>
+<p>Most of what a token needs is close to it. Adjacent words, the current sentence and the current function body carry most of the information required to predict the next token. The distant past is needed rarely and by few heads. Three designs from 2019 and 2020 turned this observation into fixed patterns, chosen in advance and identical for every input.</p>
+<p>Child et al.&nbsp;2019, “Generating Long Sequences with Sparse Transformers”, factorised the attention matrix into two sparse patterns applied in alternating heads or layers, a local one covering the last few positions and a strided one covering every <span class="math inline">n</span>th position. The composition of the two connects any pair of positions in two steps, and the cost per token falls from <span class="math inline">O(S)</span> to <span class="math inline">O(\sqrt{S})</span>.</p>
+<p>Beltagy et al.&nbsp;2020, “Longformer: The Long-Document Transformer”, used a sliding window, dilated windows in some heads to widen the reach at the same cost, and a small set of positions marked as global that attend to everything and are attended to by everything. A dilated window keeps the same number of entries but spaces them out, reading every <span class="math inline">n</span>th position within a longer span, so the reach grows while the cost stays fixed. The global positions are chosen by the task, for example the question tokens in question answering.</p>
+<p>Zaheer et al.&nbsp;2020, “Big Bird: Transformers for Longer Sequences”, combined a window, a few global tokens and a few randomly chosen keys per query, and showed that the resulting sparse attention retains the theoretical expressiveness of full attention, in the sense of universal approximation of sequence functions and Turing completeness. These are existence results. They say that a sparse transformer could represent the same class of functions as a full one, given arbitrarily many layers and suitably chosen weights. They do not say that any particular trained model, on finite context with learned weights, recovers full-attention quality. Sparsity does not rule quality out in principle; it leaves the practical question open.</p>
+<p>Three properties of this family carry into the modern designs. The window is the component that carries most of the quality. Some direct route to distant positions is needed beside the window. And a fixed pattern is chosen without looking at the content, which is what chapter 10 changes.</p>
+</section>
+<section id="attending-to-a-window-of-the-recent-past" class="level2">
+<h2 class="anchored" data-anchor-id="attending-to-a-window-of-the-recent-past">Attending to a window of the recent past</h2>
+<p>Restrict each query to the last <span class="math inline">W</span> keys:</p>
+<p><span class="math display">
+o_i = \sum_{j = i - W + 1}^{i} p_{ij}\, v_j .
+</span></p>
+<p>The restriction is the sliding-window mask: position <span class="math inline">i</span> is allowed to read positions <span class="math inline">i - W + 1</span> through <span class="math inline">i</span>, and every position outside that range is excluded from the softmax before the probabilities are formed, exactly as if its score were minus infinity. The sum then runs over a fixed number of positions rather than over the whole prefix. Per-token cost drops from <span class="math inline">O(S)</span> to <span class="math inline">O(W)</span> — the work stops growing with the conversation — and the cache for such a layer holds <span class="math inline">W</span> entries per sequence regardless of length. On the reference model with <span class="math inline">W = 128</span> the arithmetic of one windowed layer is <span class="math inline">4 \cdot 128 \cdot 32768</span> operations per token, about 16.8 MFLOPs, so 671 MFLOPs per token across the 40 layers in place of 343 GFLOPs for full attention at the native context — a saving of more than 500×. The storage is fixed too. Holding 128 latents of width 512 per layer in FP8 costs <span class="math inline">40 \cdot 128 \cdot 512</span> bytes, about 2.5 MB per sequence, whether the conversation is 1K tokens or 1M. The window is the one component in the whole book whose cost does not depend on the context length.</p>
+<p>Information still travels further than <span class="math inline">W</span>, because each layer moves it another <span class="math inline">W</span> positions forward. After <span class="math inline">\ell</span> windowed layers a token can be influenced by <span class="math inline">\ell \cdot W</span> positions back, so the reference model’s 40 layers with <span class="math inline">W = 128</span> have a nominal reach of 5120 tokens deep. About 38 of the 40 layers actually carry a window beside the global path, which puts the all-local bound near 4900; the round figure 5120 is the one to remember. That path is indirect. It passes through the residual state of every intervening position, competing there with everything else those positions carry, and a model with only windowed layers loses recall of specific distant content such as a name or a number stated once. Jiang et al.&nbsp;2023, “Mistral 7B”, used <span class="math inline">W = 4096</span> in every layer, a wide window that saves nothing below 4096 tokens and only a sixteenth of the cost at the native 65536. Later models interleave windowed and full layers so that some layers keep a direct route to any position.</p>
+</section>
+<section id="attention-sinks" class="level2">
+<h2 class="anchored" data-anchor-id="attention-sinks">Attention sinks</h2>
+<p>A softmax must place its mass somewhere. Mass here means the probability weight a head puts on the keys it reads; the weights are non-negative and sum to one, and that total of one has to land on something. Clark et al.&nbsp;2019, “What Does BERT Look At? An Analysis of BERT’s Attention”, found heads placing most of their weight on the separator or the first token when they had nothing useful to attend to. In decoder models the first token plays this role, as characterised by Xiao et al.&nbsp;2023, “Efficient Streaming Language Models with Attention Sinks”, and Sun et al.&nbsp;2024, “Massive Activations in Large Language Models”, tie it to a few very large activations at those positions. When a sliding window evicts the first token the distribution of every head shifts, which is why windowed inference degraded past <span class="math inline">W</span>. StreamingLLM kept the first tokens in the cache permanently.</p>
+<p>The underlying difficulty is that the softmax has no null option. Its outputs are non-negative and sum to one, so a head that finds nothing worth reading must still return a convex combination of values. A model trained without a remedy learns one by allocating a position whose value vector is close to useless and parking the mass there. That position must then stay in the cache forever.</p>
+<p>gpt-oss and V4.1 make the sink explicit as a learned logit per head that enters the softmax denominator but contributes no value:</p>
+<p><span class="math display">
+p_{h,ij} = \frac{e^{s_{h,ij}}}{\sum_{j'} e^{s_{h,ij'}} + e^{\sigma_h}}, \qquad
+\sum_j p_{h,ij} = \frac{\sum_{j'} e^{s_{h,ij'}}}{\sum_{j'} e^{s_{h,ij'}} + e^{\sigma_h}} \le 1 .
+</span></p>
+<p>Read that back in words. On the left, the probability a head <span class="math inline">h</span> gives to key <span class="math inline">j</span> is its exponentiated score divided by the usual denominator — the sum of exponentiated scores over the window — plus one extra term, <span class="math inline">e^{\sigma_h}</span>, a single learned scalar per head. On the right, the probabilities over real keys therefore sum to less than one, and the missing mass went to the sink, which contributes no value at all. The sink absorbs probability without contributing to the output, so the head can scale its whole output down when no key matches. The head no longer needs a token to serve as the sink, so no position has to be pinned in the cache, and the window can be made as small as the design requires. V4.1 uses <span class="math inline">W = 128</span>.</p>
+<p>The same large activations reappear as a quantisation difficulty in chapter 12.</p>
+</section>
+<section id="precision-and-stability" class="level2">
+<h2 class="anchored" data-anchor-id="precision-and-stability">Precision and stability</h2>
+<p>The sink earns its place in the denominator on numerical grounds as well. It puts a floor under the softmax denominator, <span class="math inline">\ell \ge e^{\sigma_h - m}</span> whatever the keys contain, so a row whose window is uninformative decays its output smoothly through the learned <span class="math inline">\sigma_h</span> instead of concentrating on an arbitrary key. And because the sink mass absorbs whatever the real keys fail to earn, errors in the keys — including quantisation errors — scale the real-key weights down uniformly rather than redistributing them chaotically. A window without a sink has neither property: every key error lands directly in the output.</p>
+<p>The window is also where the cache is hardest to compress. V4.1 keeps the sliding-window cache in FP8 and states the reason: sensitivity to quantisation. A recent token can dominate its row — for the first token of a sequence the distribution is a single 1, and near the start of a document a row’s effective sample size <span class="math inline">1/\sum_j p_{ij}^2</span> is close to one — so the error of one quantised entry moves the output by that error, with no averaging across keys to hide it. The effective sample size is the statistical name for how many keys genuinely share the weight: one key with all the mass gives 1, a thousand keys with equal mass give 1000. Distant keys, by contrast, are read in their thousands and their independent errors cancel. The design follows the statistics: the many-read distant table takes the aggressive format of chapter 12, and the few-read window takes FP8. The compressed entries that sit between the two are normalised before storage, which is the argument of the next chapter.</p>
+</section>
+<section id="hybrid-schedules" class="level2">
+<h2 class="anchored" data-anchor-id="hybrid-schedules">Hybrid schedules</h2>
+<p>With a sink in place, a model can be mostly local and only occasionally global. The schedule then becomes a design parameter with a simple ledger. If a fraction <span class="math inline">f</span> of layers sees the whole context and the rest see a window, the long-context part of both the arithmetic and the cache reads is multiplied by <span class="math inline">f</span>, while the windowed layers contribute a fixed amount. One layer in four gives a factor of four on everything that grows with <span class="math inline">S</span>, and every layer still reaches any position after at most a few hops through the nearest global layer below it.</p>
+<p>V4.1’s 40 layers — 20 encoder, 20 decoder — run the encoder’s first two layers on the window alone and every remaining layer on the window plus a compressed view of the whole context, which chapter 9 describes. The window part of every layer is the layer’s own. Only the global part is shared. The choice to make the first layers local is deliberate. Early layers work with token identity and local syntax, where a window is sufficient, and the representations that a global read needs to compare are formed higher up.</p>
+</section>
+<section id="what-the-2026-models-do" class="level2">
+<h2 class="anchored" data-anchor-id="what-the-2026-models-do">What the 2026 models do</h2>
+<p>gpt-oss (2025) and Gemma 3 (2025) alternate sliding-window layers with full layers. gpt-oss uses a 128-token window and learned sinks, the form given above. Kimi K2 (2025) takes the other position and keeps full MLA attention at every layer at 128K context, which its latent of width 512 with 64 rotated dimensions makes affordable.</p>
+<p>A second family replaces the windowed layer rather than narrowing it. Qwen3-Next (2025) and Qwen3.5 (2026) run three Gated DeltaNet linear-attention layers per softmax layer, and Kimi Linear (2025) runs three Kimi Delta Attention layers per MLA layer. A linear layer keeps a state of fixed size per sequence, so it costs the same per token at any length. It differs from a window in what it forgets. A window has a hard boundary and perfect recall inside it, while a recurrent state has no boundary and lossy recall throughout. In these hybrids the cache of the whole model is set by the one softmax layer in four.</p>
+<p>Two routes to long context are therefore in use. Recurrent hybrids shrink the cache by replacing most softmax layers. Sparse and compressed attention keeps every layer softmax and reads a subset of the past. Chapters 9 and 10 follow the second route, which is the one V4.1 takes.</p>
+</section>
+<section id="where-this-leads" class="level2">
+<h2 class="anchored" data-anchor-id="where-this-leads">Where this leads</h2>
+<p>In owlet1 the window mask is built once in <code>decoder.py</code> and the sink is in <code>attention.py</code>. The window handles the recent past at fixed cost, and the sink lets a head decline to use it. What remains is the global path, which the non-windowed layers still pay <span class="math inline">O(S)</span> for in both storage and reads. Chapter 9 attacks the storage in two ways at once, by keeping fewer entries than there are tokens and by keeping them in fewer layers than there are layers. Chapter 10 then attacks the reads: a decode step at the extended context still moves 20 GB of FP8 latent per step, and the next two chapters are about making that number smaller.</p>
+
+
+</section>
 </section>
 
 </main> <!-- /main -->

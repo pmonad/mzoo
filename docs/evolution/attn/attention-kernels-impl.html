@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.33">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Attention kernels: implementation notes – mzoo</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../../">
+<script src="../../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-ea385d0e468b0dd5ea5bf0780b1290d9.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-dark-bc185b5c5bdbcb35c2eb49d8a876ef70.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-ea385d0e468b0dd5ea5bf0780b1290d9.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../../site_libs/bootstrap/bootstrap-fa320aee69b3ba8d25f984a718ce839a.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../../site_libs/bootstrap/bootstrap-dark-bdcacf09e97898037313a1503a5bc8da.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../../site_libs/bootstrap/bootstrap-fa320aee69b3ba8d25f984a718ce839a.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+</head>
+
+<body class="nav-sidebar floating nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../../index.html">
+    <span class="navbar-title">mzoo</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/pmonad/mzoo"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../docs/evolution/index.html">Evolution</a></li><li class="breadcrumb-item"><a href="../../../docs/evolution/attn/index.html">Attention</a></li><li class="breadcrumb-item"><a href="../../../docs/evolution/attn/attention-kernels-impl.html">Attention kernels: implementation notes</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../docs/evolution/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Evolution</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../docs/evolution/gpt2.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">1 GPT-2</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../docs/evolution/normalisation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">2 Normalisation</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../docs/evolution/positions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">3 Positions</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../docs/evolution/feed-forward.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">4 Feed-forward</span></a>
+  </div>
+</li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../docs/evolution/moe/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">6 Mixture of experts</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../docs/evolution/moe/routing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Routing</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../docs/evolution/moe/experts.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Fine-grained and shared experts</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../docs/evolution/moe/balancing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Load balancing</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../docs/evolution/attn/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Attention</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth2 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../docs/evolution/attn/kv-cache.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">5 The KV cache</span></a>
+  </div>
+</li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../docs/evolution/attn/low-rank-attention/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">7 Low-rank attention</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth3 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../docs/evolution/attn/low-rank-attention/mla.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">MLA</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../docs/evolution/attn/low-rank-attention/shared-latent.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Single shared latent</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../docs/evolution/attn/local-attention.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">8 Local attention</span></a>
+  </div>
+</li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../docs/evolution/attn/compressed-attention/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">9 Compressed attention</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth3 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../docs/evolution/attn/compressed-attention/compressor.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Compressor</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../docs/evolution/attn/compressed-attention/sharing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Sharing across layers</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../docs/evolution/attn/sparse-selection/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">10 Sparse selection</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth3 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../docs/evolution/attn/sparse-selection/indexer.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Indexer</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../docs/evolution/attn/sparse-selection/hierarchical.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Hierarchical selection</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../docs/evolution/attn/sparse-selection/training.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Training the indexer</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../docs/evolution/attn/attention-kernels/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">16 Attention kernels</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth3 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../docs/evolution/attn/attention-kernels/fa2.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">The FA2 template on SM120</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../docs/evolution/attn/attention-kernels/csa2.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">One kernel for CSA2</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../docs/evolution/attn/low-precision-attention/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">17 Low-precision attention</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth3 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../docs/evolution/attn/low-precision-attention/variants.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">The variants</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../docs/evolution/attn/attention-kernels-impl.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Attention kernels: implementation notes</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../docs/evolution/residual/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">11 Residual stream</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../docs/evolution/residual/hyper-connections.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Hyper-connections</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../docs/evolution/residual/mhc.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">mHC</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../docs/evolution/residual/single-pass.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Single-pass mHC</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../docs/evolution/numerics/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">12 Numerics</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-10" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../docs/evolution/numerics/fp8.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">bf16 and FP8</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../docs/evolution/numerics/matmuls.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Low-precision matmuls</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../docs/evolution/numerics/fp4.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">FP4</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../docs/evolution/numerics/ste.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Gradients through quantisation</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../docs/evolution/engram.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">13 Engram</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../docs/evolution/beyond-the-block.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">14 Beyond the block</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../docs/evolution/assembly.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">15 Assembly</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#attention-kernels-implementation-notes" id="toc-attention-kernels-implementation-notes" class="nav-link active" data-scroll-target="#attention-kernels-implementation-notes">Attention kernels: implementation notes</a>
+  <ul class="collapse">
+  <li><a href="#latent_attn-backward-2x-slower-than-sdpa" id="toc-latent_attn-backward-2x-slower-than-sdpa" class="nav-link" data-scroll-target="#latent_attn-backward-2x-slower-than-sdpa">latent_attn backward: 2x slower than SDPA</a></li>
+  <li><a href="#swa_attn-the-banded-forward-returns-nan-the-unbanded-one-does-not" id="toc-swa_attn-the-banded-forward-returns-nan-the-unbanded-one-does-not" class="nav-link" data-scroll-target="#swa_attn-the-banded-forward-returns-nan-the-unbanded-one-does-not">swa_attn: the banded forward returns NaN, the unbanded one does not</a></li>
+  <li><a href="#swa_attn-the-inherited-backward-tile-table-and-split-heuristic-both-invert-under-a-band" id="toc-swa_attn-the-inherited-backward-tile-table-and-split-heuristic-both-invert-under-a-band" class="nav-link" data-scroll-target="#swa_attn-the-inherited-backward-tile-table-and-split-heuristic-both-invert-under-a-band">swa_attn: the inherited backward tile table and split heuristic both invert under a band</a></li>
+  <li><a href="#indexer-the-models-own-top-k-is-not-reproducible-by-index-set" id="toc-indexer-the-models-own-top-k-is-not-reproducible-by-index-set" class="nav-link" data-scroll-target="#indexer-the-models-own-top-k-is-not-reproducible-by-index-set">indexer: the model’s own top-k is not reproducible by index set</a></li>
+  <li><a href="#indexer-di256-overflows-smem-only-at-hi4" id="toc-indexer-di256-overflows-smem-only-at-hi4" class="nav-link" data-scroll-target="#indexer-di256-overflows-smem-only-at-hi4">indexer: <code>Di=256</code> overflows smem only at <code>Hi=4</code></a></li>
+  <li><a href="#csa_attn-the-second-sources-pipelined-loop-silently-computes-the-wrong-answer" id="toc-csa_attn-the-second-sources-pipelined-loop-silently-computes-the-wrong-answer" class="nav-link" data-scroll-target="#csa_attn-the-second-sources-pipelined-loop-silently-computes-the-wrong-answer">csa_attn: the second source’s pipelined loop silently computes the wrong answer</a></li>
+  <li><a href="#csa_attn-the-group-causal-mask-clamped-to-the-padded-g-not-the-real-one" id="toc-csa_attn-the-group-causal-mask-clamped-to-the-padded-g-not-the-real-one" class="nav-link" data-scroll-target="#csa_attn-the-group-causal-mask-clamped-to-the-padded-g-not-the-real-one">csa_attn: the group-causal mask clamped to the padded G, not the real one</a></li>
+  <li><a href="#csa2_attn-the-per-token-gather-does-not-fit-the-packed-heads-block-and-a-16-row-tile-does-not-compile" id="toc-csa2_attn-the-per-token-gather-does-not-fit-the-packed-heads-block-and-a-16-row-tile-does-not-compile" class="nav-link" data-scroll-target="#csa2_attn-the-per-token-gather-does-not-fit-the-packed-heads-block-and-a-16-row-tile-does-not-compile">csa2_attn: the per-token gather does not fit the packed-heads block, and a 16-row tile does not compile</a></li>
+  <li><a href="#csa2_attn-pipelining-the-gathered-loop-is-safe-unlike-csa_attns-dense-main-loop" id="toc-csa2_attn-pipelining-the-gathered-loop-is-safe-unlike-csa_attns-dense-main-loop" class="nav-link" data-scroll-target="#csa2_attn-pipelining-the-gathered-loop-is-safe-unlike-csa_attns-dense-main-loop">csa2_attn: pipelining the gathered loop is safe, unlike csa_attn’s dense main loop</a></li>
+  <li><a href="#csa2_attn-bwd-duplicate-indices-double-count-and-the-golden-reference-cannot-express-that" id="toc-csa2_attn-bwd-duplicate-indices-double-count-and-the-golden-reference-cannot-express-that" class="nav-link" data-scroll-target="#csa2_attn-bwd-duplicate-indices-double-count-and-the-golden-reference-cannot-express-that">csa2_attn bwd: duplicate indices double-count, and the golden reference cannot express that</a></li>
+  <li><a href="#csa2_attn-bwd-the-dmain_kv-scatter-is-a-third-of-the-dq-kernel-but-the-atomic-is-a-tenth" id="toc-csa2_attn-bwd-the-dmain_kv-scatter-is-a-third-of-the-dq-kernel-but-the-atomic-is-a-tenth" class="nav-link" data-scroll-target="#csa2_attn-bwd-the-dmain_kv-scatter-is-a-third-of-the-dq-kernel-but-the-atomic-is-a-tenth">csa2_attn bwd: the dmain_kv scatter is a third of the dQ kernel, but the atomic is a tenth</a></li>
+  <li><a href="#indexer-bwd-tilelang-out_idx-outputs-are-empty-allocated-atomics-accumulated-garbage" id="toc-indexer-bwd-tilelang-out_idx-outputs-are-empty-allocated-atomics-accumulated-garbage" class="nav-link" data-scroll-target="#indexer-bwd-tilelang-out_idx-outputs-are-empty-allocated-atomics-accumulated-garbage">indexer bwd: tilelang <code>out_idx</code> outputs are empty-allocated, atomics accumulated garbage</a></li>
+  <li><a href="#indexer-bwd-dk-fp32-atomics-are-order-nondeterministic" id="toc-indexer-bwd-dk-fp32-atomics-are-order-nondeterministic" class="nav-link" data-scroll-target="#indexer-bwd-dk-fp32-atomics-are-order-nondeterministic">indexer bwd: <code>dk</code> fp32 atomics are order-nondeterministic</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../docs/evolution/index.html">Evolution</a></li><li class="breadcrumb-item"><a href="../../../docs/evolution/attn/index.html">Attention</a></li><li class="breadcrumb-item"><a href="../../../docs/evolution/attn/attention-kernels-impl.html">Attention kernels: implementation notes</a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title">Attention kernels: implementation notes</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="attention-kernels-implementation-notes" class="level1">
+<h1>Attention kernels: implementation notes</h1>
+<p>Parking lot for problems met while implementing the kernels of this chapter (<code>src/mzoo/layers/attn/</code>). One short section per problem: what went wrong, what the measurement showed, how it was fixed. No expansion here; the full write-up lands in the chapter later.</p>
+<section id="latent_attn-backward-2x-slower-than-sdpa" class="level2">
+<h2 class="anchored" data-anchor-id="latent_attn-backward-2x-slower-than-sdpa">latent_attn backward: 2x slower than SDPA</h2>
+<p><strong>Problem.</strong> <code>latent_attn</code> (shared K==V latent, heads packed into the tile rows) matches or beats SDPA in the forward (D128 H64 S4096 causal: 2.90 ms vs 3.35 ms), but fwd+bwd runs 33.2 ms against SDPA’s 15.0 ms with the latent expanded to 64 heads (D64: 14.9 vs 7.3 ms). <code>dense_attn</code>’s backward on the same template is only ~1.2x behind SDPA, so the gap is specific to the MQA layout. First suspects: the fp32 <code>atomic_add</code> scatter of dQ (about a third of the main kernel in a quick ablation), a KV-owner grid that is tiny because all H heads are rows of one query tile (32 CTAs on 48 SMs before the query-loop split was added), and a bwd config table keyed on head dim only and tuned at H=64.</p>
+<p><strong>Fix.</strong> Measurement first: putting the fp32 <code>atomic_add</code> back into a kernel that touches <code>dQ</code> exactly once costs only +0.19 ms at D128 H64 S4096 (4.11 -&gt; 4.30) and +0.06 ms at D64 (2.17 -&gt; 2.23), so the atomic instruction was never the problem – doing it once per KV block (<code>ceil(S/block_M)</code> = 32 read-modify- writes of the whole 134 MB <code>dQ</code>) was. The CTA count was the other half: the KV-owner grid runs 32 CTAs on 48 SMs, and splitting its query loop 8 ways takes it from 15.38 to 7.79 ms. So <code>dQ</code> moved into a third, query-owning kernel that recomputes S and dP (+40% FLOPs) and stores <code>dQ</code> bf16 once, <code>dKV</code> kept its fp32 split buffers, and the tile tables were re-swept per dim – keyed on head dim only, since the H=16 sweep winner is within 1.3% of the H=64 pick at every dim. fwd+bwd at D128 H64 went 33.6 -&gt; 15.7 ms against SDPA’s 15.2 (1.03x, was 2.2x), D64 H64 14.8 -&gt; 7.2 vs 7.4 (0.97x), and the new D96 H64 lands at 10.7 vs 11.7; the backward is now 12.8 ms of kernel time (dKV 7.79, dQ 4.31, preprocess 0.66) instead of one 28.1 ms fused kernel.</p>
+</section>
+<section id="swa_attn-the-banded-forward-returns-nan-the-unbanded-one-does-not" class="level2">
+<h2 class="anchored" data-anchor-id="swa_attn-the-banded-forward-returns-nan-the-unbanded-one-does-not">swa_attn: the banded forward returns NaN, the unbanded one does not</h2>
+<p><strong>Problem.</strong> Copying <code>latent_attn</code> forward and restricting the KV loop to the <code>[t0 - window + 1, t0 + T_q - 1]</code> band produced <code>o = NaN</code> and <code>lse = NaN</code> everywhere at <code>window</code> 128 and 100, while the <em>same</em> kernel at <code>window &gt;= S</code> (where the band never bites) was bit-for-bit identical to <code>latent_attn</code>. So the band itself was the trigger, not the mask arithmetic: <code>window &gt;= S</code> exercises every line except the restricted loop bounds.</p>
+<p><strong>Measurement.</strong> The band is per <em>row token</em>, but the loop bounds come from the block’s <em>first</em> token <code>t0</code>, so the loop starts at the tile holding <code>t0 - window + 1</code>. A row at token <code>t0 + T_q - 1</code> has its lower edge <code>T_q - 1</code> tokens higher, and when <code>t0 - window + 1</code> lands near the top of its tile that row sees nothing at all in the loop’s first iteration. Its tile max is then <code>-inf</code>, its running max is still the <code>-inf</code> initialiser, and FA2’s rescale step computes <code>exp2(-inf * scale - (-inf) * scale)</code> = NaN, which then poisons the accumulator for the rest of the loop. Plain causal never hits this because tile 0 always contains column 0, which every row can see.</p>
+<p><strong>Fix.</strong> Floor the running row max at a finite, unreachably small constant (<code>-1e30</code>) instead of <code>-inf</code>, both at init and at the per-tile <code>T.fill</code> before <code>T.reduce_max(..., clear=False)</code>. An all-masked tile then rescales by <code>exp2(0) = 1</code> (a no-op) while each masked logit still gives <code>exp2(-inf - floor * scale) = 0</code>, and any real logit dominates the floor so the normal path is untouched. Masking with a large negative <em>logit</em> instead is the trap to avoid: <code>exp2(-1e30 * scale + 1e30 * scale) = 1</code> would add one to the row sum for every masked column. With the floor, D in {64, 96, 128, 256} x H in {4, 16, 64} all land at 0.4-0.7x the bf16-torch error, and the <code>window &gt;= S</code> identity with <code>latent_attn</code> stays exact.</p>
+</section>
+<section id="swa_attn-the-inherited-backward-tile-table-and-split-heuristic-both-invert-under-a-band" class="level2">
+<h2 class="anchored" data-anchor-id="swa_attn-the-inherited-backward-tile-table-and-split-heuristic-both-invert-under-a-band">swa_attn: the inherited backward tile table and split heuristic both invert under a band</h2>
+<p><strong>Problem.</strong> <code>swa_attn</code> is <code>latent_attn</code> with one change, so the obvious move is to keep its tuned <code>CONFIGS</code>. The forward tolerates that (its winners barely move), but the <code>dKV</code> kernel does not, and neither does <code>pick_splits</code>: carried over unchanged they left the headline backward well short of what the band should buy. The suspicion was that both were tuned for a loop whose length grows with the query index, while the banded loop has a fixed length of <code>ceil((block_M + window) / T_q)</code> query tiles per KV block.</p>
+<p><strong>Measurement.</strong> Re-sweeping at B1 H64 S4096 W128: <code>bwd_kv</code> now wants the <em>smallest</em> latent tile, <code>block_M=64</code> at 128 threads (D=128: 0.797 ms) rather than <code>latent_attn</code>’s <code>block_M=128</code> at 256 threads (0.896 ms, 12% worse) – a wide KV block drags in query tiles most of its rows cannot see, and that waste is pure overhead once the loop no longer grows. Splits moved the other way: the inherited <code>TARGET_CTAS=256 / MAX_SPLITS=8</code> picks 4 splits at <code>block_M=64</code>, costing 27% at D=128 (1.098 vs 0.798 ms) and 118% at D=256 (3.703 vs 1.703). The forward and <code>bwd_dq</code> kept preferring wide query tiles, so the inversion is specific to the KV-owning kernel.</p>
+<p><strong>Fix.</strong> Full re-sweep of all three kernels with the band in place, a separate splits sweep on the winning <code>bwd_kv</code> tile per dim, and <code>TARGET_CTAS</code> 256 -&gt; 768 / <code>MAX_SPLITS</code> 8 -&gt; 12 (measured optimum 12-16; past ~24 the launch and fp32-reduce overheads win back). <code>pick_splits</code> also gained a cap at the number of query tiles in the band, so small shapes stop launching empty CTAs. Result at D128 H64 S4096: fwd 0.624 ms and fwd+bwd 3.073 ms against <code>latent_attn</code>’s full-causal 2.903 and 15.673 – 4.66x and 5.10x. All 204 compile failures across the twelve sweeps were smem-budget; excluding the <code>tickets/0001</code> layout-inference cells up front meant none were layout inference.</p>
+</section>
+<section id="indexer-the-models-own-top-k-is-not-reproducible-by-index-set" class="level2">
+<h2 class="anchored" data-anchor-id="indexer-the-models-own-top-k-is-not-reproducible-by-index-set">indexer: the model’s own top-k is not reproducible by index set</h2>
+<ul>
+<li>problem: the end-to-end check of the bf16 score kernel against <code>DeepseekV41Indexer</code>’s own selection (index-set equality, ticket 0006’s acceptance) failed on 92 of 320 query rows – even though the kernel’s scores matched the fp32 reference to 1.5e-8.</li>
+<li>measurement: 935 of the 12800 group-causally visible scores of the tiny model are <em>exactly</em> 0.0 (all <code>index_n_heads=4</code> heads relu’d to zero on a freshly-initialised model), and <code>torch.topk(..., sorted=False)</code> breaks those ties arbitrarily. Gathering the fp32 reference score of each side’s chosen set and sorting gave a max difference of exactly 0.0 – the sets differ only by tied entries.</li>
+<li>fix: the end-to-end test compares the <em>score values</em> of the two chosen sets (ticket 0006 allows either), not the index sets. The random-input tests keep exact set equality, where ties are improbable.</li>
+</ul>
+</section>
+<section id="indexer-di256-overflows-smem-only-at-hi4" class="level2">
+<h2 class="anchored" data-anchor-id="indexer-di256-overflows-smem-only-at-hi4">indexer: <code>Di=256</code> overflows smem only at <code>Hi=4</code></h2>
+<ul>
+<li>problem: the <code>Di=256</code> tile (<code>block_M=128</code> query rows, <code>block_T=64</code> key rows, 1 stage) compiled and ran at <code>Hi=32</code> but died at <code>Hi=4</code> with <code>Failed to set the allowed dynamic shared memory size to 106496</code>.</li>
+<li>measurement: <code>block_M</code> is <code>T_s * Hi</code> query rows, so the same <code>block_M</code> means 32 query <em>tokens</em> at <code>Hi=4</code> against 4 at <code>Hi=32</code> – and the store-staging buffer is <code>[block_T, T_s]</code> fp32, i.e.&nbsp;8 KB at <code>Hi=4</code> vs 1 KB at <code>Hi=32</code>. 65536 (Q) + 32768 (K) + 8192 (staging) = 106496, exactly the reported number, 5 KB over the 99 KB budget.</li>
+<li>fix: <code>Di=256</code> uses <code>block_M=64</code>, which halves both the Q tile and the staging buffer (69632 B at <code>Hi=4</code>). The head-count dependence of the smem budget is a property of the packed-heads layout, not of this kernel: any <code>block_M</code> config table for it has to be validated at the <em>smallest</em> supported head count.</li>
+</ul>
+</section>
+<section id="csa_attn-the-second-sources-pipelined-loop-silently-computes-the-wrong-answer" class="level2">
+<h2 class="anchored" data-anchor-id="csa_attn-the-second-sources-pipelined-loop-silently-computes-the-wrong-answer">csa_attn: the second source’s pipelined loop silently computes the wrong answer</h2>
+<p><strong>Problem.</strong> <code>csa_attn</code> adds a second <code>T.Pipelined</code> KV loop after the window loop, over the compressed entries, with trip count <code>min(G/block_N, ceil(((t0 + T_q) // ratio) / block_N))</code>. The forward compiled and ran, and was correct at <code>compress_ratio=1</code> and at most (dim, block_N, G) combinations – but at a few it was wrong by ~0.8 absolute on <code>o</code> (57x the bf16 torch error) with no error and no NaN. At <code>num_stages=3</code> the same loop did not compile at all: <code>TypeError: Downcast from tirx.Sub to ir.IntImm failed</code> in the CUDA codegen.</p>
+<p><strong>Measurement.</strong> The wrong tokens were a clean prefix: at D=64 H=16 S=512 ratio=4 G=128 block_N=64, tokens 3..255 were wrong and 256..511 were right. Tokens 0..2 see zero compressed entries, so the pattern says “every query block that should have walked exactly one main tile walked none”. Dumping the generated CUDA confirmed it: the main loop had been peeled into a prologue whose <code>cp_async</code> reads <code>MainKV[... - 1024]</code> – a <strong>negative</strong> global offset – followed by <code>for (int kg = 0; kg &lt; 1; ++kg)</code>, and the group-causal mask inside it had the tile offset folded in as if <code>kg == 2</code>. A standalone kernel that just <em>stores</em> the same bound expression returns the right values for every block index, so the arithmetic is fine and the software pipeline is what mis-transforms it. It only bites when the bound nests a division by <code>ratio</code> (<code>floordiv((bx+1)*T_q, ratio)</code>); at <code>ratio=1</code> that collapses to <code>latent_attn</code>’s long-tested <code>ceildiv((bx+1)*T_q, block_N)</code> form and every G is correct.</p>
+<p><strong>Fix.</strong> <code>T.serial</code> instead of <code>T.Pipelined</code> for the main-source loop in <code>fwd.py</code> and <code>bwd_dq.py</code>. Correct at every (dim, heads, ratio, G) tested, including non-tile-aligned G and S=4096. The window loop keeps its pipeline, and so does <code>bwd_main.py</code>’s query loop (variable <em>start</em>, <code>swa_attn</code>’s form) – neither shows the bug. Cost: the main source loses async prefetch, which is what the second-source overhead in the bench table is paying for. Logged in <code>tickets/0001-tilelang-issues.md</code>; the <code>num_stages=3</code> crash is the same bug failing loudly instead of quietly.</p>
+</section>
+<section id="csa_attn-the-group-causal-mask-clamped-to-the-padded-g-not-the-real-one" class="level2">
+<h2 class="anchored" data-anchor-id="csa_attn-the-group-causal-mask-clamped-to-the-padded-g-not-the-real-one">csa_attn: the group-causal mask clamped to the padded G, not the real one</h2>
+<p><strong>Problem.</strong> The main source is zero-padded up to a multiple of the group tile so the kernel can read whole tiles, and the mask <code>g &lt; min(G, (t + 1) // ratio)</code> is what keeps the pad rows out. Passing the <em>padded</em> count as <code>G</code> makes that <code>min</code> a no-op for the pad rows: they are zero vectors, so their logit is exactly 0, and <code>exp2(0 - m)</code> is a real, usually non-negligible, contribution to the denominator.</p>
+<p><strong>Measurement.</strong> Invisible while <code>G</code> happened to be a multiple of every tile (<code>G = S // ratio</code> with S and ratio powers of two – i.e.&nbsp;every “natural” test). <code>test_grads_groups_not_tile_aligned</code> (G=100, S=512, ratio=2, padded to 128) caught it: <code>dq</code> at 4.13x the torch bf16 error against a 2x bound, while <code>o</code> and the two KV gradients stayed inside it – the 28 pad columns move the softmax denominator a little and <code>dS = P * (dP - delta)</code> amplifies that more than the output does.</p>
+<p><strong>Fix.</strong> Carry the true <code>G</code> and the padded extent as two separate compile-time constants through all three kernels: tensor shapes, grid and loop bounds use the padded one, every mask uses the true one. Kept a non-tile-aligned <code>G</code> in both the forward and the gradient test matrix so this cannot regress silently.</p>
+</section>
+<section id="csa2_attn-the-per-token-gather-does-not-fit-the-packed-heads-block-and-a-16-row-tile-does-not-compile" class="level2">
+<h2 class="anchored" data-anchor-id="csa2_attn-the-per-token-gather-does-not-fit-the-packed-heads-block-and-a-16-row-tile-does-not-compile">csa2_attn: the per-token gather does not fit the packed-heads block, and a 16-row tile does not compile</h2>
+<p><strong>Problem.</strong> Every package since <code>latent_attn</code> packs <code>T_q = block_M // H</code> <em>tokens</em> x <code>H</code> heads into a block’s rows (<code>block_M = 256</code> at <code>csa_attn</code>’s tuned configs, so 4 tokens at <code>H = 64</code>). The top-k indices are per token, so one gathered smem tile can only serve one token’s rows – a 4-token block would have to gather four times, or the block has to shrink to one token. Shrinking looked free at <code>H = 64</code> (64 rows) and cheap at <code>H = 16</code> (16 rows).</p>
+<p><strong>Measurement.</strong> <code>block_M = 16</code> does not compile at all here: <code>Layout infer conflict between acc_s and acc_s_cast in T.Parallel loop</code>, loop fragment <code>(16, 32) -&gt; (16,), replicate: 4</code> against accumulator fragment <code>(16, 32) -&gt; (4,), replicate: 1</code>, at <code>threads=128</code> (the only thread count a 16-row tile could use anyway). That is the same replicate-mismatch bug <code>tickets/0001-tilelang-issues.md</code> already records for <code>block_M=32/64 x threads=256</code>, one step smaller. <code>block_M = 64</code> compiles and runs everywhere.</p>
+<p><strong>Fix.</strong> <code>block_M = 64</code> fixed, <code>T_q = ceil(64 / H)</code> tokens per block, and the gathered section repeated once per token of the block with the other tokens’ rows masked to <code>-inf</code> (the <code>neg_floor</code> rowmax already handles “this row sees nothing in this tile”, so the repeat needs no new machinery). At the model’s <code>H = 64</code> that is <code>T_q = 1</code> and no repeat; <code>H = 16</code> gathers 4x and <code>H = 4</code> 16x, at head counts the model does not use. <code>threads</code> drops from 256 to 128 for the same layout-inference reason. Both are compile-time limits, not measurements – the <code>block_N</code> / <code>num_stages</code> half of the config table is still <code>csa_attn</code>’s, untuned.</p>
+</section>
+<section id="csa2_attn-pipelining-the-gathered-loop-is-safe-unlike-csa_attns-dense-main-loop" class="level2">
+<h2 class="anchored" data-anchor-id="csa2_attn-pipelining-the-gathered-loop-is-safe-unlike-csa_attns-dense-main-loop">csa2_attn: pipelining the gathered loop is safe, unlike csa_attn’s dense main loop</h2>
+<p><strong>Problem.</strong> <code>csa_attn</code>’s second KV source had to run on <code>T.serial</code> because <code>T.Pipelined</code> silently mis-peeled a loop whose trip count nested a division (section above). <code>csa2_attn</code> inherits that loop’s position in the kernel, so the cheap thing is to inherit <code>T.serial</code> too – at the cost of the gathered source’s async prefetch, which is most of its cost.</p>
+<p><strong>Measurement.</strong> The gathered loop’s trip count is <code>ceil(topk / block_N)</code>, a compile-time constant: the documented trigger is absent. Turning <code>T.Pipelined(num_stages=2)</code> on and re-running the whole matrix (28 tests: D 64/96/128/256, H 4/16/64, topk 64/100/512, G 0/100/256/1024/16384, plus the bit-for-bit equalities against <code>csa_attn</code> and <code>swa_attn</code>) gave identical results to the serial version, and the bench moved from 1.68 ms to 1.52 ms for the gathered source alone (316-339 -&gt; 353-374 GB/s effective on the gathered rows).</p>
+<p><strong>Fix.</strong> Keep <code>T.Pipelined</code> for the gather, with the evidence recorded in the package README and <code>tickets/0001</code>; the <code>T.serial</code> workaround stays scoped to the bound shape that actually miscompiles. Fallback is one line if a future shape ever disagrees.</p>
+</section>
+<section id="csa2_attn-bwd-duplicate-indices-double-count-and-the-golden-reference-cannot-express-that" class="level2">
+<h2 class="anchored" data-anchor-id="csa2_attn-bwd-duplicate-indices-double-count-and-the-golden-reference-cannot-express-that">csa2_attn bwd: duplicate indices double-count, and the golden reference cannot express that</h2>
+<p><strong>Problem.</strong> The ticket asked for a duplicate-index test – the same main entry listed twice in one token’s top-k list – because a scatter-add’s correctness is invisible without one. Writing it exposed a semantic disagreement that has nothing to do with the backward: <code>golden(level="sparse")</code> renders an index list by <code>sparse_bias.scatter_(-1, indices, 0.0)</code>, and <code>scatter_</code> of a constant is <strong>idempotent</strong>, so a duplicated entry gets exactly one softmax column. The kernel (forward, since ticket 0004, following <code>examples/dsa_sparse_finetune/sparse_mla_fwd.py</code>) builds one gathered column per <em>slot</em>, so it gives the entry two columns: <code>2 * exp(s)</code> in the denominator and twice the weight in the numerator.</p>
+<p><strong>Measurement.</strong> At B2 S512 H16 D128 G256 with entry 0 forced into two slots of every token’s list, the kernel’s <code>o</code> is 6.4e-1 from the deduplicated <code>golden</code> – 44x the bf16 noise floor of 1.5e-2 – and within the normal 2x criterion (0.5-0.7x) of a reference built by <em>cloning</em> entry 0 into a fresh entry <code>G</code> and pointing the second slot at it. So the kernel is unambiguously computing the two-column rendering, and its gradient is the consistent gradient of that: <code>dmain_kv[0]</code> equals <code>dmain_ref[0] + dmain_ref[G]</code> to the same criterion.</p>
+<p><strong>Fix.</strong> None in the kernel – reported, not silently changed, per the ticket. The model’s index producer is <code>torch.topk</code>, whose output is a set, so duplicates cannot occur on the model path, and “trust <code>indices</code> completely” is the documented contract of both <code>golden</code> and the kernel. What landed is the test (<code>test_grads_duplicate_indices</code>, which pins both the agreement with the cloned-row reference and the disagreement with plain <code>golden</code>) and a Known-issues entry saying that any future index producer that can emit duplicates must either dedup or teach the kernel to mask repeats within a token’s list.</p>
+</section>
+<section id="csa2_attn-bwd-the-dmain_kv-scatter-is-a-third-of-the-dq-kernel-but-the-atomic-is-a-tenth" class="level2">
+<h2 class="anchored" data-anchor-id="csa2_attn-bwd-the-dmain_kv-scatter-is-a-third-of-the-dq-kernel-but-the-atomic-is-a-tenth">csa2_attn bwd: the dmain_kv scatter is a third of the dQ kernel, but the atomic is a tenth</h2>
+<p><strong>Problem.</strong> <code>dmain_kv</code> has no owner kernel in the sparse package: a block of main entries cannot enumerate the tokens that picked it without an inverse index. The upstream template (<code>sparse_mla_bwd.py</code>) scatters with <code>T.atomic_add</code>, but the <code>latent_attn</code> note above says atomics cost 5% as an instruction and 2x as a repeated read-modify-write of a large buffer, so copying the template blind was not an option – an owner kernel fed a torch-built CSR was the alternative on the table.</p>
+<p><strong>Measurement.</strong> <code>bwd_dq.py</code> got a three-way <code>scatter</code> knob: <code>"atomic"</code> (real), <code>"store"</code> (a plain store to the <em>same</em> scattered addresses, so only the read-modify-write and the contention go away) and <code>"none"</code> (the whole <code>dmain_kv</code> half, its two GEMMs included, dies). At B1 S4096 D128 H64 topk=512, <code>dQ</code> = 3.43 ms: <code>atomic - none</code> = 1.09-1.13 ms (32%), <code>atomic - store</code> = 0.30-0.39 ms (9-11%). So the atomic itself is ~7% of the 5.0 ms backward and the rest is the <code>dS^T Q</code> / <code>P^T dO</code> GEMMs, which an owner kernel would still have to run.</p>
+<p><strong>Fix.</strong> Keep the scatter. An inverse-index owner kernel is bounded above by a ~0.35 ms win before it pays for building the CSR, which does not justify a fourth kernel; the knob stays in the file so the number can be re-measured after the tuning pass. The cost is non-determinism: fp32 atomic ordering varies, so <code>dmain_kv</code> is not bitwise reproducible (<code>dq</code>/<code>dkv</code> are), which is documented in the package README rather than fixed.</p>
+</section>
+<section id="indexer-bwd-tilelang-out_idx-outputs-are-empty-allocated-atomics-accumulated-garbage" class="level2">
+<h2 class="anchored" data-anchor-id="indexer-bwd-tilelang-out_idx-outputs-are-empty-allocated-atomics-accumulated-garbage">indexer bwd: tilelang <code>out_idx</code> outputs are empty-allocated, atomics accumulated garbage</h2>
+<p><strong>Problem.</strong> <code>bwd.py</code> first declared <code>DQ</code>/<code>DW</code>/<code>DK</code> as <code>out_idx</code> outputs like <code>fwd.py</code> does for <code>Scores</code>. <code>dq</code> and <code>dw</code> are written block-exclusively with <code>T.copy</code>, but <code>dk</code> is only ever <em>accumulated</em> with <code>T.atomic_add</code> – nothing ever writes its pad rows or initialises it, and tilelang’s returned tensors come from an empty allocation.</p>
+<p><strong>Measurement.</strong> <code>dq</code>/<code>dw</code> inside the 2x bound, <code>ddk</code> at 245-590x the torch bf16 error (values of the order of the gradient itself, i.e.&nbsp;garbage memory), on every shape in the sweep.</p>
+<p><strong>Fix.</strong> Drop <code>out_idx</code>; allocate all three gradient buffers in the wrapper (<code>dk</code> with <code>torch.zeros</code>) and pass them as in-out tensors.</p>
+</section>
+<section id="indexer-bwd-dk-fp32-atomics-are-order-nondeterministic" class="level2">
+<h2 class="anchored" data-anchor-id="indexer-bwd-dk-fp32-atomics-are-order-nondeterministic">indexer bwd: <code>dk</code> fp32 atomics are order-nondeterministic</h2>
+<p><strong>Problem.</strong> Bit-exact repeat checks (<code>bwd</code> twice on identical inputs, and <code>scores().backward()</code> vs a direct <code>bwd</code> call) failed on <code>dk</code> alone, ~2 of 128x128 elements differing by 6.1e-5.</p>
+<p><strong>Measurement.</strong> Same kernel, same inputs, two launches: <code>dq</code>/<code>dw</code> bit-identical, <code>dk</code> differs where many query blocks’ fp32 atomic adds land in different orders. On the 256x128 test the reorder error occasionally exceeded 1e-4 (flaky test), on gradients of magnitude ~2.</p>
+<p><strong>Fix.</strong> Treat <code>dk</code> as deterministic only up to fp32 sum reordering: the tests assert <code>dq</code>/<code>dw</code> bit-exact and <code>dk</code> within rtol/atol 1e-3; documented in the README with the two-stage-reduce escape hatch if training reproducibility ever needs it.</p>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/pmonad\.github\.io\/mzoo\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

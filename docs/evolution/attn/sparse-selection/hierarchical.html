@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>index – mzoo</title>
+<title>Hierarchical selection – mzoo</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -23,27 +23,27 @@ ul.task-list li input[type="checkbox"] {
 </style>
 
 
-<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="../site_libs/quarto-nav/headroom.min.js"></script>
-<script src="../site_libs/clipboard/clipboard.min.js"></script>
-<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="../site_libs/quarto-search/fuse.min.js"></script>
-<script src="../site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="../">
-<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
-<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="../site_libs/quarto-html/popper.min.js"></script>
-<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="../site_libs/quarto-html/anchor.min.js"></script>
-<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ea385d0e468b0dd5ea5bf0780b1290d9.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-bc185b5c5bdbcb35c2eb49d8a876ef70.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ea385d0e468b0dd5ea5bf0780b1290d9.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
-<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-fa320aee69b3ba8d25f984a718ce839a.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../site_libs/bootstrap/bootstrap-dark-bdcacf09e97898037313a1503a5bc8da.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../site_libs/bootstrap/bootstrap-fa320aee69b3ba8d25f984a718ce839a.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script src="../../../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../../../">
+<script src="../../../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../../../site_libs/quarto-html/quarto-syntax-highlighting-ea385d0e468b0dd5ea5bf0780b1290d9.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../../../site_libs/quarto-html/quarto-syntax-highlighting-dark-bc185b5c5bdbcb35c2eb49d8a876ef70.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../../../site_libs/quarto-html/quarto-syntax-highlighting-ea385d0e468b0dd5ea5bf0780b1290d9.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../../../site_libs/bootstrap/bootstrap-fa320aee69b3ba8d25f984a718ce839a.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../../../site_libs/bootstrap/bootstrap-dark-bdcacf09e97898037313a1503a5bc8da.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../../../site_libs/bootstrap/bootstrap-fa320aee69b3ba8d25f984a718ce839a.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -72,6 +72,49 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 
+  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
@@ -244,7 +287,7 @@ ul.task-list li input[type="checkbox"] {
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a class="navbar-brand" href="../index.html">
+    <a class="navbar-brand" href="../../../../index.html">
     <span class="navbar-title">mzoo</span>
     </a>
   </div>
@@ -271,7 +314,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../../docs/evolution/index.html">Evolution</a></li><li class="breadcrumb-item"><a href="../../../../docs/evolution/attn/index.html">Attention</a></li><li class="breadcrumb-item"><a href="../../../../docs/evolution/attn/sparse-selection/index.html">10 Sparse selection</a></li><li class="breadcrumb-item"><a href="../../../../docs/evolution/attn/sparse-selection/hierarchical.html">Hierarchical selection</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -285,7 +328,7 @@ ul.task-list li input[type="checkbox"] {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a href="../docs/evolution/index.html" class="sidebar-item-text sidebar-link">
+            <a href="../../../../docs/evolution/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Evolution</span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
@@ -294,31 +337,31 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/gpt2.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../../docs/evolution/gpt2.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">1 GPT-2</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/normalisation.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../../docs/evolution/normalisation.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">2 Normalisation</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/positions.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../../docs/evolution/positions.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">3 Positions</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/feed-forward.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../../docs/evolution/feed-forward.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">4 Feed-forward</span></a>
   </div>
 </li>
           <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a href="../docs/evolution/moe/index.html" class="sidebar-item-text sidebar-link">
+            <a href="../../../../docs/evolution/moe/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">6 Mixture of experts</span></a>
           <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
@@ -327,19 +370,19 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth2 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/moe/routing.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../../docs/evolution/moe/routing.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Routing</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/moe/experts.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../../docs/evolution/moe/experts.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Fine-grained and shared experts</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/moe/balancing.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../../docs/evolution/moe/balancing.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Load balancing</span></a>
   </div>
 </li>
@@ -347,22 +390,22 @@ ul.task-list li input[type="checkbox"] {
   </li>
           <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a href="../docs/evolution/attn/index.html" class="sidebar-item-text sidebar-link">
+            <a href="../../../../docs/evolution/attn/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Attention</span></a>
-          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
-      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth2 ">  
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth2 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/attn/kv-cache.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../../docs/evolution/attn/kv-cache.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">5 The KV cache</span></a>
   </div>
 </li>
           <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a href="../docs/evolution/attn/low-rank-attention/index.html" class="sidebar-item-text sidebar-link">
+            <a href="../../../../docs/evolution/attn/low-rank-attention/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">7 Low-rank attention</span></a>
           <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
@@ -371,13 +414,13 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth3 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/attn/low-rank-attention/mla.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../../docs/evolution/attn/low-rank-attention/mla.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">MLA</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/attn/low-rank-attention/shared-latent.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../../docs/evolution/attn/low-rank-attention/shared-latent.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Single shared latent</span></a>
   </div>
 </li>
@@ -385,13 +428,13 @@ ul.task-list li input[type="checkbox"] {
   </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/attn/local-attention.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../../docs/evolution/attn/local-attention.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">8 Local attention</span></a>
   </div>
 </li>
           <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a href="../docs/evolution/attn/compressed-attention/index.html" class="sidebar-item-text sidebar-link">
+            <a href="../../../../docs/evolution/attn/compressed-attention/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">9 Compressed attention</span></a>
           <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
@@ -400,13 +443,13 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth3 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/attn/compressed-attention/compressor.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../../docs/evolution/attn/compressed-attention/compressor.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Compressor</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/attn/compressed-attention/sharing.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../../docs/evolution/attn/compressed-attention/sharing.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Sharing across layers</span></a>
   </div>
 </li>
@@ -414,28 +457,28 @@ ul.task-list li input[type="checkbox"] {
   </li>
           <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a href="../docs/evolution/attn/sparse-selection/index.html" class="sidebar-item-text sidebar-link">
+            <a href="../../../../docs/evolution/attn/sparse-selection/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">10 Sparse selection</span></a>
-          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
-      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth3 ">  
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth3 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/attn/sparse-selection/indexer.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../../docs/evolution/attn/sparse-selection/indexer.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Indexer</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/attn/sparse-selection/hierarchical.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../../docs/evolution/attn/sparse-selection/hierarchical.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">Hierarchical selection</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/attn/sparse-selection/training.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../../docs/evolution/attn/sparse-selection/training.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Training the indexer</span></a>
   </div>
 </li>
@@ -443,7 +486,7 @@ ul.task-list li input[type="checkbox"] {
   </li>
           <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a href="../docs/evolution/attn/attention-kernels/index.html" class="sidebar-item-text sidebar-link">
+            <a href="../../../../docs/evolution/attn/attention-kernels/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">16 Attention kernels</span></a>
           <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
@@ -452,13 +495,13 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth3 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/attn/attention-kernels/fa2.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../../docs/evolution/attn/attention-kernels/fa2.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">The FA2 template on SM120</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/attn/attention-kernels/csa2.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../../docs/evolution/attn/attention-kernels/csa2.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">One kernel for CSA2</span></a>
   </div>
 </li>
@@ -466,7 +509,7 @@ ul.task-list li input[type="checkbox"] {
   </li>
           <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a href="../docs/evolution/attn/low-precision-attention/index.html" class="sidebar-item-text sidebar-link">
+            <a href="../../../../docs/evolution/attn/low-precision-attention/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">17 Low-precision attention</span></a>
           <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
@@ -475,7 +518,7 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth3 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/attn/low-precision-attention/variants.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../../docs/evolution/attn/low-precision-attention/variants.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">The variants</span></a>
   </div>
 </li>
@@ -483,7 +526,7 @@ ul.task-list li input[type="checkbox"] {
   </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/attn/attention-kernels-impl.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../../docs/evolution/attn/attention-kernels-impl.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Attention kernels: implementation notes</span></a>
   </div>
 </li>
@@ -491,7 +534,7 @@ ul.task-list li input[type="checkbox"] {
   </li>
           <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a href="../docs/evolution/residual/index.html" class="sidebar-item-text sidebar-link">
+            <a href="../../../../docs/evolution/residual/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">11 Residual stream</span></a>
           <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
@@ -500,19 +543,19 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth2 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/residual/hyper-connections.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../../docs/evolution/residual/hyper-connections.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Hyper-connections</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/residual/mhc.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../../docs/evolution/residual/mhc.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">mHC</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/residual/single-pass.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../../docs/evolution/residual/single-pass.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Single-pass mHC</span></a>
   </div>
 </li>
@@ -520,7 +563,7 @@ ul.task-list li input[type="checkbox"] {
   </li>
           <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a href="../docs/evolution/numerics/index.html" class="sidebar-item-text sidebar-link">
+            <a href="../../../../docs/evolution/numerics/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">12 Numerics</span></a>
           <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
@@ -529,25 +572,25 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-10" class="collapse list-unstyled sidebar-section depth2 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/numerics/fp8.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../../docs/evolution/numerics/fp8.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">bf16 and FP8</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/numerics/matmuls.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../../docs/evolution/numerics/matmuls.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Low-precision matmuls</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/numerics/fp4.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../../docs/evolution/numerics/fp4.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">FP4</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/numerics/ste.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../../docs/evolution/numerics/ste.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Gradients through quantisation</span></a>
   </div>
 </li>
@@ -555,19 +598,19 @@ ul.task-list li input[type="checkbox"] {
   </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/engram.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../../docs/evolution/engram.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">13 Engram</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/beyond-the-block.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../../docs/evolution/beyond-the-block.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">14 Beyond the block</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/assembly.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../../docs/evolution/assembly.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">15 Assembly</span></a>
   </div>
 </li>
@@ -583,23 +626,60 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#mzoo" id="toc-mzoo" class="nav-link active" data-scroll-target="#mzoo">mzoo</a></li>
+  <li><a href="#hierarchical-selection" id="toc-hierarchical-selection" class="nav-link active" data-scroll-target="#hierarchical-selection">Hierarchical selection</a>
+  <ul class="collapse">
+  <li><a href="#two-levels" id="toc-two-levels" class="nav-link" data-scroll-target="#two-levels">Two levels</a></li>
+  <li><a href="#where-the-saving-is" id="toc-where-the-saving-is" class="nav-link" data-scroll-target="#where-the-saving-is">Where the saving is</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
 <!-- main -->
-<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../../docs/evolution/index.html">Evolution</a></li><li class="breadcrumb-item"><a href="../../../../docs/evolution/attn/index.html">Attention</a></li><li class="breadcrumb-item"><a href="../../../../docs/evolution/attn/sparse-selection/index.html">10 Sparse selection</a></li><li class="breadcrumb-item"><a href="../../../../docs/evolution/attn/sparse-selection/hierarchical.html">Hierarchical selection</a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title">Hierarchical selection</h1>
+</div>
 
 
 
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
 
 
-<meta http-equiv="refresh" content="0; url=evolution/index.html">
-<section id="mzoo" class="level1">
-<h1>mzoo</h1>
-<p><a href="../docs/evolution/index.html">Continue to Evolution →</a></p>
+</header>
 
 
+<section id="hierarchical-selection" class="level2">
+<h2 class="anchored" data-anchor-id="hierarchical-selection">Hierarchical selection</h2>
+<p>The previous section left one term growing with the context. The selected read is fixed at <span class="math inline">k</span> entries, but the indexer still scores every visible entry to find them, so its work per query is <span class="math inline">S / m</span>. At 1M-token context even the indexer’s <span class="math inline">S \times S/m</span> score matrix is expensive. The remedy is the one used in nearest-neighbour search, a coarse pass over groups followed by an exact pass inside the surviving groups.</p>
+<section id="two-levels" class="level3">
+<h3 class="anchored" data-anchor-id="two-levels">Two levels</h3>
+<p>V4.1 adds a coarse level. The compressed entries are tiled into blocks of <span class="math inline">b</span> consecutive entries, indexed by <span class="math inline">b</span>. Each block is scored by its best member, and only the top <span class="math inline">k_b</span> blocks are passed to the fine top-<span class="math inline">k</span>:</p>
+<p><span class="math display">
+\beta_{i,b} = \max_{j \in \text{block } b} I_{i,j}, \qquad
+\mathcal{B}_i = \operatorname{top}k_b\, \beta_{i,b}, \qquad
+\mathcal{S}_i = \operatorname{top}k \{\, I_{i,j} : j \in \text{block} \in \mathcal{B}_i \,\} .
+</span></p>
+<p>Read that back in words. The block score <span class="math inline">\beta_{i,b}</span> is the largest entry score inside block <span class="math inline">b</span>; the coarse pass keeps the <span class="math inline">k_b</span> blocks whose best members scored highest; the fine pass then runs the ordinary top-<span class="math inline">k</span> of the previous section, but only over the entries inside the surviving blocks.</p>
+<p>The block score is a maximum and not a mean. A single strongly matching entry surrounded by irrelevant ones must survive the coarse pass, and averaging would dilute it. The maximum also makes the filter well behaved. A block’s score is the largest score it contains, so if the <span class="math inline">k</span> best entries of the whole table fall inside at most <span class="math inline">k_b</span> blocks, the coarse pass keeps all of them and the two-level result equals the one-level result. That is the exactness condition. Blocks are contiguous runs of positions, and the entries a query wants are usually clustered in a few passages, so the condition holds often. The block containing the newest visible entry is always kept, so the coarse filter never removes a query’s immediate context.</p>
+</section>
+<section id="where-the-saving-is" class="level3">
+<h3 class="anchored" data-anchor-id="where-the-saving-is">Where the saving is</h3>
+<p>Scoring a block requires the scores of its members, so the layer that builds the coarse level pays the full <span class="math inline">S / m</span> scan. In the reference model that layer is 20, the first Full-mode layer of the decoder. It computes the block candidates and publishes them. Later index layers — the Reindex sources at 24, 28, 32 and 36, which score with their own weights — score only within those candidates, inside the candidate mask. The saving is across layers rather than within one, and in V4.1 it applies only in the decoder, whose Reindex layers would otherwise each rescore the whole visible context.</p>
+<p>The paper’s sizes are <span class="math inline">b = 8</span> entries per block and <span class="math inline">k_b = 2048</span> blocks, so the candidate pool holds up to <span class="math inline">16384</span> positions, from which the fine pass takes <span class="math inline">k = 512</span>. The pool is the point: it is a constant. At the extended context of 1{,}048{,}576 tokens the encoder table holds 524288 entries and the decoder table 1048576, so a bounded pool is a factor of 32 below the one and 64 below the other — and the gap widens as the context grows, because the pool does not. The per-query cost of every deeper decoder indexer is bounded however long the conversation. In indexer bytes, the candidate source layer’s full scan at 1M costs <span class="math inline">1048576 \cdot 128 \cdot 0.5625 = 72</span> M, while each later Reindex layer reads <span class="math inline">16384 \cdot 128 \cdot 0.5625 = 1.125</span> M. The three encoder index layers, at 2, 8 and 14, are outside the scheme and keep their full scans of 36 M each at 1M.</p>
+<p>The mechanism is introduced in post-training but is training-aware: the restriction is applied identically while the model continues to train, so the deeper indexers are optimised under the same candidate pool they will use at inference. That placement is consistent with what the mechanism does. It changes which entries are considered, not what the model computes on them, and its exactness condition is easiest to satisfy at the long contexts it is added for. In owlet1 the candidate mask is computed but never consumed, because the six-layer schedule has no index layer after the candidate source.</p>
+<p>The mechanism is now complete at inference. What remains is how a model learns to use it, which is the subject of the last section, because a hard top-<span class="math inline">k</span> passes no gradient to the scores that produced it.</p>
+
+
+</section>
 </section>
 
 </main> <!-- /main -->

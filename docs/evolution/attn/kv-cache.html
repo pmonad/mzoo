@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>index – mzoo</title>
+<title>5 The KV cache – mzoo</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -23,27 +23,27 @@ ul.task-list li input[type="checkbox"] {
 </style>
 
 
-<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="../site_libs/quarto-nav/headroom.min.js"></script>
-<script src="../site_libs/clipboard/clipboard.min.js"></script>
-<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="../site_libs/quarto-search/fuse.min.js"></script>
-<script src="../site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="../">
-<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
-<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="../site_libs/quarto-html/popper.min.js"></script>
-<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="../site_libs/quarto-html/anchor.min.js"></script>
-<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ea385d0e468b0dd5ea5bf0780b1290d9.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-bc185b5c5bdbcb35c2eb49d8a876ef70.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ea385d0e468b0dd5ea5bf0780b1290d9.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
-<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-fa320aee69b3ba8d25f984a718ce839a.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../site_libs/bootstrap/bootstrap-dark-bdcacf09e97898037313a1503a5bc8da.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../site_libs/bootstrap/bootstrap-fa320aee69b3ba8d25f984a718ce839a.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../../">
+<script src="../../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-ea385d0e468b0dd5ea5bf0780b1290d9.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-dark-bc185b5c5bdbcb35c2eb49d8a876ef70.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-ea385d0e468b0dd5ea5bf0780b1290d9.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../../site_libs/bootstrap/bootstrap-fa320aee69b3ba8d25f984a718ce839a.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../../site_libs/bootstrap/bootstrap-dark-bdcacf09e97898037313a1503a5bc8da.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../../site_libs/bootstrap/bootstrap-fa320aee69b3ba8d25f984a718ce839a.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -72,6 +72,49 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 
+  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
@@ -244,7 +287,7 @@ ul.task-list li input[type="checkbox"] {
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a class="navbar-brand" href="../index.html">
+    <a class="navbar-brand" href="../../../index.html">
     <span class="navbar-title">mzoo</span>
     </a>
   </div>
@@ -271,7 +314,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../docs/evolution/index.html">Evolution</a></li><li class="breadcrumb-item"><a href="../../../docs/evolution/attn/index.html">Attention</a></li><li class="breadcrumb-item"><a href="../../../docs/evolution/attn/kv-cache.html">5 The KV cache</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -285,7 +328,7 @@ ul.task-list li input[type="checkbox"] {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a href="../docs/evolution/index.html" class="sidebar-item-text sidebar-link">
+            <a href="../../../docs/evolution/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Evolution</span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
@@ -294,31 +337,31 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/gpt2.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/gpt2.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">1 GPT-2</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/normalisation.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/normalisation.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">2 Normalisation</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/positions.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/positions.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">3 Positions</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/feed-forward.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/feed-forward.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">4 Feed-forward</span></a>
   </div>
 </li>
           <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a href="../docs/evolution/moe/index.html" class="sidebar-item-text sidebar-link">
+            <a href="../../../docs/evolution/moe/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">6 Mixture of experts</span></a>
           <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
@@ -327,19 +370,19 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth2 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/moe/routing.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/moe/routing.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Routing</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/moe/experts.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/moe/experts.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Fine-grained and shared experts</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/moe/balancing.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/moe/balancing.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Load balancing</span></a>
   </div>
 </li>
@@ -347,22 +390,22 @@ ul.task-list li input[type="checkbox"] {
   </li>
           <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a href="../docs/evolution/attn/index.html" class="sidebar-item-text sidebar-link">
+            <a href="../../../docs/evolution/attn/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Attention</span></a>
-          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
-      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth2 ">  
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth2 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/attn/kv-cache.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/attn/kv-cache.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">5 The KV cache</span></a>
   </div>
 </li>
           <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a href="../docs/evolution/attn/low-rank-attention/index.html" class="sidebar-item-text sidebar-link">
+            <a href="../../../docs/evolution/attn/low-rank-attention/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">7 Low-rank attention</span></a>
           <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
@@ -371,13 +414,13 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth3 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/attn/low-rank-attention/mla.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/attn/low-rank-attention/mla.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">MLA</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/attn/low-rank-attention/shared-latent.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/attn/low-rank-attention/shared-latent.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Single shared latent</span></a>
   </div>
 </li>
@@ -385,13 +428,13 @@ ul.task-list li input[type="checkbox"] {
   </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/attn/local-attention.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/attn/local-attention.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">8 Local attention</span></a>
   </div>
 </li>
           <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a href="../docs/evolution/attn/compressed-attention/index.html" class="sidebar-item-text sidebar-link">
+            <a href="../../../docs/evolution/attn/compressed-attention/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">9 Compressed attention</span></a>
           <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
@@ -400,13 +443,13 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth3 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/attn/compressed-attention/compressor.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/attn/compressed-attention/compressor.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Compressor</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/attn/compressed-attention/sharing.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/attn/compressed-attention/sharing.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Sharing across layers</span></a>
   </div>
 </li>
@@ -414,7 +457,7 @@ ul.task-list li input[type="checkbox"] {
   </li>
           <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a href="../docs/evolution/attn/sparse-selection/index.html" class="sidebar-item-text sidebar-link">
+            <a href="../../../docs/evolution/attn/sparse-selection/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">10 Sparse selection</span></a>
           <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
@@ -423,19 +466,19 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth3 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/attn/sparse-selection/indexer.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/attn/sparse-selection/indexer.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Indexer</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/attn/sparse-selection/hierarchical.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/attn/sparse-selection/hierarchical.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Hierarchical selection</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/attn/sparse-selection/training.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/attn/sparse-selection/training.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Training the indexer</span></a>
   </div>
 </li>
@@ -443,7 +486,7 @@ ul.task-list li input[type="checkbox"] {
   </li>
           <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a href="../docs/evolution/attn/attention-kernels/index.html" class="sidebar-item-text sidebar-link">
+            <a href="../../../docs/evolution/attn/attention-kernels/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">16 Attention kernels</span></a>
           <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
@@ -452,13 +495,13 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth3 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/attn/attention-kernels/fa2.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/attn/attention-kernels/fa2.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">The FA2 template on SM120</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/attn/attention-kernels/csa2.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/attn/attention-kernels/csa2.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">One kernel for CSA2</span></a>
   </div>
 </li>
@@ -466,7 +509,7 @@ ul.task-list li input[type="checkbox"] {
   </li>
           <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a href="../docs/evolution/attn/low-precision-attention/index.html" class="sidebar-item-text sidebar-link">
+            <a href="../../../docs/evolution/attn/low-precision-attention/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">17 Low-precision attention</span></a>
           <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
@@ -475,7 +518,7 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth3 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/attn/low-precision-attention/variants.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/attn/low-precision-attention/variants.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">The variants</span></a>
   </div>
 </li>
@@ -483,7 +526,7 @@ ul.task-list li input[type="checkbox"] {
   </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/attn/attention-kernels-impl.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/attn/attention-kernels-impl.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Attention kernels: implementation notes</span></a>
   </div>
 </li>
@@ -491,7 +534,7 @@ ul.task-list li input[type="checkbox"] {
   </li>
           <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a href="../docs/evolution/residual/index.html" class="sidebar-item-text sidebar-link">
+            <a href="../../../docs/evolution/residual/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">11 Residual stream</span></a>
           <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
@@ -500,19 +543,19 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth2 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/residual/hyper-connections.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/residual/hyper-connections.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Hyper-connections</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/residual/mhc.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/residual/mhc.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">mHC</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/residual/single-pass.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/residual/single-pass.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Single-pass mHC</span></a>
   </div>
 </li>
@@ -520,7 +563,7 @@ ul.task-list li input[type="checkbox"] {
   </li>
           <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a href="../docs/evolution/numerics/index.html" class="sidebar-item-text sidebar-link">
+            <a href="../../../docs/evolution/numerics/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">12 Numerics</span></a>
           <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
@@ -529,25 +572,25 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-10" class="collapse list-unstyled sidebar-section depth2 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/numerics/fp8.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/numerics/fp8.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">bf16 and FP8</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/numerics/matmuls.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/numerics/matmuls.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Low-precision matmuls</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/numerics/fp4.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/numerics/fp4.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">FP4</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/numerics/ste.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/numerics/ste.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Gradients through quantisation</span></a>
   </div>
 </li>
@@ -555,19 +598,19 @@ ul.task-list li input[type="checkbox"] {
   </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/engram.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/engram.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">13 Engram</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/beyond-the-block.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/beyond-the-block.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">14 Beyond the block</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/assembly.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/assembly.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">15 Assembly</span></a>
   </div>
 </li>
@@ -583,23 +626,193 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#mzoo" id="toc-mzoo" class="nav-link active" data-scroll-target="#mzoo">mzoo</a></li>
+  <li><a href="#the-kv-cache" id="toc-the-kv-cache" class="nav-link active" data-scroll-target="#the-kv-cache">5. The KV cache</a>
+  <ul class="collapse">
+  <li><a href="#roadmap" id="toc-roadmap" class="nav-link" data-scroll-target="#roadmap">Roadmap</a></li>
+  <li><a href="#why-generation-is-different-from-training" id="toc-why-generation-is-different-from-training" class="nav-link" data-scroll-target="#why-generation-is-different-from-training">Why generation is different from training</a></li>
+  <li><a href="#how-large-it-is" id="toc-how-large-it-is" class="nav-link" data-scroll-target="#how-large-it-is">How large it is</a></li>
+  <li><a href="#prefill-and-decode" id="toc-prefill-and-decode" class="nav-link" data-scroll-target="#prefill-and-decode">Prefill and decode</a></li>
+  <li><a href="#why-the-cache-sets-throughput" id="toc-why-the-cache-sets-throughput" class="nav-link" data-scroll-target="#why-the-cache-sets-throughput">Why the cache sets throughput</a></li>
+  <li><a href="#where-the-cache-lives" id="toc-where-the-cache-lives" class="nav-link" data-scroll-target="#where-the-cache-lives">Where the cache lives</a></li>
+  <li><a href="#sharing-keys-and-values-across-heads" id="toc-sharing-keys-and-values-across-heads" class="nav-link" data-scroll-target="#sharing-keys-and-values-across-heads">Sharing keys and values across heads</a>
+  <ul class="collapse">
+  <li><a href="#multi-query-attention" id="toc-multi-query-attention" class="nav-link" data-scroll-target="#multi-query-attention">Multi-query attention</a></li>
+  <li><a href="#grouped-query-attention" id="toc-grouped-query-attention" class="nav-link" data-scroll-target="#grouped-query-attention">Grouped-query attention</a></li>
+  </ul></li>
+  <li><a href="#precision-and-stability" id="toc-precision-and-stability" class="nav-link" data-scroll-target="#precision-and-stability">Precision and stability</a></li>
+  <li><a href="#what-the-2026-models-do" id="toc-what-the-2026-models-do" class="nav-link" data-scroll-target="#what-the-2026-models-do">What the 2026 models do</a></li>
+  <li><a href="#where-this-leads" id="toc-where-this-leads" class="nav-link" data-scroll-target="#where-this-leads">Where this leads</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
 <!-- main -->
-<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../docs/evolution/index.html">Evolution</a></li><li class="breadcrumb-item"><a href="../../../docs/evolution/attn/index.html">Attention</a></li><li class="breadcrumb-item"><a href="../../../docs/evolution/attn/kv-cache.html">5 The KV cache</a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title">5 The KV cache</h1>
+</div>
 
 
 
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
 
 
-<meta http-equiv="refresh" content="0; url=evolution/index.html">
-<section id="mzoo" class="level1">
-<h1>mzoo</h1>
-<p><a href="../docs/evolution/index.html">Continue to Evolution →</a></p>
+</header>
 
 
+<section id="the-kv-cache" class="level1">
+<h1>5. The KV cache</h1>
+<p>The previous three chapters changed how a block normalises, how it encodes position and how its feed-forward layer is shaped. None of them changed the cost of running the model. This chapter is the first that is about cost, and it introduces the quantity that drives most of the design decisions in the rest of the book: the memory that attention needs at inference.</p>
+<p>One anchor changes here. Chapters 1 to 6 do block arithmetic on a dense 65B reference model. From this chapter on, the attention chapters use DeepSeek-V4.1-Flash as their reference model: 40 layers, 64 query heads of width 512, a residual stream of width <span class="math inline">D = 5120</span>, a native context of 65536 tokens extended to 1,048,576, and 552B backbone parameters — about 1 TB of weights in bf16, with 8B active per token at prefill. Where this chapter needs a multi-head baseline that V4.1 does not actually have, it uses a hypothetical full multi-head attention on V4.1’s shape.</p>
+<section id="roadmap" class="level2">
+<h2 class="anchored" data-anchor-id="roadmap">Roadmap</h2>
+<ol type="1">
+<li><strong>Why generation is different.</strong> Training sees the whole sequence at once; generation cannot, and that gap creates the cache.</li>
+<li><strong>How large it is.</strong> One formula, evaluated on the reference model, produces the number the rest of the book attacks.</li>
+<li><strong>Prefill and decode.</strong> The two phases of serving a request are limited by different resources, and decode is the one that matters.</li>
+<li><strong>Why the cache sets throughput.</strong> Arithmetic intensity explains why the cache, not the arithmetic, sets the speed of decode.</li>
+<li><strong>Where the cache lives.</strong> PagedAttention fixed the waste in managing the cache without changing its size.</li>
+<li><strong>Sharing keys and values across heads.</strong> Multi-query and grouped-query attention shrink the cache by sharing, at a cost in stability.</li>
+<li><strong>Precision and stability.</strong> Sharing amplifies the hazard that QK-norm bounds.</li>
+</ol>
+</section>
+<section id="why-generation-is-different-from-training" class="level2">
+<h2 class="anchored" data-anchor-id="why-generation-is-different-from-training">Why generation is different from training</h2>
+<p>During training the whole sequence is present at once. Attention for every position is computed in one pass, and the keys and values of all positions are ordinary intermediate activations that are used and discarded.</p>
+<p>Generation is different. The model produces one token at a time, and each new token must attend to every token before it. Take a three-token prompt, “the cat sat”. The model computes the keys and values of all three tokens, reads them with the last position’s query, and produces a fourth token, say “on”. The fifth step must attend to all four tokens. The keys and values of “the cat sat” have not changed — they are functions of those tokens alone — but the naive way to get them is to recompute them, and reprocessing the whole prefix at every step would cost as much as reprocessing the prompt at every step of generation. Instead the keys and values of every position, in every layer, are kept in memory after they are first computed. This store is the key-value cache, or KV cache. Each decode step computes the query, key and value for the one new token, appends the new key and value to the cache, and attends over the cache.</p>
+<p>The cache is therefore not an implementation detail. It is state that grows with the length of the conversation and that must be resident for as long as the conversation is alive.</p>
+</section>
+<section id="how-large-it-is" class="level2">
+<h2 class="anchored" data-anchor-id="how-large-it-is">How large it is</h2>
+<p>First, what is stored. Each attention head applies its own three small projection matrices to the residual stream: a query projection, a key projection and a value projection, each producing a vector of width <span class="math inline">d</span> per token. The query is used and discarded. The key and the value are what the cache holds.</p>
+<p>Every position, in every layer, stores one key and one value per head. With <span class="math inline">H</span> heads of width <span class="math inline">d</span> in each of <span class="math inline">L</span> layers,</p>
+<p><span class="math display">
+\text{KV bytes per token} = 2 \cdot L \cdot H \cdot d \cdot \text{bytes} .
+</span></p>
+<p>Read that back in words. The factor 2 counts the two stored objects, the key and the value. <span class="math inline">L</span> counts the layers, because every layer has its own attention with its own cache. <span class="math inline">H</span> counts the heads, because in full multi-head attention every head stores its own key and value. <span class="math inline">d</span> is the width of each, and “bytes” is the width of the number format — 2 for bf16.</p>
+<p>The reference model has <span class="math inline">L = 40</span> layers and <span class="math inline">H = 64</span> heads of width <span class="math inline">d = 512</span>. It does not store per-head keys and values, but as a baseline suppose it did, in bf16:</p>
+<p><span class="math display">
+2 \cdot 40 \cdot 64 \cdot 512 \cdot 2 = 5{,}242{,}880 \text{ bytes} = 5.0 \text{ MB per token}.
+</span></p>
+<p>A single conversation at the native context of 65536 tokens then holds 320 GB of cache, and one at the extended context of 1,048,576 tokens holds 5 TB. The weights of the model are about 1 TB in bf16. One long conversation needs several × more memory for its cache than for the model, and a server that wants to run many conversations at once needs that much for each of them.</p>
+</section>
+<section id="prefill-and-decode" class="level2">
+<h2 class="anchored" data-anchor-id="prefill-and-decode">Prefill and decode</h2>
+<p>Serving a request has two phases with different character. In the prefill phase the prompt is processed all at once, as in training. Every position is present, the matmuls have a large batch of tokens on one side, and the accelerator’s arithmetic units are the limit. The prefill phase also writes the cache for the whole prompt. In the decode phase tokens are produced one at a time. Each step has exactly one new token per sequence, and the matmuls have a single vector on one side. The two phases are limited by different resources — V4.1 activates 8B parameters per token at prefill, where the arithmetic is dense, and 16B at decode, where hyper-connections activate more — and the design changes of this book are aimed mostly at the decode phase, because that is where a chat model spends most of its time.</p>
+</section>
+<section id="why-the-cache-sets-throughput" class="level2">
+<h2 class="anchored" data-anchor-id="why-the-cache-sets-throughput">Why the cache sets throughput</h2>
+<p>A useful measure of any computation on an accelerator is its arithmetic intensity: the number of floating-point operations it performs divided by the number of bytes it moves from memory to do them, in operations per byte. An accelerator has a fixed ratio of arithmetic throughput to memory bandwidth, and a computation whose intensity is below that ratio cannot deliver enough work to the arithmetic units per byte read. It is memory bound: its time is the time to move the bytes. An H100 performs about 990 TFLOPS of bf16 arithmetic and reads about 3.35 TB/s from its memory, a ratio of roughly 300 operations per byte. A100 and the accelerators before it have similar ratios.</p>
+<p>Consider one decode step for one sequence in one block. Attention reads the whole cache of that block, <span class="math inline">S</span> keys and <span class="math inline">S</span> values of width <span class="math inline">H d</span> each, and for each element read it performs about two operations, one multiply and one add. Its intensity is therefore about one operation per byte, or half that in bf16. Against a ratio of 300 the arithmetic units are idle more than 99 percent of the time. The time of the step is the time to read the cache.</p>
+<p>The weight matrices are also read once per step, and at about 1 TB they take longer to read than any single cache. But the weights are the same for every sequence. If 64 sequences are decoded together the weights are read once and used 64 times, an intensity of 64 operations per byte, and a larger batch brings the weights close to the arithmetic limit. The cache does not batch. Each sequence has its own, so 64 sequences read 64 caches, and the intensity of attention stays at one operation per byte no matter how many sequences are in flight.</p>
+<p>Two consequences follow. First, the number of sequences a server can decode at once is set by how many caches fit in memory next to the weights. On a node with 1.5 TB of accelerator memory, the reference model in bf16 leaves some 508 GB after the weights, which is enough for one sequence at 65536 tokens under the multi-head baseline — and would be enough for a dozen under grouped-query attention, as the table below shows. Second, the time per step is set by the total cache bytes of the batch, and shrinking the cache per token shortens every step in proportion.</p>
+<p>This is why, from this chapter on, the size of the cache per token is the quantity that attention designs are measured by. Every attention change in chapters 7 to 10 and the number formats of chapter 12 can be read as an attack on the formula above, one factor at a time; chapter 6 attacks the weights rather than the cache, which is why it sits outside that sequence. This chapter takes the factor <span class="math inline">H</span>.</p>
+</section>
+<section id="where-the-cache-lives" class="level2">
+<h2 class="anchored" data-anchor-id="where-the-cache-lives">Where the cache lives</h2>
+<p>The cache also has to be managed. It grows by one entry per step, its final length is unknown when the request starts, and requests start and finish at different times. Early serving systems reserved a contiguous region for the maximum length per request and wasted most of it. Kwon et al. 2023, “Efficient Memory Management for Large Language Model Serving with PagedAttention” introduced the scheme that current servers use: the cache is stored in fixed-size pages, a request holds a list of pages rather than a region, and pages are allocated as the sequence grows and freed when it ends. Attention kernels read through the page table. This removed most of the waste and let a server pack several × as many sequences into the same memory, but it did not change the bytes per token. The architectural changes below do.</p>
+</section>
+<section id="sharing-keys-and-values-across-heads" class="level2">
+<h2 class="anchored" data-anchor-id="sharing-keys-and-values-across-heads">Sharing keys and values across heads</h2>
+<p>The sharing ladder — multi-query, then grouped-query — is the route that dense models climbed historically, and it is worth walking in that order before seeing what the reference model does instead. In multi-head attention every head has its own query, key and value projections. The query side is where heads differ in what they look for, and there is no reason to give up that variety. The key and value side is what is stored. If several heads could share one key and one value, the cache would shrink by the sharing factor, and the query side could stay as it is.</p>
+<section id="multi-query-attention" class="level3">
+<h3 class="anchored" data-anchor-id="multi-query-attention">Multi-query attention</h3>
+<p>The extreme version keeps all <span class="math inline">H</span> query heads and gives them one shared key head and one shared value head. To read its formula, two terms: each head scores a query against every key by a dot product, and those raw scores are called logits; the softmax function converts a vector of logits into positive weights that sum to one, which is how attention decides how much of each value to read. Multi-query attention is then</p>
+<p><span class="math display">
+o_{h,i} = \sum_{j} \operatorname{softmax}_j\!\left(\frac{q_{h,i} \cdot k_j}{\sqrt{d}}\right) v_j .
+</span></p>
+<p>Compared with the multi-head formula of chapter 1, <span class="math inline">k_j</span> and <span class="math inline">v_j</span> have lost their head index. Each head still computes its own attention pattern, because its query is its own, but all heads compare against the same keys and read from the same values. The cache shrinks by a factor of <span class="math inline">H</span>. On the reference model’s shape that is 80 KB per token and 5 GB at 64K tokens, in place of 320 GB. Shazeer 2019, “Fast Transformer Decoding: One Write-Head is All You Need” introduced it.</p>
+<p>The cost is quality and stability. All heads must find what they need in one shared key space, and the value they read is the same vector weighted differently. Models trained this way lose a small amount of quality against full multi-head attention, and training was reported to be less stable at large scale.</p>
+</section>
+<section id="grouped-query-attention" class="level3">
+<h3 class="anchored" data-anchor-id="grouped-query-attention">Grouped-query attention</h3>
+<p>Grouped-query attention sits between the two. It keeps <span class="math inline">H_{kv}</span> key and value heads, and each of them serves a group of <span class="math inline">H / H_{kv}</span> query heads:</p>
+<p><span class="math display">
+o_{h,i} = \sum_{j} \operatorname{softmax}_j\!\left(\frac{q_{h,i} \cdot k_{g(h),j}}{\sqrt{d}}\right) v_{g(h),j},
+\qquad g(h) = \left\lfloor \frac{h}{H / H_{kv}} \right\rfloor .
+</span></p>
+<p>The function <span class="math inline">g</span> maps a query head to its group. With <span class="math inline">H = 64</span> and <span class="math inline">H_{kv} = 8</span>, heads 0 to 7 share the first key-value pair, heads 8 to 15 the second, and so on. The cache shrinks by <span class="math inline">H / H_{kv}</span>. LLaMA-2 70B introduced <span class="math inline">H_{kv} = 8</span> with <span class="math inline">H = 64</span>, and most dense models since have kept that ratio. On the reference model’s shape this is 640 KB per token and 40 GB at 64K tokens. Quality is close to full multi-head attention, and the factor of eight is large enough to change what a server can do. Ainslie et al.&nbsp;2023, “GQA: Training Generalized Multi-Query Transformer Models from Multi-Head Checkpoints” introduced it, together with the trick of converting an already-trained multi-head checkpoint by averaging each group’s heads.</p>
+<p>The variants on the reference model’s shape, at bf16:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>variant</th>
+<th><span class="math inline">H_{kv}</span></th>
+<th>per token</th>
+<th>at 65536 tokens</th>
+<th>at 1,048,576 tokens</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>multi-head</td>
+<td>64</td>
+<td>5.0 MB</td>
+<td>320 GB</td>
+<td>5 TB</td>
+</tr>
+<tr class="even">
+<td>grouped-query</td>
+<td>8</td>
+<td>640 KB</td>
+<td>40 GB</td>
+<td>640 GB</td>
+</tr>
+<tr class="odd">
+<td>multi-query</td>
+<td>1</td>
+<td>80 KB</td>
+<td>5 GB</td>
+<td>80 GB</td>
+</tr>
+<tr class="even">
+<td>shared latent (ch 7)</td>
+<td>—</td>
+<td>40 KB</td>
+<td>2.5 GB</td>
+<td>40 GB</td>
+</tr>
+</tbody>
+</table>
+<p>The last row is not a member of the sharing ladder. It is where the reference model actually sits: DeepSeek-V4.1 stores one shared latent vector of width 512 per token per layer, 40 KB in bf16, and chapter 7 shows how every head’s key and value are reconstructed from it. It reaches the cache size of multi-query attention without collapsing all heads into one key space.</p>
+</section>
+</section>
+<section id="precision-and-stability" class="level2">
+<h2 class="anchored" data-anchor-id="precision-and-stability">Precision and stability</h2>
+<p>Sharing amplifies one existing hazard. A key with an unusually large norm produces a large logit against every query for reasons unrelated to its content, and with <span class="math inline">H_{kv}</span> shared key heads one such key inflames all <span class="math inline">H / H_{kv}</span> query heads of its group at once instead of one head. This is the instability reported for multi-query training, and it is why the sharing chapters of this book pair every reduction with a bound on the logits. The standard bound is QK-norm, an RMSNorm applied to <span class="math inline">q</span> and <span class="math inline">k</span> per head before the dot product, as in chapter 2:</p>
+<p><span class="math display">
+\hat q = \frac{q}{\operatorname{RMS}(q)}, \qquad \hat k = \frac{k}{\operatorname{RMS}(k)},
+\qquad \big|\hat q \cdot \hat k\big| \le d \ \Rightarrow\ \Big|\frac{\hat q \cdot \hat k}{\sqrt d}\Big| \le \sqrt d .
+</span></p>
+<p>The Cauchy-Schwarz bound is the whole argument: after normalisation no input can push a logit past <span class="math inline">\sqrt{d}</span> (23 for <span class="math inline">d = 512</span>), whatever the residual stream did to <span class="math inline">x</span>. A learnable scale per dimension lets heads recover magnitude differences they actually want, and the normalisation is removed from the cached object — it is applied where <span class="math inline">q</span> and <span class="math inline">k</span> are formed, so the cache stores the normed key once and every use of it is bounded. Qwen3 and GLM-4.5 ship grouped-query attention with exactly this pairing, and the same device returns in stronger form in chapters 7 and 9, where the normed latent is what makes the low-precision cache of chapter 12 safe at all. The stabiliser has a training-side counterpart in V4.1 itself, whose optimiser updates the query and key weight matrices head by head — a per-head normalisation of the update rather than of the activation, for the same reason: no head’s outlier behaviour should set the scale of another’s update.</p>
+</section>
+<section id="what-the-2026-models-do" class="level2">
+<h2 class="anchored" data-anchor-id="what-the-2026-models-do">What the 2026 models do</h2>
+<p>Grouped-query attention is the default for dense and mid-size models. Qwen3 uses it with QK-norm, a head width of 128, and 4 or 8 key-value heads depending on the model size. GLM-4.5 uses 96 query heads with 8 key-value heads of width 128. Qwen3-Next goes further in its softmax layers, with 16 query heads and 2 key-value heads of width 256, together with an output gate on attention, and relies on its linear-attention layers for the rest of the stack.</p>
+<p>The largest mixture-of-experts models take a different route. DeepSeek-V3 and Kimi K2 use multi-head latent attention, and DeepSeek-V4.1, this part’s reference model, uses a single shared latent per token. In those models the cache dominates serving cost even after grouped-query sharing, and the low-rank methods of chapter 7 reduce it further while keeping every query head distinct. The choice follows from where the cost sits: a dense 30B model is limited by its weights and grouped-query attention is enough, while a 552B-parameter model with 8B active at prefill is limited by its cache.</p>
+</section>
+<section id="where-this-leads" class="level2">
+<h2 class="anchored" data-anchor-id="where-this-leads">Where this leads</h2>
+<p>Grouped-query attention reduces the number of key and value heads but leaves each remaining head storing a full key and a full value of width <span class="math inline">d</span>. The next step asks whether even that is necessary. The keys and values of all heads are linear functions of the same input vector, so the information they contain cannot exceed <span class="math inline">D</span> dimensions, and measured ranks are far lower. Chapter 7 stores one small latent vector per token and reconstructs every head’s key and value from it, which is how the DeepSeek models reach the cache size of multi-query attention without its loss of quality — the 40 KB row of the table above.</p>
+
+
+</section>
 </section>
 
 </main> <!-- /main -->

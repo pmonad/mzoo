@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>index – mzoo</title>
+<title>bf16 and FP8 – mzoo</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -23,27 +23,27 @@ ul.task-list li input[type="checkbox"] {
 </style>
 
 
-<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="../site_libs/quarto-nav/headroom.min.js"></script>
-<script src="../site_libs/clipboard/clipboard.min.js"></script>
-<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="../site_libs/quarto-search/fuse.min.js"></script>
-<script src="../site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="../">
-<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
-<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="../site_libs/quarto-html/popper.min.js"></script>
-<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="../site_libs/quarto-html/anchor.min.js"></script>
-<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ea385d0e468b0dd5ea5bf0780b1290d9.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-bc185b5c5bdbcb35c2eb49d8a876ef70.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ea385d0e468b0dd5ea5bf0780b1290d9.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
-<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-fa320aee69b3ba8d25f984a718ce839a.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../site_libs/bootstrap/bootstrap-dark-bdcacf09e97898037313a1503a5bc8da.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../site_libs/bootstrap/bootstrap-fa320aee69b3ba8d25f984a718ce839a.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../../">
+<script src="../../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-ea385d0e468b0dd5ea5bf0780b1290d9.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-dark-bc185b5c5bdbcb35c2eb49d8a876ef70.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-ea385d0e468b0dd5ea5bf0780b1290d9.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../../site_libs/bootstrap/bootstrap-fa320aee69b3ba8d25f984a718ce839a.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../../site_libs/bootstrap/bootstrap-dark-bdcacf09e97898037313a1503a5bc8da.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../../site_libs/bootstrap/bootstrap-fa320aee69b3ba8d25f984a718ce839a.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -72,6 +72,49 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 
+  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
@@ -244,7 +287,7 @@ ul.task-list li input[type="checkbox"] {
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a class="navbar-brand" href="../index.html">
+    <a class="navbar-brand" href="../../../index.html">
     <span class="navbar-title">mzoo</span>
     </a>
   </div>
@@ -271,7 +314,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../docs/evolution/index.html">Evolution</a></li><li class="breadcrumb-item"><a href="../../../docs/evolution/numerics/index.html">12 Numerics</a></li><li class="breadcrumb-item"><a href="../../../docs/evolution/numerics/fp8.html">bf16 and FP8</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -285,7 +328,7 @@ ul.task-list li input[type="checkbox"] {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a href="../docs/evolution/index.html" class="sidebar-item-text sidebar-link">
+            <a href="../../../docs/evolution/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Evolution</span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
@@ -294,31 +337,31 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/gpt2.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/gpt2.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">1 GPT-2</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/normalisation.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/normalisation.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">2 Normalisation</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/positions.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/positions.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">3 Positions</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/feed-forward.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/feed-forward.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">4 Feed-forward</span></a>
   </div>
 </li>
           <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a href="../docs/evolution/moe/index.html" class="sidebar-item-text sidebar-link">
+            <a href="../../../docs/evolution/moe/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">6 Mixture of experts</span></a>
           <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
@@ -327,19 +370,19 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth2 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/moe/routing.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/moe/routing.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Routing</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/moe/experts.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/moe/experts.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Fine-grained and shared experts</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/moe/balancing.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/moe/balancing.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Load balancing</span></a>
   </div>
 </li>
@@ -347,7 +390,7 @@ ul.task-list li input[type="checkbox"] {
   </li>
           <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a href="../docs/evolution/attn/index.html" class="sidebar-item-text sidebar-link">
+            <a href="../../../docs/evolution/attn/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Attention</span></a>
           <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
@@ -356,13 +399,13 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth2 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/attn/kv-cache.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/attn/kv-cache.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">5 The KV cache</span></a>
   </div>
 </li>
           <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a href="../docs/evolution/attn/low-rank-attention/index.html" class="sidebar-item-text sidebar-link">
+            <a href="../../../docs/evolution/attn/low-rank-attention/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">7 Low-rank attention</span></a>
           <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
@@ -371,13 +414,13 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth3 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/attn/low-rank-attention/mla.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/attn/low-rank-attention/mla.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">MLA</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/attn/low-rank-attention/shared-latent.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/attn/low-rank-attention/shared-latent.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Single shared latent</span></a>
   </div>
 </li>
@@ -385,13 +428,13 @@ ul.task-list li input[type="checkbox"] {
   </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/attn/local-attention.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/attn/local-attention.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">8 Local attention</span></a>
   </div>
 </li>
           <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a href="../docs/evolution/attn/compressed-attention/index.html" class="sidebar-item-text sidebar-link">
+            <a href="../../../docs/evolution/attn/compressed-attention/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">9 Compressed attention</span></a>
           <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
@@ -400,13 +443,13 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth3 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/attn/compressed-attention/compressor.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/attn/compressed-attention/compressor.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Compressor</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/attn/compressed-attention/sharing.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/attn/compressed-attention/sharing.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Sharing across layers</span></a>
   </div>
 </li>
@@ -414,7 +457,7 @@ ul.task-list li input[type="checkbox"] {
   </li>
           <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a href="../docs/evolution/attn/sparse-selection/index.html" class="sidebar-item-text sidebar-link">
+            <a href="../../../docs/evolution/attn/sparse-selection/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">10 Sparse selection</span></a>
           <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
@@ -423,19 +466,19 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth3 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/attn/sparse-selection/indexer.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/attn/sparse-selection/indexer.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Indexer</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/attn/sparse-selection/hierarchical.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/attn/sparse-selection/hierarchical.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Hierarchical selection</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/attn/sparse-selection/training.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/attn/sparse-selection/training.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Training the indexer</span></a>
   </div>
 </li>
@@ -443,7 +486,7 @@ ul.task-list li input[type="checkbox"] {
   </li>
           <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a href="../docs/evolution/attn/attention-kernels/index.html" class="sidebar-item-text sidebar-link">
+            <a href="../../../docs/evolution/attn/attention-kernels/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">16 Attention kernels</span></a>
           <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
@@ -452,13 +495,13 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth3 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/attn/attention-kernels/fa2.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/attn/attention-kernels/fa2.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">The FA2 template on SM120</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/attn/attention-kernels/csa2.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/attn/attention-kernels/csa2.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">One kernel for CSA2</span></a>
   </div>
 </li>
@@ -466,7 +509,7 @@ ul.task-list li input[type="checkbox"] {
   </li>
           <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a href="../docs/evolution/attn/low-precision-attention/index.html" class="sidebar-item-text sidebar-link">
+            <a href="../../../docs/evolution/attn/low-precision-attention/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">17 Low-precision attention</span></a>
           <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
@@ -475,7 +518,7 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth3 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/attn/low-precision-attention/variants.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/attn/low-precision-attention/variants.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">The variants</span></a>
   </div>
 </li>
@@ -483,7 +526,7 @@ ul.task-list li input[type="checkbox"] {
   </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/attn/attention-kernels-impl.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/attn/attention-kernels-impl.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Attention kernels: implementation notes</span></a>
   </div>
 </li>
@@ -491,7 +534,7 @@ ul.task-list li input[type="checkbox"] {
   </li>
           <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a href="../docs/evolution/residual/index.html" class="sidebar-item-text sidebar-link">
+            <a href="../../../docs/evolution/residual/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">11 Residual stream</span></a>
           <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
@@ -500,19 +543,19 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth2 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/residual/hyper-connections.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/residual/hyper-connections.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Hyper-connections</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/residual/mhc.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/residual/mhc.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">mHC</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/residual/single-pass.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/residual/single-pass.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Single-pass mHC</span></a>
   </div>
 </li>
@@ -520,34 +563,34 @@ ul.task-list li input[type="checkbox"] {
   </li>
           <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a href="../docs/evolution/numerics/index.html" class="sidebar-item-text sidebar-link">
+            <a href="../../../docs/evolution/numerics/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">12 Numerics</span></a>
-          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="false" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
-      <ul id="quarto-sidebar-section-10" class="collapse list-unstyled sidebar-section depth2 ">  
+      <ul id="quarto-sidebar-section-10" class="collapse list-unstyled sidebar-section depth2 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/numerics/fp8.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/numerics/fp8.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">bf16 and FP8</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/numerics/matmuls.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/numerics/matmuls.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Low-precision matmuls</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/numerics/fp4.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/numerics/fp4.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">FP4</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/numerics/ste.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/numerics/ste.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Gradients through quantisation</span></a>
   </div>
 </li>
@@ -555,19 +598,19 @@ ul.task-list li input[type="checkbox"] {
   </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/engram.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/engram.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">13 Engram</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/beyond-the-block.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/beyond-the-block.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">14 Beyond the block</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evolution/assembly.html" class="sidebar-item-text sidebar-link">
+  <a href="../../../docs/evolution/assembly.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">15 Assembly</span></a>
   </div>
 </li>
@@ -583,23 +626,202 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#mzoo" id="toc-mzoo" class="nav-link active" data-scroll-target="#mzoo">mzoo</a></li>
+  <li><a href="#bf16-and-fp8" id="toc-bf16-and-fp8" class="nav-link active" data-scroll-target="#bf16-and-fp8">bf16 and FP8</a>
+  <ul class="collapse">
+  <li><a href="#how-a-floating-point-format-is-laid-out" id="toc-how-a-floating-point-format-is-laid-out" class="nav-link" data-scroll-target="#how-a-floating-point-format-is-laid-out">How a floating-point format is laid out</a></li>
+  <li><a href="#bf16" id="toc-bf16" class="nav-link" data-scroll-target="#bf16">bf16</a></li>
+  <li><a href="#what-a-tensor-core-accelerates" id="toc-what-a-tensor-core-accelerates" class="nav-link" data-scroll-target="#what-a-tensor-core-accelerates">What a tensor core accelerates</a></li>
+  <li><a href="#fp8" id="toc-fp8" class="nav-link" data-scroll-target="#fp8">FP8</a></li>
+  <li><a href="#scale-formats" id="toc-scale-formats" class="nav-link" data-scroll-target="#scale-formats">Scale formats</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
 <!-- main -->
-<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../docs/evolution/index.html">Evolution</a></li><li class="breadcrumb-item"><a href="../../../docs/evolution/numerics/index.html">12 Numerics</a></li><li class="breadcrumb-item"><a href="../../../docs/evolution/numerics/fp8.html">bf16 and FP8</a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title">bf16 and FP8</h1>
+</div>
 
 
 
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
 
 
-<meta http-equiv="refresh" content="0; url=evolution/index.html">
-<section id="mzoo" class="level1">
-<h1>mzoo</h1>
-<p><a href="../docs/evolution/index.html">Continue to Evolution →</a></p>
+</header>
 
 
+<section id="bf16-and-fp8" class="level2">
+<h2 class="anchored" data-anchor-id="bf16-and-fp8">bf16 and FP8</h2>
+<p>The formats a model trains in are chosen before anything else in this chapter, because they decide what the weights, the gradients and the optimiser state cost and how fast the matmuls run. This section builds the choice from the layout of a floating-point number, follows the move from fp32 to fp16 to bf16, and then works out what has to be added to make eight bits usable.</p>
+<section id="how-a-floating-point-format-is-laid-out" class="level3">
+<h3 class="anchored" data-anchor-id="how-a-floating-point-format-is-laid-out">How a floating-point format is laid out</h3>
+<p>A floating-point number is a sign bit, an exponent field of <span class="math inline">E</span> bits and a mantissa field of <span class="math inline">M</span> bits. For all values except the smallest, the stored mantissa is the fractional part of a number whose leading bit is an implicit one:</p>
+<p><span class="math display">
+x = (-1)^{s} \cdot 2^{\,e - b} \cdot \left(1 + \frac{m}{2^{M}}\right),
+\qquad b = 2^{E-1} - 1 .
+</span></p>
+<p>The exponent field <span class="math inline">e</span> selects a power of two and the mantissa interpolates within it. When <span class="math inline">e</span> is zero the implicit leading one is dropped and the value is subnormal, which extends the range downward at reduced precision.</p>
+<p>Two properties follow, and they are the only two that matter for choosing a format. The number of exponent bits sets the dynamic range, the ratio between the largest and the smallest value the format can express, and that ratio doubles in span with each exponent bit. The number of mantissa bits sets the relative precision, which is the same everywhere. Within any interval <span class="math inline">[2^k, 2^{k+1})</span> there are exactly <span class="math inline">2^M</span> representable values, evenly spaced, so the gap between neighbours is about <span class="math inline">2^{-M}</span> of the value and rounding costs at most half of that. A format cannot trade one for the other after the fact. The split is fixed when the bits are allocated.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>format</th>
+<th>bits</th>
+<th>exponent</th>
+<th>mantissa</th>
+<th>largest finite</th>
+<th>smallest subnormal</th>
+<th>relative step</th>
+<th>decades of range</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>fp32</td>
+<td>32</td>
+<td>8</td>
+<td>23</td>
+<td><span class="math inline">3.4 \times 10^{38}</span></td>
+<td><span class="math inline">1.4 \times 10^{-45}</span></td>
+<td><span class="math inline">1.2 \times 10^{-7}</span></td>
+<td>83</td>
+</tr>
+<tr class="even">
+<td>fp16</td>
+<td>16</td>
+<td>5</td>
+<td>10</td>
+<td>65504</td>
+<td><span class="math inline">6.0 \times 10^{-8}</span></td>
+<td><span class="math inline">9.8 \times 10^{-4}</span></td>
+<td>12</td>
+</tr>
+<tr class="odd">
+<td>bf16</td>
+<td>16</td>
+<td>8</td>
+<td>7</td>
+<td><span class="math inline">3.4 \times 10^{38}</span></td>
+<td><span class="math inline">9.2 \times 10^{-41}</span></td>
+<td><span class="math inline">7.8 \times 10^{-3}</span></td>
+<td>78</td>
+</tr>
+<tr class="even">
+<td>E4M3</td>
+<td>8</td>
+<td>4</td>
+<td>3</td>
+<td>448</td>
+<td><span class="math inline">2.0 \times 10^{-3}</span></td>
+<td><span class="math inline">1.3 \times 10^{-1}</span></td>
+<td>5.4</td>
+</tr>
+<tr class="odd">
+<td>E5M2</td>
+<td>8</td>
+<td>5</td>
+<td>2</td>
+<td>57344</td>
+<td><span class="math inline">1.5 \times 10^{-5}</span></td>
+<td><span class="math inline">2.5 \times 10^{-1}</span></td>
+<td>9.6</td>
+</tr>
+<tr class="even">
+<td>E2M1</td>
+<td>4</td>
+<td>2</td>
+<td>1</td>
+<td>6</td>
+<td>0.5</td>
+<td><span class="math inline">5.0 \times 10^{-1}</span></td>
+<td>1.1</td>
+</tr>
+</tbody>
+</table>
+<p>The last column is the useful summary. fp32 and bf16 can hold a tensor whose values span 78 orders of magnitude. E4M3 can hold one that spans five. That single number is why eight-bit training needs the scaling machinery described below and why four bits are confined to the places described in the next section.</p>
+</section>
+<section id="bf16" class="level3">
+<h3 class="anchored" data-anchor-id="bf16">bf16</h3>
+<p>GPT-2 trained in fp32. fp16 halves the bytes but has 5 exponent bits, so small gradients underflow and loss scaling is required. bf16 keeps fp32’s 8 exponent bits and drops mantissa bits instead. For training that is the better trade, because dynamic range matters more than precision. Since about 2021 the optimiser keeps weights in fp32 and the computation runs in bf16.</p>
+<p>Loss scaling, which bf16 removes the need for, is worth understanding because it shows what the exponent bits are for. Micikevicius et al.&nbsp;2018, “Mixed Precision Training”, observed that in fp16 training a large fraction of gradient values fall below the smallest representable magnitude and become exactly zero, while the top of the fp16 range goes unused. The remedy is to multiply the loss by a constant <span class="math inline">S</span> before the backward pass, which multiplies every gradient by <span class="math inline">S</span> and moves the whole distribution into the representable range, then divide by <span class="math inline">S</span> before the optimiser update. Choosing <span class="math inline">S</span> is itself a problem, since too large a value overflows, so implementations raise <span class="math inline">S</span> while no overflow occurs and halve it when one does. bf16, described by Kalamkar et al.&nbsp;2019, “A Study of BFLOAT16 for Deep Learning Training”, has the same exponent field as fp32 and therefore the same underflow threshold, so none of this is needed. A bf16 tensor can be produced by truncating an fp32 tensor and read back with no change of range.</p>
+<p>What bf16 gives up is precision, and this is why the master copy of the weights stays in fp32. bf16 has seven mantissa bits, so adding to a weight anything smaller than about <span class="math inline">2^{-8}</span> of that weight leaves it unchanged. Late in training, updates are routinely that small relative to the weight, and in a bf16 accumulator they would be discarded one after another. Keeping the master weights in fp32 and casting a bf16 copy for the forward and backward passes avoids this. Stochastic rounding, which rounds up with a probability equal to the discarded remainder, is the alternative that keeps the expected update correct without the fp32 copy.</p>
+<p>The fp32 master copy is not free. With Adam the optimiser holds an fp32 weight, an fp32 first moment and an fp32 second moment, which is 12 bytes per parameter, plus the 2-byte bf16 copy used for compute. On the reference model’s 65 billion parameters that is about 780 GB of optimiser state against 130 GB of bf16 weights. Reduced precision in the forward and backward passes does not touch this, which is why the optimiser state, not the weights, dominates the memory of a training run.</p>
+</section>
+<section id="what-a-tensor-core-accelerates" class="level3">
+<h3 class="anchored" data-anchor-id="what-a-tensor-core-accelerates">What a tensor core accelerates</h3>
+<p>The throughput claim needs one hardware fact. Since the Volta generation of 2017, accelerators carry units that compute a small matrix multiply-accumulate as a single instruction, taking tiles of two low-precision input matrices and accumulating the product into a wider-precision tile. Peak throughput roughly doubles each time the input width halves, so fp16 and bf16 inputs are about twice fp32, FP8 inputs about twice bf16, and FP4 about twice FP8. The accumulator stays wide, because summing hundreds of products in the input format would lose more than the rounding of the inputs does.</p>
+<p>Only matmul-shaped work benefits. Normalisation, softmax, the elementwise parts of SwiGLU, the routing of chapter 6 and the optimiser update are not matmuls, gain nothing from narrower inputs, and are limited by memory bandwidth rather than arithmetic. Narrower formats still help them, but through the bytes moved rather than through the tensor cores. This is why halving the matmul precision does not halve the time of a training step.</p>
+</section>
+<section id="fp8" class="level3">
+<h3 class="anchored" data-anchor-id="fp8">FP8</h3>
+<p>DeepSeek-V3 was the first large open model trained with FP8 matmuls. Two 8-bit formats exist:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>format</th>
+<th>exponent</th>
+<th>mantissa</th>
+<th>max</th>
+<th>use</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>E4M3</td>
+<td>4</td>
+<td>3</td>
+<td>448</td>
+<td>activations, weights</td>
+</tr>
+<tr class="even">
+<td>E5M2</td>
+<td>5</td>
+<td>2</td>
+<td>57344</td>
+<td>gradients</td>
+</tr>
+</tbody>
+</table>
+<p>Both are defined by Micikevicius et al.&nbsp;2022, “FP8 Formats for Deep Learning”. The split of roles follows the argument above. Activations and weights within one layer occupy a narrow band of magnitudes once scaled, so they can afford to spend a bit on the mantissa. Gradients span a much wider band, so they take the extra exponent bit and accept two mantissa bits.</p>
+<p>Three mantissa bits cannot represent a tensor whose values span several orders of magnitude, so the tensor is split into blocks and each block carries its own scale:</p>
+<p><span class="math display">
+\hat x_j = \operatorname{round}_{\text{E4M3}}\!\left(\frac{x_j}{s}\right) \cdot s, \qquad
+s = \frac{\max_{j \in \text{block}} |x_j|}{448} .
+</span></p>
+<p>Dividing by <span class="math inline">s</span> puts the largest element of the block at the top of the E4M3 range, so the format’s five decades of range are spent on the block’s own distribution rather than on the distribution of the whole tensor. The smaller the block, the narrower the spread inside it and the less of the range is wasted. The scale is kept alongside and reapplied when the block is read, so the stored numbers are four-bit or eight-bit codes and the arithmetic that consumes them is exact in the accumulator.</p>
+<p>V3 uses <span class="math inline">1 \times 128</span> blocks for activations and <span class="math inline">128 \times 128</span> for weights. It accumulates matmul partial sums in fp32 rather than in the tensor cores’ lower-precision accumulator. The result was a training run whose loss matched a bf16 baseline within noise at half the matmul cost.</p>
+<p>The block shapes are chosen to match the matmul. A <span class="math inline">1 \times 128</span> activation block lies along the reduction dimension of a row, so one scale multiplies a contiguous run of the dot product and can be applied once to the partial sum instead of element by element. The storage overhead follows the block size directly. One four-byte scale for every 128 one-byte elements is 3.1 percent, and one one-byte scale for the same block is 0.8 percent. For weights a <span class="math inline">128 \times 128</span> block carries one scale for 16384 elements, which is negligible, and weights can afford the coarser granularity because they change slowly and are rescaled at every step anyway.</p>
+<p>Transformers develop a small number of dimensions whose values are far larger than the rest. Dettmers et al.&nbsp;2022, “LLM.int8(): 8-bit Matrix Multiplication for Transformers at Scale”, found that such outlier features emerge as models grow and concentrate in a few dimensions, and Sun et al. 2024, “Massive Activations in Large Language Models”, report a handful of activations orders of magnitude larger than the others, tied to attention sinks. A per-tensor scale is set by those values, so the format’s range is spent on them and everything else rounds to zero. Block scaling with small blocks confines each outlier’s effect to its own block, which is why fine-grained scales rather than per-tensor scales are used for training in FP8 and for the FP4 caches.</p>
+<p>Block scaling is not the only response to outliers. Xiao et al.&nbsp;2023, “SmoothQuant: Accurate and Efficient Post-Training Quantization for Large Language Models”, divides the activations of the offending dimensions by a per-dimension constant and multiplies the corresponding weight rows by the same constant, which leaves the product unchanged and moves the difficulty from the activations, where it is hard to quantise, into the weights, where it is easier. Fine-grained block scaling achieves a similar effect without altering the weights, and it is what the training recipes in this chapter use.</p>
+</section>
+<section id="scale-formats" class="level3">
+<h3 class="anchored" data-anchor-id="scale-formats">Scale formats</h3>
+<p>The scale <span class="math inline">s</span> itself must be stored. Two conventions appear in V4.1. A ue8m0 scale is a power of two with 8 exponent bits and no mantissa, obtained by rounding <span class="math inline">\max |x| / 448</span> up. Multiplying by it is exact and the clamp never clips, at up to 2x coarser resolution. An E4M3 scale is finer but not exact. V4.1 stores the sliding-window key/value cache in FP8 E4M3 with ue8m0 scales per 32 dimensions, because the report found the window cache too sensitive for anything smaller.</p>
+<p>The trade between the two is worth stating plainly. A power-of-two scale changes only the exponent field of every element in the block, so applying it and removing it introduce no rounding at all, and rounding the scale upward guarantees that every element lands inside the format’s range. What it costs is that the true maximum may sit anywhere between half and all of the format’s top value, so up to one bit of the mantissa is unused. An E4M3 scale places the maximum at the top of the range much more closely, recovering that bit, but multiplying by it is itself a rounding operation. Where the stored values are already coarse, as they are in FP4, the finer scale is worth its inexactness. Where they are less coarse and the tensor is more sensitive, as in the window cache, the exact scale is preferred.</p>
+<p>The next section extracts the general construction behind this recipe — quantised operands, scales applied to partial sums — which is the same construction the FP8 and FP4 attention kernels of chapter 17 instantiate, and the section after that takes it down to four bits, where the format holds about one decade of range and every one of these choices becomes tighter.</p>
+
+
+</section>
 </section>
 
 </main> <!-- /main -->
