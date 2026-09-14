@@ -1,24 +1,20 @@
 """GPU tests for the dense forward (output + LSE) against fp32 SDPA.
 
-Output tolerance: fp32 accumulation but P and O round through bf16
-(eps 2^-8 ~ 3.9e-3), and summing block_N products per tile lets that grow, so
-atol=rtol=2e-2 (observed max ~1e-2 at D=256).
+``o`` is checked with the FlashAttention acceptance criterion (see
+``ref.assert_within_2x_torch``): its max-abs error against the fp32 reference must be
+<= 2x torch's own bf16 SDPA error against that same reference, plus a 1e-5 floor.
 
 ``lse`` never leaves fp32 in the kernel -- only the logits feeding it are bf16
-products -- so it is compared much tighter, atol=2e-3 (observed ~1.4e-6).
-
-The sink cases reuse both tolerances unchanged: the sink is one fp32 term added
-to the denominator, so it does not move the error (observed max o 7.8e-3,
-lse 1.4e-6, same ballpark as the sink-free runs).
+products -- so it is compared with a tight fixed fp32 tolerance instead, atol=2e-3
+(observed ~1.4e-6).
 """
 
 import pytest
 import torch
 
-from mzoo.layers.attn.dense_attn.ref import sdpa_ref, sdpa_ref_lse
+from mzoo.layers.attn.dense_attn.ref import assert_within_2x_torch, sdpa_ref, sdpa_ref_lse, torch_bf16_ref
 from mzoo.layers.attn.dense_attn.fwd import fwd
 
-TOL = dict(atol=2e-2, rtol=2e-2)
 LSE_TOL = dict(atol=2e-3, rtol=2e-3)
 
 
@@ -28,7 +24,8 @@ def _run(batch, heads, seq_len, dim, causal, sinks=None):
     o, lse = fwd(q, k, v, causal=causal, sinks=sinks)
     assert o.shape == q.shape and o.dtype == torch.bfloat16
     assert lse.shape == (batch, heads, seq_len) and lse.dtype == torch.float32
-    torch.testing.assert_close(o.float(), sdpa_ref(q, k, v, causal, sinks), **TOL)
+    ref = sdpa_ref(q, k, v, causal, sinks)
+    assert_within_2x_torch(o, ref, torch_bf16_ref(q, k, v, causal, sinks), "o")
     torch.testing.assert_close(lse, sdpa_ref_lse(q, k, v, causal, sinks), **LSE_TOL)
 
 

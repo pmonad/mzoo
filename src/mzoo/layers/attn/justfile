@@ -9,3 +9,8 @@ test *args:
 [no-cd]
 bench *args:
     uv run --env-file .env python -m mzoo.layers.attn.dense_attn.bench {{args}}
+
+# latent_attn (shared K==V latent, MQA) kernel vs torch SDPA with the latent expanded to H heads
+[no-cd]
+bench-latent *args:
+    uv run --env-file .env python -m mzoo.layers.attn.latent_attn.bench {{args}}
