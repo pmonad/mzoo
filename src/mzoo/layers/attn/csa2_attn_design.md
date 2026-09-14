@@ -1,6 +1,6 @@
 # Design: FA2-style attention for SM120 in TileLang, growing into DSV4.1 CSA2
 
-Status: `dense_attn`, `latent_attn`, `swa_attn` complete for training (fwd + lse + sink, bwd, autograd, tests, bench) and independently verified; `csa_attn` (0003) and `indexer` (0006) done and verified (untuned); `csa2_attn` fwd+bwd (0004, 0005) done and verified; `indexer` bwd (0007) done on a branch, unmerged. Attention track complete through CSA2; remaining: 0008-0010, the tuning pass, 0011, 0012. Target GB10 (sm121, SM120 family), tilelang 0.1.14.
+Status: `dense_attn`, `latent_attn`, `swa_attn` complete for training (fwd + lse + sink, bwd, autograd, tests, bench) and independently verified; `csa_attn` (0003) and `indexer` (0006) done and verified (untuned); `csa2_attn` fwd+bwd (0004, 0005) done and verified; `indexer` bwd (0007) done and merged. Attention track complete through CSA2; remaining: 0008-0010, the tuning pass, 0011, 0012. Target GB10 (sm121, SM120 family), tilelang 0.1.14.
 Scope: head dims `{64, 96, 128, 256}` only. `D=512` (the released V4.1-Flash size) is out of scope, so no Split-D.
 Training only for now: prefill-shaped forward plus backward; no decode, no paged cache, no split-KV.
 
@@ -46,7 +46,7 @@ Out of kernel (elementwise, stays in torch): Q/KV RoPE, inverse RoPE on the outp
 | [0004](../../../../tickets/0004-csa2-attn-sparse-fwd.md) | `csa2_attn` (fwd) | done (2026-09-14, verified; configs untuned; bench absolute numbers taken on a shared GPU) | 0003 |
 | [0005](../../../../tickets/0005-csa2-attn-sparse-bwd.md) | `csa2_attn` (bwd) | done (2026-09-14, verified; configs untuned) | 0004 |
 | [0006](../../../../tickets/0006-indexer-bf16-score.md) | `indexer` (bf16 fwd) | done (2026-09-14, verified; configs untuned) | 0004 as consumer only (contract pinned by `golden_ref.topk_indices`) |
-| [0007](../../../../tickets/0007-indexer-backward.md) | `indexer` (bwd) | done in worktree `mzoo-0007` (branch `0007-indexer-backward`, verified 2026-09-14, not merged; ticket file not yet flipped) | 0006 |
+| [0007](../../../../tickets/0007-indexer-backward.md) | `indexer` (bwd) | done (2026-09-14, verified, merged) | 0006 |
 | [0008](../../../../tickets/0008-indexer-mxfp4-score.md) | `indexer_fp4` | todo | 0006, 0007 |
 | [0009](../../../../tickets/0009-indexer-hierarchical.md) | `indexer_hier` | todo | 0006 |
 | [0010](../../../../tickets/0010-csa2-fp-cache.md) | `csa2_fp_attn` | todo | 0005 |
